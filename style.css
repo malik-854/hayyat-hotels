@@ -1483,7 +1483,7 @@ footer {
 
 /* --- 640px: Most phones --- */
 @media (max-width: 640px) {
-    .trust-item { width: 100%; }
+    .trust-item { width: calc(50% - 0.5rem); }
     .close-modal, .close-results, .close-checkout { top: 0.75rem; right: 1rem; font-size: 2rem; }
     .result-actions { flex-direction: column; }
     .result-actions .btn-details, .result-actions .btn-primary.btn-result { width: 100%; }
