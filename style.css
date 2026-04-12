@@ -44,6 +44,8 @@ body {
     background-color: var(--clr-light);
     line-height: 1.6;
     overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
 }
 
 h1, h2, h3, h4 {
@@ -839,36 +841,64 @@ footer {
     transform: translateY(0);
 }
 
+/* ---- TABLET (≤1024px): booking bar in flow, not absolute ---- */
 @media (max-width: 1024px) {
-    .booking-bar {
-        position: relative;
-        bottom: 0;
-        transform: translate(0, 0);
-        width: 100%;
-        margin-top: 2rem;
-    }
     .hero {
         height: auto;
-        min-height: 100vh;
+        min-height: 100svh;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        padding-bottom: 0;
+        overflow: hidden;
+    }
+    .hero-content {
+        flex: 1;
+        padding-top: 7rem;
         padding-bottom: 2rem;
+        max-width: 100%;
     }
-    /* keep booking form horizontal on tablets */
+    /* Completely strip absolute positioning from booking bar */
+    .booking-bar {
+        position: relative !important;
+        left: auto !important;
+        bottom: auto !important;
+        top: auto !important;
+        right: auto !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 1.25rem 1.5rem !important;
+        border-top: 1px solid rgba(255,255,255,0.2);
+        background: rgba(255,255,255,0.95) !important;
+        backdrop-filter: blur(20px);
+    }
+    /* 2-col grid for inputs, full-width button */
     .booking-form {
-        flex-wrap: wrap;
-        gap: 0.75rem;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.75rem !important;
+        align-items: end !important;
     }
-    .input-group {
-        flex: 1 1 calc(50% - 0.5rem);
-        min-width: 0;
+    .booking-form .input-group {
+        flex: unset !important;
+        width: auto !important;
+        min-width: 0 !important;
     }
-    .btn-booking {
-        flex: 1 1 100%;
+    .booking-form .btn-booking {
+        grid-column: 1 / -1 !important;
+        width: 100% !important;
+        flex: unset !important;
     }
 }
 
+/* ---- MOBILE (≤768px): tighter layout ---- */
 @media (max-width: 768px) {
     .hamburger { display: block; }
-    
+
     .nav-links {
         position: fixed;
         top: 0; left: -100%;
@@ -880,23 +910,24 @@ footer {
         transition: 0.5s;
         z-index: -1;
     }
-    
     .nav-links.active { left: 0; }
-    .nav-links.active a { color: var(--clr-darker); font-size: 1.5rem;}
-    
+    .nav-links.active a { color: var(--clr-darker); font-size: 1.5rem; }
     header.scrolled .bar { background-color: var(--clr-darker); }
-    
     .hamburger.active .bar:nth-child(2) { opacity: 0; }
     .hamburger.active .bar:nth-child(1) { transform: translateY(8px) rotate(45deg); background-color: var(--clr-darker); }
     .hamburger.active .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); background-color: var(--clr-darker); }
 
     .about-grid { grid-template-columns: 1fr; gap: 2rem; }
-    
-    /* Keep horizontal – 2 cols of inputs + full-width button */
-    .booking-form { flex-wrap: wrap; flex-direction: row; gap: 0.6rem; }
-    .input-group { flex: 1 1 calc(50% - 0.4rem); min-width: 0; }
-    .btn-booking { flex: 1 1 100%; }
-    
+
+    /* Tighter booking bar padding + label font on phone */
+    .booking-bar {
+        padding: 1rem !important;
+    }
+    .input-group label { font-size: 0.68rem; }
+    .input-group input,
+    .input-group select { padding: 0.6rem 0.5rem; font-size: 0.875rem; }
+    .btn-booking { padding: 0.85rem; font-size: 0.95rem; }
+
     /* Show amenities view-more button on mobile */
     .view-amenities-btn-wrap { display: flex; }
 }
@@ -1406,21 +1437,7 @@ footer {
     header nav > a.btn-primary { display: none; }
     .hero-content { max-width: 100%; text-align: center; }
     .hero-desc { margin: 1rem auto 0; }
-    /* Booking bar: stays relative + HORIZONTAL */
-    .booking-bar {
-        position: relative; bottom: 0; left: 0;
-        transform: none; width: 100%;
-        border-radius: var(--border-radius);
-        margin-top: 1.5rem;
-        box-shadow: var(--shadow-md);
-        padding: 1rem 1.25rem;
-    }
-    /* Horizontal 2-col grid with full-width button */
-    .booking-form { flex-direction: row; flex-wrap: wrap; gap: 0.6rem; align-items: flex-end; }
-    .input-group { flex: 1 1 calc(50% - 0.35rem); min-width: 0; }
-    .input-group label { font-size: 0.7rem; }
-    .input-group input, .input-group select { padding: 0.65rem 0.5rem; font-size: 0.9rem; }
-    .btn-booking { flex: 1 1 100%; padding: 0.85rem; font-size: 0.95rem; }
+    /* NOTE: .booking-bar and .booking-form are handled by the !important rules above */
     .trust-title { font-size: 1.5rem; }
     .trust-item { width: calc(50% - 0.5rem); padding: 0.75rem 1rem; gap: 0.75rem; }
     .trust-logo { height: 20px; }
@@ -1477,10 +1494,6 @@ footer {
         max-height: 100vh;
         border-radius: var(--border-radius);
     }
-    /* Horizontal booking bar on small phones: 2-col inputs */
-    .booking-form { flex-direction: row; flex-wrap: wrap; }
-    .input-group { flex: 1 1 calc(50% - 0.35rem); }
-    .btn-booking { flex: 1 1 100%; }
 }
 
 /* --- 480px: Small phones --- */
