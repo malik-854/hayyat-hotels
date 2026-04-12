@@ -114,7 +114,7 @@ function startHeroSlideshow(urls) {
     `).join('');
 
     if (heroUrls.length > 1) {
-        setInterval(nextHeroSlide, 8000); // Change slide every 8s
+        setInterval(nextHeroSlide, 5500); // Change slide every 5.5s
     }
 }
 
@@ -122,9 +122,21 @@ function nextHeroSlide() {
     const slides = document.querySelectorAll('.hero-slide');
     if (!slides.length) return;
     
-    slides[currentHeroIndex].classList.remove('active');
+    const oldSlide = slides[currentHeroIndex];
     currentHeroIndex = (currentHeroIndex + 1) % slides.length;
-    slides[currentHeroIndex].classList.add('active');
+    const newSlide = slides[currentHeroIndex];
+    
+    // Prepare new slide to come on top
+    newSlide.style.zIndex = '3';
+    oldSlide.style.zIndex = '2';
+    
+    newSlide.classList.add('active');
+
+    // Wait for the fade-in of the new slide then cleanup the old one
+    setTimeout(() => {
+        oldSlide.classList.remove('active');
+        oldSlide.style.zIndex = '1';
+    }, 1500); // Matches CSS transition duration
 }
 
 function updateRoomCards() {
