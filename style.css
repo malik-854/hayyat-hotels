@@ -622,10 +622,12 @@ header.scrolled .bar { background-color: var(--clr-darker); }
 
 .main-modal-img img,
 .main-modal-img video {
-    max-width: 100%;
-    max-height: 80vh;
-    object-fit: contain;
+    max-width: 100% !important;
+    max-height: 80vh !important;
+    object-fit: contain !important;
     display: block;
+    width: auto !important;
+    height: auto !important;
 }
 
 .room-img {
@@ -1568,7 +1570,7 @@ footer {
         overflow-y: auto;
     }
     .modal-grid { grid-template-columns: 1fr; gap: 1.5rem; }
-    .main-modal-img { height: 240px; }
+    .main-modal-img { height: auto; min-height: 240px; }
     .modal-info h2 { font-size: 1.75rem; }
     .modal-amenities ul { grid-template-columns: 1fr; }
     .result-card { flex-direction: column; align-items: flex-start; gap: 1rem; }
