@@ -670,10 +670,7 @@ header.scrolled .bar { background-color: var(--clr-darker); }
     font-size: 0.9rem;
 }
 
-/* Mobile amenity show more */
-.amenity-item.mobile-hidden {
-    display: none;
-}
+
 
 .view-amenities-btn-wrap {
     display: none;
