@@ -1686,3 +1686,9 @@ footer {
         animation-duration: 30s;
     }
 }
+
+.reel-track.no-scroll {
+    animation: none;
+    justify-content: center;
+    width: 100%;
+}

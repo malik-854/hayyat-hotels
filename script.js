@@ -790,8 +790,14 @@ function renderGuestGallery(rows) {
         `;
     }).join('');
 
-    // Duplicate content for a seamless infinity loop
-    track.innerHTML = htmlMarkup + htmlMarkup;
+    // Only duplicate for a loop if we have enough items
+    if (rows.length > 4) {
+        track.innerHTML = htmlMarkup + htmlMarkup;
+        track.classList.remove('no-scroll');
+    } else {
+        track.innerHTML = htmlMarkup;
+        track.classList.add('no-scroll'); // Center items if only a few
+    }
 
     // Auto-play videos on hover for energy
     const cards = track.querySelectorAll('.guest-card');
@@ -833,6 +839,7 @@ window.openMediaModal = function(url, isVideo) {
         modalMainImg.style.display = 'none';
         modalMainVideo.style.display = 'block';
         modalMainVideo.src = url;
+        modalMainVideo.style.objectFit = 'contain'; // Show whole portrait video
         modalMainVideo.play().catch(e => console.warn('Autoplay prevented or video error:', e));
     } else {
         modalMainVideo.pause();
