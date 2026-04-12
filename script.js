@@ -33,6 +33,29 @@ const roomDetails = {
 
 let sheetData = {};
 
+// --- Link Transformer Helper ---
+function transformToDirectLink(url) {
+    if (!url || typeof url !== 'string') return url || '';
+    
+    // Google Drive
+    if (url.includes('drive.google.com')) {
+        let fileId = '';
+        if (url.includes('/file/d/')) {
+            fileId = url.split('/file/d/')[1].split('/')[0];
+        } else if (url.includes('id=')) {
+            fileId = url.split('id=')[1].split('&')[0];
+        }
+        return fileId ? `https://drive.google.com/uc?id=${fileId}` : url;
+    }
+    
+    // Dropbox
+    if (url.includes('dropbox.com')) {
+        return url.replace('dl=0', 'raw=1');
+    }
+    
+    return url;
+}
+
 // 1. Navbar Scroll Effect
 const header = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
@@ -729,29 +752,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // --- Guest Gallery (Infinity Reel) Integration ---
-
-// --- Link Transformer Helper ---
-function transformToDirectLink(url) {
-    if (!url) return '';
-    
-    // Google Drive
-    if (url.includes('drive.google.com')) {
-        let fileId = '';
-        if (url.includes('/file/d/')) {
-            fileId = url.split('/file/d/')[1].split('/')[0];
-        } else if (url.includes('id=')) {
-            fileId = url.split('id=')[1].split('&')[0];
-        }
-        return fileId ? `https://drive.google.com/uc?id=${fileId}` : url;
-    }
-    
-    // Dropbox
-    if (url.includes('dropbox.com')) {
-        return url.replace('dl=0', 'raw=1');
-    }
-    
-    return url;
-}
 
 async function fetchGalleryData() {
     try {
