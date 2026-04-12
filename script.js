@@ -45,7 +45,8 @@ function transformToDirectLink(url) {
         } else if (url.includes('id=')) {
             fileId = url.split('id=')[1].split('&')[0];
         }
-        return fileId ? `https://drive.google.com/uc?id=${fileId}` : url;
+        // Use export=download for better video streaming support
+        return fileId ? `https://drive.google.com/uc?export=download&id=${fileId}` : url;
     }
     
     // Dropbox
@@ -806,6 +807,7 @@ function renderGuestGallery(rows) {
 window.openMediaModal = function(url, isVideo) {
     // Reusing the existing room modal for a quick media preview
     const modalMainImg = document.getElementById('modal-main-img');
+    const modalMainVideo = document.getElementById('modal-main-video');
     const modalTitle = document.getElementById('modal-title');
     const modalDesc = document.getElementById('modal-desc');
     const modalPrice = document.getElementById('modal-price');
@@ -815,7 +817,7 @@ window.openMediaModal = function(url, isVideo) {
     const bookBtn = document.querySelector('.btn-book-now');
     const tabsEl = document.getElementById('room-tabs');
 
-    if (!modalMainImg) return;
+    if (!modalMainImg || !modalMainVideo) return;
 
     // Reset and Show Gallery Mode
     modalTitle.innerText = "Guest Moment";
@@ -828,9 +830,14 @@ window.openMediaModal = function(url, isVideo) {
     bookBtn.innerText = "Book Your Experience";
 
     if (isVideo) {
-        // Video placeholder (since we are swapping an <img>)
-        modalMainImg.src = "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800";
+        modalMainImg.style.display = 'none';
+        modalMainVideo.style.display = 'block';
+        modalMainVideo.src = url;
+        modalMainVideo.play().catch(e => console.warn('Autoplay prevented or video error:', e));
     } else {
+        modalMainVideo.pause();
+        modalMainVideo.style.display = 'none';
+        modalMainImg.style.display = 'block';
         modalMainImg.src = url;
     }
 
@@ -839,6 +846,19 @@ window.openMediaModal = function(url, isVideo) {
         roomModal.classList.add('active');
         document.body.style.overflow = 'hidden';
     }
+};
+
+// Also ensure the room modal reset shows the image again
+const originalOpenRoomModal = openRoomModal;
+openRoomModal = async function(type) {
+    const modalMainImg = document.getElementById('modal-main-img');
+    const modalMainVideo = document.getElementById('modal-main-video');
+    if(modalMainImg) modalMainImg.style.display = 'block';
+    if(modalMainVideo) {
+        modalMainVideo.style.display = 'none';
+        modalMainVideo.pause();
+    }
+    return originalOpenRoomModal(type);
 };
 
 document.addEventListener('DOMContentLoaded', () => {
