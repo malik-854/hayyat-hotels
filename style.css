@@ -580,7 +580,7 @@ header.scrolled .bar { background-color: var(--clr-darker); }
     border-radius: var(--border-radius);
     position: relative;
     max-height: 90vh;
-    overflow: hidden;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     animation: modalIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
