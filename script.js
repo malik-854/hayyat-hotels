@@ -66,15 +66,19 @@ links.forEach(link => {
 });
 
 // 3. Google Sheets Integration
+let heroUrls = [];
+let currentHeroIndex = 0;
+
 async function fetchHotelData() {
     try {
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A2:G?key=${API_KEY}`;
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A2:H?key=${API_KEY}`;
         const response = await fetch(url);
         const data = await response.json();
 
         if (data.values) {
             data.values.forEach(row => {
-                const [type, price, mainImg, gallery, inventory, adultsCap, childrenCap] = row;
+                const [type, price, mainImg, gallery, inventory, adultsCap, childrenCap, heroImages] = row;
+                if (!type) return;
                 sheetData[type.trim()] = {
                     price: price,
                     mainImg: mainImg,
@@ -84,11 +88,43 @@ async function fetchHotelData() {
                     children: parseInt(childrenCap) || 0
                 };
             });
+
+            // Extract Hero Images from Column H of the first valid row
+            const firstRowData = data.values.find(row => row[7]);
+            if (firstRowData && firstRowData[7]) {
+                const urls = firstRowData[7].split(',').map(u => u.trim()).filter(u => u !== '');
+                startHeroSlideshow(urls);
+            }
+
             updateRoomCards();
         }
     } catch (error) {
         console.error('Error fetching hotel data:', error);
     }
+}
+
+function startHeroSlideshow(urls) {
+    if (!urls || urls.length === 0) return;
+    heroUrls = urls;
+    const container = document.getElementById('hero-slider');
+    if (!container) return;
+
+    container.innerHTML = heroUrls.map((url, i) => `
+        <img src="${url}" class="hero-slide ${i === 0 ? 'active' : ''}" alt="Hayyat Luxury">
+    `).join('');
+
+    if (heroUrls.length > 1) {
+        setInterval(nextHeroSlide, 8000); // Change slide every 8s
+    }
+}
+
+function nextHeroSlide() {
+    const slides = document.querySelectorAll('.hero-slide');
+    if (!slides.length) return;
+    
+    slides[currentHeroIndex].classList.remove('active');
+    currentHeroIndex = (currentHeroIndex + 1) % slides.length;
+    slides[currentHeroIndex].classList.add('active');
 }
 
 function updateRoomCards() {

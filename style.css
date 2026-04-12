@@ -243,12 +243,30 @@ header.scrolled .bar { background-color: var(--clr-darker); }
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     z-index: -2;
+    overflow: hidden;
 }
-.hero-bg img {
+
+.hero-slide {
+    position: absolute;
+    top: 0; left: 0;
     width: 100%; height: 100%;
     object-fit: cover;
-    object-position: center;
-    transform: scale(1.05); /* For entry animation */
+    opacity: 0;
+    transition: opacity 2s ease-in-out;
+    transform: scale(1.1) translateX(3%); 
+    will-change: transform, opacity;
+    z-index: 1;
+}
+
+.hero-slide.active {
+    opacity: 1;
+    z-index: 2;
+    animation: slideRightToLeft 10s linear forwards;
+}
+
+@keyframes slideRightToLeft {
+    from { transform: scale(1.1) translateX(3%); }
+    to { transform: scale(1.1) translateX(-3%); }
 }
 
 .hero-overlay {
