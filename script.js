@@ -850,6 +850,9 @@ window.openMediaModal = function(url, isVideo) {
 
     const roomModal = document.getElementById('room-modal');
     if (roomModal) {
+        const modalContent = roomModal.querySelector('.modal-content');
+        if (modalContent) modalContent.classList.add('gallery-mode');
+        
         roomModal.classList.add('active');
         document.body.style.overflow = 'hidden';
     }
@@ -860,6 +863,13 @@ const originalOpenRoomModal = openRoomModal;
 openRoomModal = async function(type) {
     const modalMainImg = document.getElementById('modal-main-img');
     const modalMainVideo = document.getElementById('modal-main-video');
+    
+    const roomModal = document.getElementById('room-modal');
+    if (roomModal) {
+        const modalContent = roomModal.querySelector('.modal-content');
+        if (modalContent) modalContent.classList.remove('gallery-mode');
+    }
+
     if(modalMainImg) modalMainImg.style.display = 'block';
     if(modalMainVideo) {
         modalMainVideo.style.display = 'none';
