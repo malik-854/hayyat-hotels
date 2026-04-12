@@ -736,21 +736,6 @@ function initDateConstraints() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    fetchHotelData();
-    initDateConstraints();
-    initModals();
-
-    const bookingForm = document.querySelector('.booking-form');
-    if (bookingForm) {
-        bookingForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const reqA = parseInt(document.getElementById('adults').value) || 0;
-            const reqC = parseInt(document.getElementById('children').value) || 0;
-            performSearch(reqA, reqC);
-        });
-
-
 // --- Guest Gallery (Infinity Reel) Integration ---
 
 async function fetchGalleryData() {
@@ -855,6 +840,20 @@ window.openMediaModal = function(url, isVideo) {
         document.body.style.overflow = 'hidden';
     }
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+    fetchHotelData();
+    initDateConstraints();
+    initModals();
+
+    const bookingForm = document.querySelector('.booking-form');
+    if (bookingForm) {
+        bookingForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const reqA = parseInt(document.getElementById('adults').value) || 0;
+            const reqC = parseInt(document.getElementById('children').value) || 0;
+            performSearch(reqA, reqC);
+        });
     }
 
     const finalForm = document.getElementById('final-booking-form');
