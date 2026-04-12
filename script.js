@@ -92,12 +92,14 @@ async function fetchHotelData() {
             // Extract Hero Images from Column H of the first valid row
             const firstRowData = data.values.find(row => row[7]);
             if (firstRowData && firstRowData[7]) {
-                const urls = firstRowData[7].split(',').map(u => u.trim()).filter(u => u !== '');
-                startHeroSlideshow(urls);
+                const rawUrls = firstRowData[7].split(',').map(u => u.trim()).filter(u => u !== '');
+                // Auto-transform links
+                const cleanUrls = rawUrls.map(u => transformToDirectLink(u));
+                startHeroSlideshow(cleanUrls);
             }
 
             updateRoomCards();
-            fetchGalleryData(); // Fetch Happy Guests after rooms are updated
+            fetchGalleryData(); // Single call to get the gallery
         }
     } catch (error) {
         console.error('Error fetching hotel data:', error);
@@ -728,21 +730,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- Guest Gallery (Infinity Reel) Integration ---
 
+// --- Link Transformer Helper ---
+function transformToDirectLink(url) {
+    if (!url) return '';
+    
+    // Google Drive
+    if (url.includes('drive.google.com')) {
+        let fileId = '';
+        if (url.includes('/file/d/')) {
+            fileId = url.split('/file/d/')[1].split('/')[0];
+        } else if (url.includes('id=')) {
+            fileId = url.split('id=')[1].split('&')[0];
+        }
+        return fileId ? `https://drive.google.com/uc?id=${fileId}` : url;
+    }
+    
+    // Dropbox
+    if (url.includes('dropbox.com')) {
+        return url.replace('dl=0', 'raw=1');
+    }
+    
+    return url;
+}
+
 async function fetchGalleryData() {
     try {
-        // Fetches Column A (URL), B (Type), C (Caption) from 'Gallery' sheet
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Gallery!A2:C?key=${API_KEY}`;
+        console.log('Fetching Gallery from:', url);
         const response = await fetch(url);
         const data = await response.json();
+        
+        console.log('Gallery Data Received:', data);
+
         if (data.values && data.values.length > 0) {
-            renderGuestGallery(data.values);
+            const cleanRows = data.values.filter(row => row[0]).map(row => {
+                row[0] = transformToDirectLink(row[0]);
+                return row;
+            });
+            renderGuestGallery(cleanRows);
         } else {
-            document.getElementById('gallery').style.display = 'none';
+            console.warn('Gallery sheet is empty or has no data.');
+            const gal = document.getElementById('gallery');
+            if (gal) gal.style.display = 'none';
         }
     } catch (error) {
-        console.warn('Gallery sheet not found or empty. Hiding guest gallery.');
-        const gallerySection = document.getElementById('gallery');
-        if (gallerySection) gallerySection.style.display = 'none';
+        console.error('Error fetching gallery data:', error);
+        const gal = document.getElementById('gallery');
+        if (gal) gal.style.display = 'none';
     }
 }
 
