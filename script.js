@@ -97,6 +97,7 @@ async function fetchHotelData() {
             }
 
             updateRoomCards();
+            fetchGalleryData(); // Fetch Happy Guests after rooms are updated
         }
     } catch (error) {
         console.error('Error fetching hotel data:', error);
@@ -109,6 +110,35 @@ function startHeroSlideshow(urls) {
     const container = document.getElementById('hero-slider');
     if (!container) return;
 
+    // Check if the first URL is a YouTube link
+    const originalUrl = urls[0];
+    const firstUrlLow = originalUrl.toLowerCase();
+    
+    if (firstUrlLow.includes('youtube.com') || firstUrlLow.includes('youtu.be')) {
+        let videoId = '';
+        if (originalUrl.includes('v=')) {
+            videoId = originalUrl.split('v=')[1].split('&')[0];
+        } else if (originalUrl.includes('youtu.be/')) {
+            videoId = originalUrl.split('youtu.be/')[1].split('?')[0];
+        }
+
+        if (videoId) {
+            console.log('Hayyat Hero Video ID:', videoId);
+            container.innerHTML = `
+                <div class="video-background">
+                    <iframe 
+                        src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&rel=0&playsinline=1" 
+                        frameborder="0" 
+                        allow="autoplay; encrypted-media; picture-in-picture" 
+                        style="width:100%; height:100%; border:none;">
+                    </iframe>
+                </div>
+            `;
+            return;
+        }
+    }
+
+    // Fallback to Image Slideshow
     container.innerHTML = heroUrls.map((url, i) => `
         <img src="${url}" class="hero-slide ${i === 0 ? 'active' : ''}" alt="Hayyat Luxury">
     `).join('');
@@ -180,8 +210,17 @@ async function openRoomModal(type) {
     document.querySelector('.btn-book-now').innerText = 'Check Availability';
     
     document.getElementById('modal-title').innerText = type;
-    document.getElementById('modal-price').innerText = sData ? `Rs ${sData.price} / night` : 'View Rates';
+    const mPrice = document.getElementById('modal-price');
+    mPrice.style.display = 'block';
+    mPrice.innerText = sData ? `Rs ${sData.price} / night` : 'View Rates';
     document.getElementById('modal-size').innerText = staticData.size;
+
+    const mBadges = document.querySelector('.modal-badges');
+    if(mBadges) mBadges.style.display = 'flex';
+    const mAmenities = document.querySelector('.modal-amenities');
+    if(mAmenities) mAmenities.style.display = 'block';
+    const mThumbs = document.getElementById('modal-thumbnails');
+    if(mThumbs) mThumbs.style.display = 'flex';
     
     const card = document.querySelector(`[data-room="${type}"]`);
     if (card) document.getElementById('modal-desc').innerText = card.querySelector('p').innerText;
@@ -526,10 +565,21 @@ window.bookSelection = function(name, desc, price) {
     const reqA = document.getElementById('adults') ? document.getElementById('adults').value : '2';
     const reqC = document.getElementById('children') ? document.getElementById('children').value : '0';
 
+    // Calculate nights
+    const dateIn = new Date(cin);
+    const dateOut = new Date(cout);
+    const diffTime = Math.abs(dateOut - dateIn);
+    const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
+
+    const priceNum = parseInt(price.replace(/,/g, ''));
+    const totalPrice = (priceNum * nights).toLocaleString();
+
     currentBookingSelection = {
         name: name,
         desc: desc,
-        price: price,
+        basePrice: price,
+        totalPrice: totalPrice,
+        nights: nights,
         cin: cin,
         cout: cout,
         adults: reqA,
@@ -537,7 +587,7 @@ window.bookSelection = function(name, desc, price) {
     };
 
     // Populate Sidebar Summary
-    document.getElementById('summary-dates').innerText = `${cin} to ${cout}`;
+    document.getElementById('summary-dates').innerText = `${cin} to ${cout} (${nights} ${nights > 1 ? 'Nights' : 'Night'})`;
     document.getElementById('summary-guests').innerText = `${reqA} Adults, ${reqC} Children`;
     document.getElementById('summary-room-name').innerText = name;
     
@@ -549,7 +599,7 @@ window.bookSelection = function(name, desc, price) {
         descContainer.style.display = 'none';
     }
     
-    document.getElementById('summary-price').innerText = `Rs ${price}`;
+    document.getElementById('summary-price').innerHTML = `Rs ${price} / night<br><small style="color:var(--clr-gold); font-size: 0.8em;">Total: Rs ${totalPrice}</small>`;
 
     // Open Checkout Modal
     if (resultsModal) resultsModal.classList.remove('active');
@@ -674,6 +724,103 @@ document.addEventListener('DOMContentLoaded', () => {
             const reqC = parseInt(document.getElementById('children').value) || 0;
             performSearch(reqA, reqC);
         });
+
+
+// --- Guest Gallery (Infinity Reel) Integration ---
+
+async function fetchGalleryData() {
+    try {
+        // Fetches Column A (URL), B (Type), C (Caption) from 'Gallery' sheet
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Gallery!A2:C?key=${API_KEY}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.values && data.values.length > 0) {
+            renderGuestGallery(data.values);
+        } else {
+            document.getElementById('gallery').style.display = 'none';
+        }
+    } catch (error) {
+        console.warn('Gallery sheet not found or empty. Hiding guest gallery.');
+        const gallerySection = document.getElementById('gallery');
+        if (gallerySection) gallerySection.style.display = 'none';
+    }
+}
+
+function renderGuestGallery(rows) {
+    const track = document.getElementById('guest-reel');
+    if (!track) return;
+
+    const htmlMarkup = rows.map(row => {
+        const [url, type, caption] = row;
+        if (!url) return '';
+        const isVideo = type ? type.toLowerCase().includes('video') : false;
+        
+        return `
+            <div class="guest-card" onclick="openMediaModal('${url}', ${isVideo})">
+                ${isVideo ? `
+                    <video src="${url}" muted loop playsinline></video>
+                    <div class="video-badge"><i class="fas fa-play"></i></div>
+                ` : `
+                    <img src="${url}" loading="lazy" alt="Guest Moment">
+                `}
+                <div class="card-overlay">
+                    <p>${caption || 'Wonderful Stay'}</p>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // Duplicate content for a seamless infinity loop
+    track.innerHTML = htmlMarkup + htmlMarkup;
+
+    // Auto-play videos on hover for energy
+    const cards = track.querySelectorAll('.guest-card');
+    cards.forEach(card => {
+        const v = card.querySelector('video');
+        if (v) {
+            card.addEventListener('mouseenter', () => v.play());
+            card.addEventListener('mouseleave', () => { v.pause(); v.currentTime = 0; });
+        }
+    });
+}
+
+window.openMediaModal = function(url, isVideo) {
+    // Reusing the existing room modal for a quick media preview
+    const modalMainImg = document.getElementById('modal-main-img');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-desc');
+    const modalPrice = document.getElementById('modal-price');
+    const modalBadges = document.querySelector('.modal-badges');
+    const modalAmenities = document.querySelector('.modal-amenities');
+    const thumbRow = document.getElementById('modal-thumbnails');
+    const bookBtn = document.querySelector('.btn-book-now');
+    const tabsEl = document.getElementById('room-tabs');
+
+    if (!modalMainImg) return;
+
+    // Reset and Show Gallery Mode
+    modalTitle.innerText = "Guest Moment";
+    modalDesc.innerText = "Captured by one of our valued guests. Experience the same comfort at Hayyat.";
+    modalPrice.style.display = 'none';
+    if(modalBadges) modalBadges.style.display = 'none';
+    if(modalAmenities) modalAmenities.style.display = 'none';
+    if(thumbRow) thumbRow.style.display = 'none';
+    if(tabsEl) tabsEl.style.display = 'none';
+    bookBtn.innerText = "Book Your Experience";
+
+    if (isVideo) {
+        // Video placeholder (since we are swapping an <img>)
+        modalMainImg.src = "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800";
+    } else {
+        modalMainImg.src = url;
+    }
+
+    const roomModal = document.getElementById('room-modal');
+    if (roomModal) {
+        roomModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+};
     }
 
     const finalForm = document.getElementById('final-booking-form');
@@ -687,7 +834,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const gArrival = document.getElementById('guest-arrival').value;
             const gReq = document.getElementById('guest-requests').value || 'None';
 
-            const { name, desc, price, cin, cout, adults, children } = currentBookingSelection;
+            const { name, desc, basePrice, totalPrice, nights, cin, cout, adults, children } = currentBookingSelection;
             const details = desc ? `Combination: ${desc}` : `Room: ${name}`;
 
             const msg = `*New Booking Request!* 🏨\n\n` +
@@ -698,11 +845,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         `*Stay Details:*\n` +
                         `📅 Check-in: ${cin}\n` +
                         `📅 Check-out: ${cout}\n` +
+                        `🌙 Duration: ${nights} ${nights > 1 ? 'Nights' : 'Night'}\n` +
                         `👥 Guests: ${adults} Adults, ${children} Children\n` +
                         `🕒 Est. Arrival: ${gArrival}\n\n` +
                         `*Room Selection:*\n` +
                         `🛏️ ${details}\n` +
-                        `💰 Quoted Price: Rs ${price} / night\n\n` +
+                        `💳 Rate: Rs ${basePrice} / night\n` +
+                        `💰 *Total Price: Rs ${totalPrice}*\n\n` +
                         `*Special Requests:*\n` +
                         `💬 ${gReq}\n\n` +
                         `Please process my reservation.`;
