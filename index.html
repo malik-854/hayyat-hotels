@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Hayyat Luxury Hotel Apartments | Lahore</title>
     <meta name="description"
         content="Experience unparalleled luxury at Hayyat Hotel Apartments in Lahore. Perfect for families and couples, featuring full kitchens, fast Wi-Fi, and premium comfort.">
@@ -340,79 +340,84 @@
                     <p>Fully equipped with oven, stovetop, dishwasher, and toaster.</p>
                 </div>
                 <!-- 5 -->
-                <div class="amenity-item fade-in-scroll">
+                <div class="amenity-item fade-in-scroll mobile-hidden">
                     <div class="icon">📺</div>
                     <h4>Smart Entertainment</h4>
                     <p>Smart TVs with Netflix and premium streaming services.</p>
                 </div>
                 <!-- 6 -->
-                <div class="amenity-item fade-in-scroll">
+                <div class="amenity-item fade-in-scroll mobile-hidden">
                     <div class="icon">❄️</div>
                     <h4>Climate Control</h4>
                     <p>Air conditioning and heating for year-round comfort.</p>
                 </div>
                 <!-- 7 -->
-                <div class="amenity-item fade-in-scroll">
+                <div class="amenity-item fade-in-scroll mobile-hidden">
                     <div class="icon">⚡</div>
                     <h4>Full Power Backup</h4>
                     <p>Uninterrupted power supply to ensure a seamless stay.</p>
                 </div>
                 <!-- 8 -->
-                <div class="amenity-item fade-in-scroll">
+                <div class="amenity-item fade-in-scroll mobile-hidden">
                     <div class="icon">🛡️</div>
                     <h4>Total Security</h4>
                     <p>24-hour security personnel and full CCTV monitoring.</p>
                 </div>
                 <!-- 9 -->
-                <div class="amenity-item fade-in-scroll">
+                <div class="amenity-item fade-in-scroll mobile-hidden">
                     <div class="icon">🛋️</div>
                     <h4>Spacious Living</h4>
                     <p>Separate dining and sitting areas in every apartment.</p>
                 </div>
                 <!-- 10 -->
-                <div class="amenity-item fade-in-scroll">
+                <div class="amenity-item fade-in-scroll mobile-hidden">
                     <div class="icon">🛏️</div>
                     <h4>Premium Bedding</h4>
                     <p>Select-Comfort beds with down duvets and pillow menus.</p>
                 </div>
                 <!-- 11 -->
-                <div class="amenity-item fade-in-scroll">
+                <div class="amenity-item fade-in-scroll mobile-hidden">
                     <div class="icon">🧴</div>
                     <h4>Luxury Toiletries</h4>
                     <p>Complementary toiletries, slippers, and hairdryers.</p>
                 </div>
                 <!-- 12 -->
-                <div class="amenity-item fade-in-scroll">
+                <div class="amenity-item fade-in-scroll mobile-hidden">
                     <div class="icon">🌿</div>
                     <h4>Outdoor Garden</h4>
                     <p>Beautifully landscaped garden and outdoor seating area.</p>
                 </div>
                 <!-- 13 -->
-                <div class="amenity-item fade-in-scroll">
+                <div class="amenity-item fade-in-scroll mobile-hidden">
                     <div class="icon">🛝</div>
                     <h4>Children's Play Area</h4>
                     <p>Dedicated onsite playground for our younger guests.</p>
                 </div>
                 <!-- 14 -->
-                <div class="amenity-item fade-in-scroll">
+                <div class="amenity-item fade-in-scroll mobile-hidden">
                     <div class="icon">🧺</div>
                     <h4>Laundry Services</h4>
                     <p>Professional laundry and dry-cleaning services onsite.</p>
                 </div>
                 <!-- 15 -->
-                <div class="amenity-item fade-in-scroll">
+                <div class="amenity-item fade-in-scroll mobile-hidden">
                     <div class="icon">🔐</div>
                     <h4>In-Room Safes</h4>
                     <p>Secure lockers and safes available in all apartments.</p>
                 </div>
                 <!-- 16 -->
-                <div class="amenity-item fade-in-scroll">
+                <div class="amenity-item fade-in-scroll mobile-hidden">
                     <div class="icon">♿</div>
                     <h4>Full Accessibility</h4>
                     <p>Disabled-friendly rooms, facilities, and elevator access.</p>
                 </div>
             </div>
-
+            <!-- View All Amenities button (mobile only) -->
+            <div class="view-amenities-btn-wrap">
+                <button class="btn-view-amenities" id="open-amenities-modal">
+                    <span>🏨</span> View All 16 Amenities
+                </button>
+            </div>
         </div>
     </section>
 
@@ -587,6 +592,33 @@
                         <i class="fas fa-lock"></i> No payment required now. Pay at property.
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Amenities All Modal (mobile) -->
+    <div id="amenities-modal" class="modal">
+        <div class="modal-content amenities-modal-content">
+            <span class="close-modal" id="close-amenities-modal">&times;</span>
+            <h2 class="section-title" style="color: #fff; font-size: 1.75rem; margin-bottom: 0.5rem;">All Amenities</h2>
+            <p style="color: #9CA3AF; margin-bottom: 0;">Everything included with your stay.</p>
+            <div class="amenities-modal-grid">
+                <div class="amenity-modal-item"><div class="icon">🛎️</div><div><h4>24/7 Front Desk</h4><p>Round-the-clock front desk and security.</p></div></div>
+                <div class="amenity-modal-item"><div class="icon">📶</div><div><h4>Free WiFi</h4><p>High-speed internet access throughout.</p></div></div>
+                <div class="amenity-modal-item"><div class="icon">🚐</div><div><h4>Airport Shuttle</h4><p>Pickup and drop-off services (Extra charge).</p></div></div>
+                <div class="amenity-modal-item"><div class="icon">🍳</div><div><h4>Gourmet Kitchen</h4><p>Oven, stovetop, dishwasher, and toaster.</p></div></div>
+                <div class="amenity-modal-item"><div class="icon">📺</div><div><h4>Smart Entertainment</h4><p>Smart TVs with Netflix and streaming.</p></div></div>
+                <div class="amenity-modal-item"><div class="icon">❄️</div><div><h4>Climate Control</h4><p>Air conditioning and heating year-round.</p></div></div>
+                <div class="amenity-modal-item"><div class="icon">⚡</div><div><h4>Full Power Backup</h4><p>Uninterrupted power supply.</p></div></div>
+                <div class="amenity-modal-item"><div class="icon">🛡️</div><div><h4>Total Security</h4><p>24/7 security personnel and CCTV.</p></div></div>
+                <div class="amenity-modal-item"><div class="icon">🛋️</div><div><h4>Spacious Living</h4><p>Separate dining and sitting areas.</p></div></div>
+                <div class="amenity-modal-item"><div class="icon">🛏️</div><div><h4>Premium Bedding</h4><p>Select-Comfort beds with down duvets.</p></div></div>
+                <div class="amenity-modal-item"><div class="icon">🧴</div><div><h4>Luxury Toiletries</h4><p>Toiletries, slippers, and hairdryers.</p></div></div>
+                <div class="amenity-modal-item"><div class="icon">🌿</div><div><h4>Outdoor Garden</h4><p>Landscaped garden and outdoor seating.</p></div></div>
+                <div class="amenity-modal-item"><div class="icon">🛝</div><div><h4>Children's Play Area</h4><p>Dedicated onsite playground.</p></div></div>
+                <div class="amenity-modal-item"><div class="icon">🧺</div><div><h4>Laundry Services</h4><p>Professional laundry and dry-cleaning.</p></div></div>
+                <div class="amenity-modal-item"><div class="icon">🔐</div><div><h4>In-Room Safes</h4><p>Secure lockers in all apartments.</p></div></div>
+                <div class="amenity-modal-item"><div class="icon">♿</div><div><h4>Full Accessibility</h4><p>Disabled-friendly rooms and elevator.</p></div></div>
             </div>
         </div>
     </div>

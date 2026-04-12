@@ -522,7 +522,8 @@ function initModals() {
     modal = document.getElementById('room-modal');
     resultsModal = document.getElementById('results-modal');
     checkoutModal = document.getElementById('checkout-modal');
-    closeModal = document.querySelector('.close-modal');
+    // Use specific close button for room-modal only
+    closeModal = document.querySelector('#room-modal .close-modal');
     closeResults = document.querySelector('.close-results');
     closeCheckout = document.querySelector('.close-checkout');
 
@@ -553,6 +554,32 @@ function initModals() {
             document.body.style.overflow = 'auto';
         }
     });
+
+    // Amenities All Modal (mobile)
+    const amenitiesModal = document.getElementById('amenities-modal');
+    const openAmenitiesBtn = document.getElementById('open-amenities-modal');
+    const closeAmenitiesBtn = document.getElementById('close-amenities-modal');
+
+    if (openAmenitiesBtn && amenitiesModal) {
+        openAmenitiesBtn.addEventListener('click', () => {
+            amenitiesModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+    }
+    if (closeAmenitiesBtn && amenitiesModal) {
+        closeAmenitiesBtn.addEventListener('click', () => {
+            amenitiesModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        });
+    }
+    if (amenitiesModal) {
+        amenitiesModal.addEventListener('click', (e) => {
+            if (e.target === amenitiesModal) {
+                amenitiesModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        });
+    }
 }
 
 // Initial Setup logic
