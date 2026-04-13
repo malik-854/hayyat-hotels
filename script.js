@@ -319,7 +319,8 @@ function performSearch(reqA, reqC) {
     // 1. Check for single room matches
     allAvailable.forEach(type => {
         const room = sheetData[type];
-        if (reqA <= room.adults && totalReq <= (room.adults + room.children)) {
+        const capacity = room.adults + room.children;
+        if (totalReq <= capacity) {
             matches.push({
                 isGroup: false,
                 name: type,
@@ -333,8 +334,7 @@ function performSearch(reqA, reqC) {
 
     // 2. Generate Multi-room combinations (Trying each room as a starting point for variety)
     allAvailable.forEach(startType => {
-        let tempA = reqA;
-        let tempC = reqC;
+        let tempHeads = totalReq;
         let combo = [];
         let invTracker = {};
         Object.keys(sheetData).forEach(t => invTracker[t] = sheetData[t].inventory);
@@ -343,23 +343,19 @@ function performSearch(reqA, reqC) {
         combo.push(startType);
         invTracker[startType]--;
         let r1 = sheetData[startType];
-        let a1 = Math.min(tempA, r1.adults);
-        tempA -= a1;
-        tempC -= Math.min(tempC, (r1.adults + r1.children - a1));
+        tempHeads -= (r1.adults + r1.children);
 
         // Fill greedily with available rooms
         const sortedByCap = [...allAvailable].sort((a, b) => (sheetData[b].adults + sheetData[b].children) - (sheetData[a].adults + sheetData[a].children));
         
-        while (tempA > 0 || tempC > 0) {
+        while (tempHeads > 0) {
             let found = false;
             for (let type of sortedByCap) {
                 if (invTracker[type] > 0) {
                     const r = sheetData[type];
                     combo.push(type);
                     invTracker[type]--;
-                    let aCov = Math.min(tempA, r.adults);
-                    tempA -= aCov;
-                    tempC -= Math.min(tempC, (r.adults + r.children - aCov));
+                    tempHeads -= (r.adults + r.children);
                     found = true;
                     break;
                 }
@@ -367,7 +363,7 @@ function performSearch(reqA, reqC) {
             if (!found) break;
         }
 
-        if (tempA <= 0 && tempC <= 0 && combo.length > 1) {
+        if (tempHeads <= 0 && combo.length > 1) {
             let counts = {};
             combo.sort().forEach(t => counts[t] = (counts[t] || 0) + 1);
             let comboKey = JSON.stringify(counts);
@@ -378,27 +374,20 @@ function performSearch(reqA, reqC) {
                 
                 matches.push({
                     isGroup: true,
-                    name: "Recommended Combination",
+                    name: "Privacy / Split Group Option",
                     desc: comboDesc,
                     price: totalPrice.toLocaleString(),
                     totalPriceVal: totalPrice,
-                    capacity: `${reqA} Adults, ${reqC} Children`
+                    capacity: `Up to ${combo.reduce((s,t) => s + sheetData[t].adults + sheetData[t].children, 0)} Guests`
                 });
             }
         }
     });
 
-    // 3. Efficiency Filter: Only keep "Optimal" choices
-    // A choice is optimal if there isn't another choice that has FEWER rooms AND LOWER/Equal price
-    let optimalMatches = matches.filter(m1 => {
-        const rooms1 = m1.isGroup ? m1.desc.split('+').reduce((sum, s) => sum + parseInt(s), 0) : 1;
-        return !matches.some(m2 => {
-            if (m1 === m2) return false;
-            const rooms2 = m2.isGroup ? m2.desc.split('+').reduce((sum, s) => sum + parseInt(s), 0) : 1;
-            // If m2 is both cheaper/equal AND has fewer rooms, m1 is inefficient
-            return (m2.totalPriceVal <= m1.totalPriceVal && rooms2 < rooms1);
-        });
-    });
+    // 3. Efficiency Filter: Relaxed! 
+    // We now show all viable unique combinations to give users flexible privacy options, 
+    // instead of aggressively hiding them if a single room fits.
+    let optimalMatches = matches;
 
     // Sort final list by price
     optimalMatches.sort((a, b) => a.totalPriceVal - b.totalPriceVal);
