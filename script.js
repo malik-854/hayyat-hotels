@@ -625,7 +625,15 @@ window.bookSelection = function(name, desc, price) {
         descContainer.style.display = 'none';
     }
     
-    document.getElementById('summary-price').innerHTML = `Rs ${price} / night<br><small style="color:var(--clr-gold); font-size: 0.8em;">Total: Rs ${totalPrice}</small>`;
+    // Reset breakfast selection when opening a new checkout
+    const bfCheckbox = document.getElementById('add-breakfast');
+    if (bfCheckbox) bfCheckbox.checked = false;
+    const bfOptions = document.getElementById('breakfast-options');
+    if (bfOptions) bfOptions.style.display = 'none';
+    const bfCount = document.getElementById('breakfast-count');
+    if (bfCount) bfCount.value = 1;
+    
+    updateCheckoutSummary();
 
     // Open Checkout Modal
     if (resultsModal) resultsModal.classList.remove('active');
@@ -704,6 +712,81 @@ function initModals() {
             }
         });
     }
+
+    // Breakfast Logic
+    const bfCheckbox = document.getElementById('add-breakfast');
+    const bfOptions = document.getElementById('breakfast-options');
+    const bfInc = document.getElementById('btn-increase-bf');
+    const bfDec = document.getElementById('btn-decrease-bf');
+    const bfCount = document.getElementById('breakfast-count');
+    const bfInfoIcon = document.getElementById('breakfast-info-icon');
+    const bfInfoModal = document.getElementById('breakfast-info-modal');
+    const closeBfModal = document.getElementById('close-breakfast-modal');
+
+    if (bfCheckbox) {
+        bfCheckbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                bfOptions.style.display = 'block';
+            } else {
+                bfOptions.style.display = 'none';
+            }
+            updateCheckoutSummary();
+        });
+    }
+
+    if (bfInc && bfCount) {
+        bfInc.addEventListener('click', () => {
+            bfCount.value = parseInt(bfCount.value) + 1;
+            updateCheckoutSummary();
+        });
+    }
+
+    if (bfDec && bfCount) {
+        bfDec.addEventListener('click', () => {
+            if (parseInt(bfCount.value) > 1) {
+                bfCount.value = parseInt(bfCount.value) - 1;
+                updateCheckoutSummary();
+            }
+        });
+    }
+    
+    if (bfInfoIcon && bfInfoModal) {
+        bfInfoIcon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            bfInfoModal.classList.add('active');
+        });
+    }
+    
+    if (closeBfModal && bfInfoModal) {
+        closeBfModal.addEventListener('click', () => {
+            bfInfoModal.classList.remove('active');
+        });
+    }
+    
+    if (bfInfoModal) {
+        bfInfoModal.addEventListener('click', (e) => {
+            if (e.target === bfInfoModal) {
+                bfInfoModal.classList.remove('active');
+            }
+        });
+    }
+}
+
+function updateCheckoutSummary() {
+    if (!currentBookingSelection || !currentBookingSelection.totalPrice) return;
+    const addBf = document.getElementById('add-breakfast').checked;
+    const bfCount = parseInt(document.getElementById('breakfast-count').value) || 1;
+    const { basePrice, totalPrice, nights } = currentBookingSelection;
+    let finalPrice = parseInt(totalPrice.replace(/,/g, ''));
+    
+    let bfHtml = '';
+    if (addBf) {
+        let bfCost = 1200 * bfCount * nights;
+        finalPrice += bfCost;
+        bfHtml = `<br><small style="color:var(--clr-orange); font-size: 0.85em;">+ Breakfast: Rs ${bfCost.toLocaleString()} (Rs ${1200 * bfCount} x ${nights})</small>`;
+    }
+    
+    document.getElementById('summary-price').innerHTML = `Rs ${basePrice} / night<br><small style="color:var(--clr-gray); font-size: 0.8em; font-weight: normal;">Room Total: Rs ${totalPrice}</small>${bfHtml}<br><strong style="font-size: 1.1em; color: var(--clr-darker); display: block; margin-top: 5px;">Grand Total: Rs ${finalPrice.toLocaleString()}</strong>`;
 }
 
 // Initial Setup logic
@@ -907,6 +990,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const { name, desc, basePrice, totalPrice, nights, cin, cout, adults, children } = currentBookingSelection;
             const details = desc ? `Combination: ${desc}` : `Room: ${name}`;
 
+            const addBf = document.getElementById('add-breakfast').checked;
+            const bfCount = parseInt(document.getElementById('breakfast-count').value) || 1;
+            const bfType = document.getElementById('breakfast-type').value;
+
+            let finalPrice = parseInt(totalPrice.replace(/,/g, ''));
+            let bfCostStr = "";
+            if (addBf) {
+                let bfTotalCost = 1200 * bfCount * nights;
+                finalPrice += bfTotalCost;
+                bfCostStr = `🍳 *Breakfast Added:*\n` +
+                            `Type: ${bfType}\n` +
+                            `Quantity: ${bfCount} per day\n` +
+                            `Cost: Rs ${bfTotalCost.toLocaleString()} (Rs 1200 pp x ${bfCount} x ${nights})\n`;
+            }
+
             const msg = `*New Booking Request!* 🏨\n\n` +
                         `*Guest Details:*\n` +
                         `👤 Name: ${gName}\n` +
@@ -921,7 +1019,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         `*Room Selection:*\n` +
                         `🛏️ ${details}\n` +
                         `💳 Rate: Rs ${basePrice} / night\n` +
-                        `💰 *Total Price: Rs ${totalPrice}*\n\n` +
+                        `💰 *Room Total: Rs ${totalPrice}*\n\n` +
+                        bfCostStr +
+                        (bfCostStr ? `\n` : ``) +
+                        `🔥 *Grand Total: Rs ${finalPrice.toLocaleString()}*\n\n` +
                         `*Special Requests:*\n` +
                         `💬 ${gReq}\n\n` +
                         `Please process my reservation.`;

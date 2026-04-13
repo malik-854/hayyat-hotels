@@ -575,6 +575,35 @@
                                     placeholder="Any special needs, early check-in, etc."></textarea>
                             </div>
                         </div>
+                        <div class="form-row">
+                            <div class="form-group breakfast-group">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" id="add-breakfast" style="width: auto;">
+                                    <span style="font-weight: 600;">Add Breakfast (Rs. 1200 / person)</span>
+                                    <span id="breakfast-info-icon" style="color: var(--clr-orange); cursor: pointer; font-size: 1.1rem;"><i class="fas fa-info-circle"></i></span>
+                                </label>
+                                <div id="breakfast-options" style="display: none; margin-top: 15px; background: var(--clr-light); padding: 15px; border-radius: 8px; border: 1px solid var(--clr-gray-light);">
+                                    <p style="font-size: 0.85rem; color: var(--clr-gray); margin-bottom: 12px; font-weight: 500;"><i class="fas fa-concierge-bell" style="margin-right: 5px;"></i>Served in room service</p>
+                                    <div style="display: flex; gap: 20px; align-items: flex-end;">
+                                        <div class="breakfast-counter">
+                                            <label style="font-size: 0.8rem; text-transform: uppercase; color: var(--clr-gray); margin-bottom: 5px; display: block;">Quantity</label>
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <button type="button" id="btn-decrease-bf" style="width: 35px; height: 35px; border-radius: 4px; border: 1px solid var(--clr-gray-light); background: var(--clr-white); cursor: pointer; font-size: 1.2rem;">-</button>
+                                                <input type="number" id="breakfast-count" value="1" min="1" readonly style="width: 50px; height: 35px; text-align: center; border: 1px solid var(--clr-gray-light); border-radius: 4px; font-weight: 600; padding: 0;">
+                                                <button type="button" id="btn-increase-bf" style="width: 35px; height: 35px; border-radius: 4px; border: 1px solid var(--clr-gray-light); background: var(--clr-white); cursor: pointer; font-size: 1.2rem;">+</button>
+                                            </div>
+                                        </div>
+                                        <div class="breakfast-type-select" style="flex: 1;">
+                                            <label for="breakfast-type" style="font-size:0.8rem; text-transform: uppercase; color: var(--clr-gray); margin-bottom: 5px; display: block;">Type</label>
+                                            <select id="breakfast-type" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid var(--clr-gray-light); height: 35px; font-family: var(--font-sans);">
+                                                <option value="Desi Pakistani Breakfast">Desi Pakistani Breakfast Platter</option>
+                                                <option value="Continental English Breakfast">Continental English Breakfast Platter</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Confirm & Send
                             via WhatsApp</button>
                     </form>
@@ -637,6 +666,32 @@
                 <div class="amenity-modal-item"><div class="icon">🧺</div><div><h4>Laundry Services</h4><p>Professional laundry and dry-cleaning.</p></div></div>
                 <div class="amenity-modal-item"><div class="icon">🔐</div><div><h4>In-Room Safes</h4><p>Secure lockers in all apartments.</p></div></div>
                 <div class="amenity-modal-item"><div class="icon">♿</div><div><h4>Full Accessibility</h4><p>Disabled-friendly rooms and elevator.</p></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breakfast Info Modal -->
+    <div id="breakfast-info-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px; padding: 2rem;">
+            <span class="close-modal" id="close-breakfast-modal">&times;</span>
+            <h2 class="section-title" style="font-size: 2rem; margin-bottom: 1rem;">Breakfast Menu</h2>
+            <p style="color: var(--clr-gray); margin-bottom: 2rem;">Enjoy our delicious breakfast platters, served fresh to your room for Rs. 1200 per person.</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 2rem;">
+                <div style="display: flex; gap: 1.5rem; align-items: flex-start;">
+                    <img src="desi_breakfast.png" alt="Desi Pakistani Breakfast" style="width: 120px; height: 120px; border-radius: 8px; object-fit: cover; box-shadow: var(--shadow-sm);">
+                    <div>
+                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--clr-darker);">Desi Pakistani Breakfast</h4>
+                        <p style="color: var(--clr-gray); font-size: 0.95rem; line-height: 1.4;">A hearty traditional platter featuring halwa puri, chana masala, and a refreshing cup of hot chai.</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1.5rem; align-items: flex-start;">
+                    <img src="english_breakfast.png" alt="Continental English Breakfast" style="width: 120px; height: 120px; border-radius: 8px; object-fit: cover; box-shadow: var(--shadow-sm);">
+                    <div>
+                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--clr-darker);">Continental English Breakfast</h4>
+                        <p style="color: var(--clr-gray); font-size: 0.95rem; line-height: 1.4;">A classic start to the day with fried eggs, sausages, baked beans, toast, and grilled tomatoes.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
