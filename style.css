@@ -1748,3 +1748,44 @@ footer {
     justify-content: center;
     width: 100%;
 }
+
+/* Mobile fixes for modals */
+.btn-mobile-back { display: none; }
+
+@media (max-width: 768px) {
+    .btn-mobile-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 1rem;
+        background: #f3f4f6;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        color: var(--clr-darker);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    
+    /* Cross button improved visibility */
+    .close-modal, .close-results, .close-checkout {
+        background: rgba(255,255,255,0.9);
+        width: 36px; height: 36px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        z-index: 3000;
+        color: var(--clr-darker);
+    }
+    
+    /* Hide original cross in normal room view to use Go Back */
+    #room-modal .modal-content:not(.gallery-mode) .close-modal {
+        display: none !important;
+    }
+
+    /* Reduce blur on Moments wrapper */
+    .reel-wrapper {
+        mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent) !important;
+        -webkit-mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent) !important;
+    }
+}

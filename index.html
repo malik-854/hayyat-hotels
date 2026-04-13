@@ -498,7 +498,10 @@
                     <div id="room-tabs" class="room-tabs" style="display: none;">
                     </div>
                     <h2 id="modal-title">Room Name</h2>
-                    <p class="modal-price" id="modal-price">Rs 0 / night</p>
+                    <div class="modal-price-wrapper" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <p class="modal-price" id="modal-price" style="margin-bottom: 0;">Rs 0 / night</p>
+                        <button class="btn-mobile-back" onclick="closeAllModals()"><i class="fas fa-times"></i> Go Back</button>
+                    </div>
                     <div class="modal-badges">
                         <span id="modal-size">0 sq ft</span>
                         <span id="modal-availability">Available</span>

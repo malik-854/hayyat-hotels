@@ -656,23 +656,25 @@ function initModals() {
         });
     });
 
+    window.closeAllModals = function() {
+        const modalMainVideo = document.getElementById('modal-main-video');
+        if (modalMainVideo) { modalMainVideo.pause(); modalMainVideo.currentTime = 0; }
+        
+        if (modal) modal.classList.remove('active');
+        if (resultsModal) resultsModal.classList.remove('active');
+        if (checkoutModal) checkoutModal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    };
+
     [closeModal, closeResults, closeCheckout].forEach(btn => {
         if (btn) {
-            btn.addEventListener('click', () => {
-                if (modal) modal.classList.remove('active');
-                if (resultsModal) resultsModal.classList.remove('active');
-                if (checkoutModal) checkoutModal.classList.remove('active');
-                document.body.style.overflow = 'auto';
-            });
+            btn.addEventListener('click', closeAllModals);
         }
     });
 
     window.addEventListener('click', (e) => {
         if (e.target === modal || e.target === resultsModal || e.target === checkoutModal) {
-            if (modal) modal.classList.remove('active');
-            if (resultsModal) resultsModal.classList.remove('active');
-            if (checkoutModal) checkoutModal.classList.remove('active');
-            document.body.style.overflow = 'auto';
+            closeAllModals();
         }
     });
 
@@ -928,6 +930,10 @@ window.openMediaModal = function(url, isVideo) {
         roomModal.classList.add('active');
         document.body.style.overflow = 'hidden';
     }
+};
+
+window.closeMediaModal = function() {
+    closeAllModals();
 };
 
 // Also ensure the room modal reset shows the image again
