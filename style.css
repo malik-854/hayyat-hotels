@@ -1658,7 +1658,7 @@ footer {
     display: flex;
     gap: 20px;
     width: max-content;
-    animation: scrollReel 40s linear infinite;
+    animation: scrollReel 65s linear infinite;
 }
 
 .reel-track:hover {
@@ -1739,7 +1739,7 @@ footer {
         height: 320px;
     }
     .reel-track {
-        animation-duration: 30s;
+        animation-duration: 50s;
     }
 }
 
