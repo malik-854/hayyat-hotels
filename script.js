@@ -276,7 +276,6 @@ async function openRoomModal(type) {
 
     const mainImg = document.getElementById('modal-main-img');
     const mainVideo = document.getElementById('modal-main-video');
-    const thumbRow = document.getElementById('modal-thumbnails');
     let images = sData ? [...sData.gallery] : [];
     if (sData && sData.mainImg) images.unshift(sData.mainImg);
 
@@ -284,35 +283,14 @@ async function openRoomModal(type) {
     currentModalImageIndex = 0;
 
     if (images.length > 0) {
-        if (isVideo(images[0])) {
-            mainImg.style.display = 'none';
-            mainVideo.style.display = 'block';
-            mainVideo.src = images[0];
-            mainVideo.play();
-        } else {
-            mainVideo.style.display = 'none';
-            mainVideo.pause();
-            mainImg.style.display = 'block';
-            mainImg.src = images[0];
-        }
-
-        thumbRow.innerHTML = images.map((img, i) => {
-            if (isVideo(img)) {
-                return `<div class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}', ${i})" style="position:relative;">
-                            <video src="${img}"></video>
-                            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:white; font-size:1.5rem; text-shadow:0 0 5px rgba(0,0,0,0.8); pointer-events:none;"><i class="fas fa-play-circle"></i></div>
-                        </div>`;
-            } else {
-                return `<img src="${img}" class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}', ${i})">`;
-            }
-        }).join('');
+        changeModalImg(images[0], 0);
     }
 
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
-window.changeModalImg = function(el, src, index) {
+window.changeModalImg = function(src, index) {
     const mainImg = document.getElementById('modal-main-img');
     const mainVideo = document.getElementById('modal-main-video');
     
@@ -331,17 +309,6 @@ window.changeModalImg = function(el, src, index) {
         mainImg.style.display = 'block';
         mainImg.src = src;
     }
-
-    document.querySelectorAll('.thumbnail-row .thumb-item').forEach(img => img.classList.remove('active'));
-    if (el) {
-        el.classList.add('active');
-        // Scroll the thumbnail row to bring the active thumbnail into view
-        const thumbRow = document.getElementById('modal-thumbnails');
-        if (thumbRow) {
-            // Using scrollIntoView for better reliability
-            el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-        }
-    }
 };
 
 window.navigateMainImage = function(direction) {
@@ -351,14 +318,7 @@ window.navigateMainImage = function(direction) {
     if (currentModalImageIndex >= currentModalImages.length) currentModalImageIndex = 0;
     
     const src = currentModalImages[currentModalImageIndex];
-    const thumbRow = document.getElementById('modal-thumbnails');
-    if (thumbRow) {
-        const thumbItems = thumbRow.querySelectorAll('.thumb-item');
-        if (thumbItems && thumbItems.length > currentModalImageIndex) {
-            const el = thumbItems[currentModalImageIndex];
-            changeModalImg(el, src, currentModalImageIndex);
-        }
-    }
+    changeModalImg(src, currentModalImageIndex);
 };
 
 let touchstartX = 0;
@@ -381,13 +341,7 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-window.scrollThumbnails = function(direction) {
-    const thumbRow = document.getElementById('modal-thumbnails');
-    if (thumbRow) {
-        const scrollAmount = 100;
-        thumbRow.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
-    }
-};
+
 
 // 5. Scroll Animation Observer
 const observer = new IntersectionObserver((entries) => {
@@ -671,29 +625,7 @@ function loadRoomIntoModal(type) {
     if (images.length > 0) {
         currentModalImages = images;
         currentModalImageIndex = 0;
-
-        if (isVideo(images[0])) {
-            mainImg.style.display = 'none';
-            mainVideo.style.display = 'block';
-            mainVideo.src = images[0];
-            mainVideo.play();
-        } else {
-            mainVideo.style.display = 'none';
-            mainVideo.pause();
-            mainImg.style.display = 'block';
-            mainImg.src = images[0];
-        }
-
-        thumbRow.innerHTML = images.map((img, i) => {
-            if (isVideo(img)) {
-                return `<div class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}', ${i})" style="position:relative;">
-                            <video src="${img}"></video>
-                            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:white; font-size:1.5rem; text-shadow:0 0 5px rgba(0,0,0,0.8); pointer-events:none;"><i class="fas fa-play-circle"></i></div>
-                        </div>`;
-            } else {
-                return `<img src="${img}" class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}', ${i})">`;
-            }
-        }).join('');
+        changeModalImg(images[0], 0);
 
         // Handle nav buttons visibility
         const navButtons = document.querySelectorAll('.main-img-nav');
@@ -1037,7 +969,6 @@ window.openMediaModal = function(url, isVideo) {
     modalPrice.style.display = 'none';
     if(modalBadges) modalBadges.style.display = 'none';
     if(modalAmenities) modalAmenities.style.display = 'none';
-    if(thumbRow) thumbRow.style.display = 'none';
     if(tabsEl) tabsEl.style.display = 'none';
     
     // Hide navigation arrows for single media preview
@@ -1097,11 +1028,9 @@ openRoomModal = async function(type) {
     const modalPrice = document.getElementById('modal-price');
     const modalBadges = document.querySelector('.modal-badges');
     const modalAmenities = document.querySelector('.modal-amenities');
-    const thumbRow = document.getElementById('modal-thumbnails');
     if (modalPrice) modalPrice.style.display = 'block';
     if (modalBadges) modalBadges.style.display = 'flex';
     if (modalAmenities) modalAmenities.style.display = 'block';
-    if (thumbRow) thumbRow.style.display = 'flex';
 
     await originalOpenRoomModal(type);
     
