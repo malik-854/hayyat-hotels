@@ -1077,39 +1077,124 @@ document.addEventListener('DOMContentLoaded', () => {
             const bfCount = parseInt(document.getElementById('breakfast-count').value) || 1;
 
             let finalPrice = parseInt(totalPrice.replace(/,/g, ''));
-            let bfCostStr = "";
+            let bfCostInfo = "";
+            let bfTotalCost = 0;
             if (addBf) {
-                let bfTotalCost = 1200 * bfCount * nights;
+                bfTotalCost = 1200 * bfCount * nights;
                 finalPrice += bfTotalCost;
-                bfCostStr = `🍳 *Breakfast Added:*\n` +
-                    `Quantity: ${bfCount} per day\n` +
-                    `Cost: Rs ${bfTotalCost.toLocaleString()} (Rs 1200 pp x ${bfCount} x ${nights})\n`;
+                bfCostInfo = `Rs ${bfTotalCost.toLocaleString()} (Rs 1200 x ${bfCount} guests x ${nights} nights)`;
             }
 
-            const msg = `*New Booking Request!* 🏨\n\n` +
-                `*Guest Details:*\n` +
-                `👤 Name: ${gName}\n` +
-                `🌍 Country: ${gCountry}\n` +
-                `📞 Phone: ${gPhone}\n` +
-                `✉️ Email: ${gEmail}\n\n` +
-                `*Stay Details:*\n` +
-                `📅 Check-in: ${cin}\n` +
-                `📅 Check-out: ${cout}\n` +
-                `🌙 Duration: ${nights} ${nights > 1 ? 'Nights' : 'Night'}\n` +
-                `👥 Guests: ${adults} Adults, ${children} Children\n` +
-                `🕒 Est. Arrival: ${gArrival}\n\n` +
-                `*Room Selection:*\n` +
-                `🛏️ ${details}\n` +
-                `💳 Rate: Rs ${basePrice} / night\n` +
-                `💰 *Room Total: Rs ${totalPrice}*\n\n` +
-                bfCostStr +
-                (bfCostStr ? `\n` : ``) +
-                `🔥 *Grand Total: Rs ${finalPrice.toLocaleString()}*\n\n` +
-                `*Special Requests:*\n` +
-                `💬 ${gReq}\n\n` +
-                `Please process my reservation.`;
+            // Create PDF Content Template
+            const pdfTemplate = `
+                <div style="padding: 40px; font-family: 'Outfit', sans-serif; color: #1e293b; line-height: 1.6;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ea580c; padding-bottom: 20px; margin-bottom: 30px;">
+                        <div>
+                            <h1 style="margin: 0; color: #ea580c; font-size: 28px; text-transform: uppercase; letter-spacing: 2px;">Hayyat Hotels</h1>
+                            <p style="margin: 5px 0 0; color: #64748b;">Luxury Boutique Apartments • Lahore</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="margin: 0; font-weight: 700;">Reservation Confirmation</p>
+                            <p style="margin: 0; color: #64748b;">Date: ${new Date().toLocaleDateString()}</p>
+                        </div>
+                    </div>
 
-            window.open(`https://wa.me/923136766699?text=${encodeURIComponent(msg)}`);
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 30px;">
+                        <div>
+                            <h3 style="color: #ea580c; border-bottom: 1px solid #fed7aa; padding-bottom: 5px; margin-bottom: 15px;">Guest Information</h3>
+                            <p style="margin: 5px 0;"><strong>Name:</strong> ${gName}</p>
+                            <p style="margin: 5px 0;"><strong>Country:</strong> ${gCountry}</p>
+                            <p style="margin: 5px 0;"><strong>Phone:</strong> ${gPhone}</p>
+                            <p style="margin: 5px 0;"><strong>Email:</strong> ${gEmail}</p>
+                        </div>
+                        <div>
+                            <h3 style="color: #ea580c; border-bottom: 1px solid #fed7aa; padding-bottom: 5px; margin-bottom: 15px;">Stay Details</h3>
+                            <p style="margin: 5px 0;"><strong>Check-in:</strong> ${cin}</p>
+                            <p style="margin: 5px 0;"><strong>Check-out:</strong> ${cout}</p>
+                            <p style="margin: 5px 0;"><strong>Duration:</strong> ${nights} ${nights > 1 ? 'Nights' : 'Night'}</p>
+                            <p style="margin: 5px 0;"><strong>Guests:</strong> ${adults} Adults, ${children} Children</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 30px; background: #fff7ed; padding: 20px; border-radius: 8px;">
+                        <h3 style="color: #ea580c; margin-top: 0; margin-bottom: 15px;">Selected Accommodation</h3>
+                        <p style="margin: 5px 0; font-size: 18px; font-weight: 700;">${details}</p>
+                        <p style="margin: 10px 0 0; color: #64748b;">Special Requests: ${gReq}</p>
+                    </div>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                        <thead>
+                            <tr style="background: #ea580c; color: white;">
+                                <th style="padding: 12px; text-align: left;">Description</th>
+                                <th style="padding: 12px; text-align: right;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Base Room Rate (${nights} Nights)</td>
+                                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: right;">Rs ${totalPrice}</td>
+                            </tr>
+                            ${addBf ? `
+                            <tr>
+                                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Breakfast Supplement<br><small style="color: #64748b;">${bfCostInfo}</small></td>
+                                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: right;">Rs ${bfTotalCost.toLocaleString()}</td>
+                            </tr>
+                            ` : ''}
+                            <tr style="font-weight: 700; font-size: 20px; color: #ea580c;">
+                                <td style="padding: 20px 12px;">Grand Total</td>
+                                <td style="padding: 20px 12px; text-align: right;">Rs ${finalPrice.toLocaleString()}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0;">
+                        <p style="margin: 0; font-weight: 700; color: #1e293b;">Important Information</p>
+                        <p style="margin: 5px 0; font-size: 14px; color: #64748b;">This is a preliminary reservation request. Our team will contact you shortly to confirm availability and payment details.</p>
+                        <p style="margin: 15px 0 0; font-weight: 700; color: #ea580c;">Contact Us: +923136766699 | info@hayyathotels.com</p>
+                    </div>
+                </div>
+            `;
+
+            const element = document.createElement('div');
+            element.innerHTML = pdfTemplate;
+            
+            const opt = {
+                margin: 0,
+                filename: `Reservation_${gName.replace(/\s+/g, '_')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            // Download PDF
+            html2pdf().set(opt).from(element).save();
+
+            // Prepare Email Notification
+            const emailSubject = `New Reservation Request: ${gName} (${cin})`;
+            const emailBody = `New Reservation Details:\n\n` +
+                `GUEST DETAILS:\n` +
+                `Name: ${gName}\n` +
+                `Country: ${gCountry}\n` +
+                `Phone: ${gPhone}\n` +
+                `Email: ${gEmail}\n\n` +
+                `STAY DETAILS:\n` +
+                `Check-in: ${cin}\n` +
+                `Check-out: ${cout}\n` +
+                `Duration: ${nights} Nights\n\n` +
+                `ROOM SELECTION:\n` +
+                `Option: ${details}\n` +
+                `Grand Total: Rs ${finalPrice.toLocaleString()}\n\n` +
+                `Special Requests: ${gReq}\n\n` +
+                `A PDF copy has been generated for the guest. Please contact them to finalize.`;
+
+            // Trigger Email
+            window.location.href = `mailto:info@hayyathotels.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+            
+            // Close modal after brief delay
+            setTimeout(() => {
+                closeAllModals();
+                alert("Reservation Request Successful! Your PDF confirmation has been generated and a notification has been sent to the hotel.");
+            }, 1500);
         });
     }
 });
