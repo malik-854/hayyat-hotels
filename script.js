@@ -1166,35 +1166,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
 
-            // Download PDF
-            html2pdf().set(opt).from(element).save();
-
-            // Prepare Email Notification
-            const emailSubject = `New Reservation Request: ${gName} (${cin})`;
-            const emailBody = `New Reservation Details:\n\n` +
-                `GUEST DETAILS:\n` +
-                `Name: ${gName}\n` +
-                `Country: ${gCountry}\n` +
-                `Phone: ${gPhone}\n` +
-                `Email: ${gEmail}\n\n` +
-                `STAY DETAILS:\n` +
-                `Check-in: ${cin}\n` +
-                `Check-out: ${cout}\n` +
-                `Duration: ${nights} Nights\n\n` +
-                `ROOM SELECTION:\n` +
-                `Option: ${details}\n` +
-                `Grand Total: Rs ${finalPrice.toLocaleString()}\n\n` +
-                `Special Requests: ${gReq}\n\n` +
-                `A PDF copy has been generated for the guest. Please contact them to finalize.`;
-
-            // Trigger Email
-            window.location.href = `mailto:info@hayyathotels.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-            
-            // Close modal after brief delay
-            setTimeout(() => {
+            // Generate PDF and open in a new tab
+            html2pdf().set(opt).from(element).toPdf().get('pdf').then(function(pdf) {
+                window.open(pdf.output('bloburl'), '_blank');
                 closeAllModals();
-                alert("Reservation Request Successful! Your PDF confirmation has been generated and a notification has been sent to the hotel.");
-            }, 1500);
+                alert("Reservation Made!");
+            });
+
+            // Prepare Payload for Google Apps Script
+            const reservationData = {
+                name: gName,
+                country: gCountry,
+                phone: gPhone,
+                email: gEmail,
+                checkin: cin,
+                checkout: cout,
+                nights: nights,
+                adults: adults,
+                children: children,
+                roomDetails: details,
+                totalPrice: finalPrice.toLocaleString(),
+                specialRequests: gReq
+            };
+
+            // Send Email Silently via Google Apps Script (Webhook)
+            // IMPORTANT: Replace 'YOUR_GOOGLE_SCRIPT_WEB_APP_URL' with your actual Google Script deployment URL
+            const googleScriptURL = 'YOUR_GOOGLE_SCRIPT_WEB_APP_URL'; 
+            
+            if (googleScriptURL !== 'YOUR_GOOGLE_SCRIPT_WEB_APP_URL') {
+                fetch(googleScriptURL, {
+                    method: 'POST',
+                    body: JSON.stringify(reservationData)
+                }).catch(err => console.error("Error sending notification:", err));
+            }
         });
     }
 });
