@@ -338,8 +338,8 @@ window.changeModalImg = function(el, src, index) {
         // Scroll the thumbnail row to bring the active thumbnail into view
         const thumbRow = document.getElementById('modal-thumbnails');
         if (thumbRow) {
-            const scrollPos = el.offsetLeft - thumbRow.offsetWidth / 2 + el.offsetWidth / 2;
-            thumbRow.scrollTo({ left: scrollPos, behavior: 'smooth' });
+            // Using scrollIntoView for better reliability
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
     }
 };
@@ -669,6 +669,9 @@ function loadRoomIntoModal(type) {
     if (sData && sData.mainImg) images.unshift(sData.mainImg);
 
     if (images.length > 0) {
+        currentModalImages = images;
+        currentModalImageIndex = 0;
+
         if (isVideo(images[0])) {
             mainImg.style.display = 'none';
             mainVideo.style.display = 'block';
@@ -691,6 +694,14 @@ function loadRoomIntoModal(type) {
                 return `<img src="${img}" class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}', ${i})">`;
             }
         }).join('');
+
+        // Handle nav buttons visibility
+        const navButtons = document.querySelectorAll('.main-img-nav');
+        if (images.length > 1) {
+            navButtons.forEach(btn => btn.style.display = 'flex');
+        } else {
+            navButtons.forEach(btn => btn.style.display = 'none');
+        }
     }
 }
 
@@ -1028,6 +1039,13 @@ window.openMediaModal = function(url, isVideo) {
     if(modalAmenities) modalAmenities.style.display = 'none';
     if(thumbRow) thumbRow.style.display = 'none';
     if(tabsEl) tabsEl.style.display = 'none';
+    
+    // Hide navigation arrows for single media preview
+    const navButtons = document.querySelectorAll('.main-img-nav');
+    navButtons.forEach(btn => btn.style.display = 'none');
+    currentModalImages = [url];
+    currentModalImageIndex = 0;
+
     bookBtn.innerText = "Book Your Experience";
 
     if (isVideo) {
@@ -1074,7 +1092,26 @@ openRoomModal = async function(type) {
         modalMainVideo.style.display = 'none';
         modalMainVideo.pause();
     }
-    return originalOpenRoomModal(type);
+    
+    // Restore elements that might have been hidden by openMediaModal
+    const modalPrice = document.getElementById('modal-price');
+    const modalBadges = document.querySelector('.modal-badges');
+    const modalAmenities = document.querySelector('.modal-amenities');
+    const thumbRow = document.getElementById('modal-thumbnails');
+    if (modalPrice) modalPrice.style.display = 'block';
+    if (modalBadges) modalBadges.style.display = 'flex';
+    if (modalAmenities) modalAmenities.style.display = 'block';
+    if (thumbRow) thumbRow.style.display = 'flex';
+
+    await originalOpenRoomModal(type);
+    
+    // Handle nav buttons visibility based on images count
+    const navButtons = document.querySelectorAll('.main-img-nav');
+    if (currentModalImages.length > 1) {
+        navButtons.forEach(btn => btn.style.display = 'flex');
+    } else {
+        navButtons.forEach(btn => btn.style.display = 'none');
+    }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
