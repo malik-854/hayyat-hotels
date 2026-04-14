@@ -1062,6 +1062,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (finalForm) {
         finalForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn ? submitBtn.innerHTML : 'Confirm Reservation';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = 'Saving... <i class="fas fa-spinner fa-spin" style="margin-left: 5px;"></i>';
+                submitBtn.style.opacity = '0.8';
+                submitBtn.style.cursor = 'not-allowed';
+            }
 
             const gName = document.getElementById('guest-name').value;
             const gCountry = document.getElementById('guest-country').value;
@@ -1133,7 +1142,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <tr>
                                 <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; color: #475569;">
                                     <strong>Rate per Night (${nights} Nights)</strong><br>
-                                    <small style="color: #94a3b8;">Base accommodation expenses</small>
+                                    <small style="color: #94a3b8;">Rs ${basePrice} per night</small>
                                 </td>
                                 <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600;">Rs ${totalPrice}</td>
                             </tr>
@@ -1212,6 +1221,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Finish
             closeAllModals();
             alert("Reservation Made!");
+            
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
+            }
         });
     }
 });
