@@ -6,28 +6,28 @@ const CLOUD_NAME = ''; // To be filled once provided
 // Static Room Data (Descriptions and Features match the ones in HTML)
 const roomDetails = {
     'Two-Bedroom Apartment': {
-        size: '1000 sq ft',
-        amenities: ['1 King, 2 Twin', 'Gourmet Kitchen', 'Separate Dining Area', 'Smart TV with Netflix', '24/7 Security', 'Full Power Backup']
+        size: 'Entire Apartment',
+        amenities: ['1 Queen, 2 Twin', 'Gourmet Kitchen', 'Separate Dining Area', 'Smart TV with Netflix', 'Free WiFi', 'Balcony', 'Refrigerator', 'Electronic Safe']
     },
     'The Maisonette': {
         size: 'Maximum Space',
-        amenities: ['Premier Luxury Unit', '1 Queen, 2 Twin', 'Extremely Spacious', 'Gourmet Kitchen', 'Down Duvets', 'Pillow Menu', 'In-Room Safe']
+        amenities: ['Premier Luxury Unit', '1 Queen, 2 Twin', 'Extremely Spacious', 'Gourmet Kitchen', 'Smart TV with Netflix', 'Separate Dining Area', 'Balcony', 'Electronic Safe']
     },
     'One-Bedroom Apartment': {
-        size: '615 sq ft',
-        amenities: ['1 King Bed', 'Gourmet Kitchenette', 'Spacious Sitting Area', 'Smart TV', 'Free WiFi', 'Select-Comfort Bedding']
+        size: 'Luxury Living',
+        amenities: ['1 King Bed', 'Gourmet Kitchenette', 'Spacious Sitting Area', 'Smart TV with Netflix', 'Free WiFi', 'Balcony', 'Separate Dining Area', 'Electronic Safe']
     },
     'Twin Studio Room': {
-        size: 'Cozy',
-        amenities: ['2 Twin Beds', 'Select-Comfort Beds', 'Daily Housekeeping', 'Free Toiletries', 'Slippers & Hairdryer', 'Smart TV']
+        size: 'Budget Concious',
+        amenities: ['2 Twin Beds', 'Dedicated Work Station', 'Daily Housekeeping', 'Free WiFi', 'Slippers & Hairdryer', 'Smart TV with Netflix', 'Refrigerator', 'Electronic Safe']
     },
     'Twin Studio Apartment': {
-        size: '490 sq ft',
-        amenities: ['2 Twin Beds', 'Dedicated Work Station', 'Gourmet Kitchenette', 'Laundry Access', 'Free WiFi', 'CCTV Security']
+        size: 'Business Choice',
+        amenities: ['2 Twin Beds', 'Dedicated Work Station', 'Kitchenette', 'Laundry Access', 'Free WiFi', 'Smart TV with Netflix', 'Refrigerator', 'Electronic Safe']
     },
     'Deluxe Apartment': {
-        size: '500 sq ft',
-        amenities: ['1 Queen Bed', 'Gourmet Kitchenette', 'Modern Layout', 'Air Conditioning', 'Total Power Backup', 'Premium Bedding']
+        size: 'Cozy Space',
+        amenities: ['1 Queen Bed', 'Gourmet Kitchenette', 'Kitchenette', 'Smart TV with Netflix', 'Refrigerator', 'Electronic Safe']
     }
 };
 
@@ -42,7 +42,7 @@ function isVideo(url) {
 
 function transformToDirectLink(url) {
     if (!url || typeof url !== 'string') return url || '';
-    
+
     // Google Drive
     if (url.includes('drive.google.com')) {
         let fileId = '';
@@ -54,12 +54,12 @@ function transformToDirectLink(url) {
         // Use export=download for better video streaming support
         return fileId ? `https://drive.google.com/uc?export=download&id=${fileId}` : url;
     }
-    
+
     // Dropbox
     if (url.includes('dropbox.com')) {
         return url.replace('dl=0', 'raw=1');
     }
-    
+
     return url;
 }
 
@@ -84,9 +84,9 @@ const links = document.querySelectorAll('.nav-links li');
 hamburger.addEventListener('click', () => {
     navLinks.classList.toggle('active');
     hamburger.classList.toggle('active');
-    if(navLinks.classList.contains('active')) {
+    if (navLinks.classList.contains('active')) {
         header.classList.add('scrolled');
-    } else if(window.scrollY <= 50) {
+    } else if (window.scrollY <= 50) {
         header.classList.remove('scrolled');
     }
 });
@@ -148,7 +148,7 @@ function startHeroSlideshow(urls) {
     // Check if the first URL is a YouTube link
     const originalUrl = urls[0];
     const firstUrlLow = originalUrl.toLowerCase();
-    
+
     if (firstUrlLow.includes('youtube.com') || firstUrlLow.includes('youtu.be')) {
         let videoId = '';
         if (originalUrl.includes('v=')) {
@@ -186,15 +186,15 @@ function startHeroSlideshow(urls) {
 function nextHeroSlide() {
     const slides = document.querySelectorAll('.hero-slide');
     if (!slides.length) return;
-    
+
     const oldSlide = slides[currentHeroIndex];
     currentHeroIndex = (currentHeroIndex + 1) % slides.length;
     const newSlide = slides[currentHeroIndex];
-    
+
     // Prepare new slide to come on top
     newSlide.style.zIndex = '3';
     oldSlide.style.zIndex = '2';
-    
+
     newSlide.classList.add('active');
 
     // Wait for the fade-in of the new slide then cleanup the old one
@@ -243,7 +243,7 @@ async function openRoomModal(type) {
     if (backBtn) backBtn.style.display = 'none';
     viewingResultContext = null;
     document.querySelector('.btn-book-now').innerText = 'Check Availability';
-    
+
     document.getElementById('modal-title').innerText = type;
     const mPrice = document.getElementById('modal-price');
     mPrice.style.display = 'block';
@@ -251,15 +251,15 @@ async function openRoomModal(type) {
     document.getElementById('modal-size').innerText = staticData.size;
 
     const mBadges = document.querySelector('.modal-badges');
-    if(mBadges) mBadges.style.display = 'flex';
+    if (mBadges) mBadges.style.display = 'flex';
     const mAmenities = document.querySelector('.modal-amenities');
-    if(mAmenities) mAmenities.style.display = 'block';
+    if (mAmenities) mAmenities.style.display = 'block';
     const mThumbs = document.getElementById('modal-thumbnails');
-    if(mThumbs) mThumbs.style.display = 'flex';
-    
+    if (mThumbs) mThumbs.style.display = 'flex';
+
     const card = document.querySelector(`[data-room="${type}"]`);
     if (card) document.getElementById('modal-desc').innerText = card.querySelector('p').innerText;
-    
+
     const availEl = document.getElementById('modal-availability');
     if (sData && sData.inventory > 0) {
         availEl.innerText = `${sData.inventory} Rooms Left`;
@@ -290,14 +290,14 @@ async function openRoomModal(type) {
     document.body.style.overflow = 'hidden';
 }
 
-window.changeModalImg = function(src, index) {
+window.changeModalImg = function (src, index) {
     const mainImg = document.getElementById('modal-main-img');
     const mainVideo = document.getElementById('modal-main-video');
-    
+
     if (index !== undefined) {
         currentModalImageIndex = index;
     }
-    
+
     if (isVideo(src)) {
         mainImg.style.display = 'none';
         mainVideo.style.display = 'block';
@@ -311,12 +311,12 @@ window.changeModalImg = function(src, index) {
     }
 };
 
-window.navigateMainImage = function(direction) {
+window.navigateMainImage = function (direction) {
     if (!currentModalImages || currentModalImages.length === 0) return;
     currentModalImageIndex += direction;
     if (currentModalImageIndex < 0) currentModalImageIndex = currentModalImages.length - 1;
     if (currentModalImageIndex >= currentModalImages.length) currentModalImageIndex = 0;
-    
+
     const src = currentModalImages[currentModalImageIndex];
     changeModalImg(src, currentModalImageIndex);
 };
@@ -324,11 +324,11 @@ window.navigateMainImage = function(direction) {
 let touchstartX = 0;
 let touchendX = 0;
 
-window.handleSwipeStart = function(e) {
+window.handleSwipeStart = function (e) {
     touchstartX = e.changedTouches[0].screenX;
 };
 
-window.handleSwipeEnd = function(e) {
+window.handleSwipeEnd = function (e) {
     touchendX = e.changedTouches[0].screenX;
     if (touchendX < touchstartX - 50) navigateMainImage(1); // Swipe left
     if (touchendX > touchstartX + 50) navigateMainImage(-1); // Swipe right
@@ -384,7 +384,7 @@ function performSearch(reqA, reqC) {
                 totalPriceVal: parseInt(room.price.replace(/,/g, '')),
                 capacity: `${room.adults} Adults, ${room.children} Children`
             });
-            uniqueCombos.add(JSON.stringify({[type]: 1}));
+            uniqueCombos.add(JSON.stringify({ [type]: 1 }));
         }
     });
 
@@ -403,7 +403,7 @@ function performSearch(reqA, reqC) {
 
         // Fill greedily with available rooms
         const sortedByCap = [...allAvailable].sort((a, b) => (sheetData[b].adults + sheetData[b].children) - (sheetData[a].adults + sheetData[a].children));
-        
+
         while (tempHeads > 0) {
             let found = false;
             for (let type of sortedByCap) {
@@ -427,14 +427,14 @@ function performSearch(reqA, reqC) {
                 uniqueCombos.add(comboKey);
                 let totalPrice = combo.reduce((s, t) => s + parseInt(sheetData[t].price.replace(/,/g, '')), 0);
                 let comboDesc = Object.entries(counts).map(([t, c]) => `${c} x ${t}`).join(' + ');
-                
+
                 matches.push({
                     isGroup: true,
                     name: "Privacy / Split Group Option",
                     desc: comboDesc,
                     price: totalPrice.toLocaleString(),
                     totalPriceVal: totalPrice,
-                    capacity: `Up to ${combo.reduce((s,t) => s + sheetData[t].adults + sheetData[t].children, 0)} Guests`
+                    capacity: `Up to ${combo.reduce((s, t) => s + sheetData[t].adults + sheetData[t].children, 0)} Guests`
                 });
             }
         }
@@ -483,16 +483,16 @@ function performSearch(reqA, reqC) {
 function displayResults(matches, reqA, reqC) {
     const listEl = document.getElementById('results-list');
     const summaryEl = document.getElementById('results-summary');
-    
+
     if (!listEl || !summaryEl) return;
-    
+
     // Switch to compact mode if many results
     if (matches.length > 3) {
         listEl.classList.add('compact-results');
     } else {
         listEl.classList.remove('compact-results');
     }
-    
+
     summaryEl.innerText = `Showing options for ${reqA} Adults and ${reqC} Children.`;
     listEl.innerHTML = '';
 
@@ -534,7 +534,7 @@ function displayResults(matches, reqA, reqC) {
 let viewingResultContext = null;
 
 // View Details for a single room type
-window.viewDetails = function(roomType, price) {
+window.viewDetails = function (roomType, price) {
     viewingResultContext = { name: roomType, desc: '', price: price };
     const tabsEl = document.getElementById('room-tabs');
     tabsEl.style.display = 'none';
@@ -546,7 +546,7 @@ window.viewDetails = function(roomType, price) {
 };
 
 // View Details for a combo
-window.viewComboDetails = function(desc, name, price) {
+window.viewComboDetails = function (desc, name, price) {
     viewingResultContext = { name: name, desc: desc, price: price };
     const parts = desc.split('+').map(s => s.trim());
     const roomTypes = parts.map(p => p.replace(/^\d+\s*x\s*/, '').trim());
@@ -580,7 +580,7 @@ window.viewComboDetails = function(desc, name, price) {
 };
 
 // Go back from room details to search results
-window.goBackToResults = function() {
+window.goBackToResults = function () {
     if (modal) modal.classList.remove('active');
     document.getElementById('back-to-results').style.display = 'none';
     if (resultsModal) {
@@ -638,7 +638,7 @@ function loadRoomIntoModal(type) {
 }
 
 
-window.bookSelection = function(name, desc, price) {
+window.bookSelection = function (name, desc, price) {
     const cin = document.getElementById('checkin') ? document.getElementById('checkin').value : '';
     const cout = document.getElementById('checkout') ? document.getElementById('checkout').value : '';
     const reqA = document.getElementById('adults') ? document.getElementById('adults').value : '2';
@@ -669,7 +669,7 @@ window.bookSelection = function(name, desc, price) {
     document.getElementById('summary-dates').innerText = `${cin} to ${cout} (${nights} ${nights > 1 ? 'Nights' : 'Night'})`;
     document.getElementById('summary-guests').innerText = `${reqA} Adults, ${reqC} Children`;
     document.getElementById('summary-room-name').innerText = name;
-    
+
     const descContainer = document.getElementById('summary-room-desc-container');
     if (desc) {
         document.getElementById('summary-room-desc').innerText = desc;
@@ -677,7 +677,7 @@ window.bookSelection = function(name, desc, price) {
     } else {
         descContainer.style.display = 'none';
     }
-    
+
     // Reset breakfast selection when opening a new checkout
     const bfCheckbox = document.getElementById('add-breakfast');
     if (bfCheckbox) bfCheckbox.checked = false;
@@ -685,7 +685,7 @@ window.bookSelection = function(name, desc, price) {
     if (bfOptions) bfOptions.style.display = 'none';
     const bfCount = document.getElementById('breakfast-count');
     if (bfCount) bfCount.value = 1;
-    
+
     updateCheckoutSummary();
 
     // Open Checkout Modal
@@ -720,10 +720,10 @@ function initModals() {
         });
     });
 
-    window.closeAllModals = function() {
+    window.closeAllModals = function () {
         const modalMainVideo = document.getElementById('modal-main-video');
         if (modalMainVideo) { modalMainVideo.pause(); modalMainVideo.currentTime = 0; }
-        
+
         if (modal) modal.classList.remove('active');
         if (resultsModal) resultsModal.classList.remove('active');
         if (checkoutModal) checkoutModal.classList.remove('active');
@@ -804,20 +804,20 @@ function initModals() {
             }
         });
     }
-    
+
     if (bfInfoIcon && bfInfoModal) {
         bfInfoIcon.addEventListener('click', (e) => {
             e.stopPropagation();
             bfInfoModal.classList.add('active');
         });
     }
-    
+
     if (closeBfModal && bfInfoModal) {
         closeBfModal.addEventListener('click', () => {
             bfInfoModal.classList.remove('active');
         });
     }
-    
+
     if (bfInfoModal) {
         bfInfoModal.addEventListener('click', (e) => {
             if (e.target === bfInfoModal) {
@@ -833,14 +833,14 @@ function updateCheckoutSummary() {
     const bfCount = parseInt(document.getElementById('breakfast-count').value) || 1;
     const { basePrice, totalPrice, nights } = currentBookingSelection;
     let finalPrice = parseInt(totalPrice.replace(/,/g, ''));
-    
+
     let bfHtml = '';
     if (addBf) {
         let bfCost = 1200 * bfCount * nights;
         finalPrice += bfCost;
         bfHtml = `<br><small style="color:var(--clr-orange); font-size: 0.85em;">+ Breakfast: Rs ${bfCost.toLocaleString()} (Rs ${1200 * bfCount} x ${nights})</small>`;
     }
-    
+
     document.getElementById('summary-price').innerHTML = `Rs ${basePrice} / night<br><small style="color:var(--clr-gray); font-size: 0.8em; font-weight: normal;">Room Total: Rs ${totalPrice}</small>${bfHtml}<br><strong style="font-size: 1.1em; color: var(--clr-darker); display: block; margin-top: 5px;">Grand Total: Rs ${finalPrice.toLocaleString()}</strong>`;
 }
 
@@ -857,7 +857,7 @@ function initDateConstraints() {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = tomorrow.toISOString().split('T')[0];
-    
+
     if (!cout.value || cout.value <= cin.value) {
         cout.min = tomorrowStr;
         cout.value = tomorrowStr;
@@ -883,7 +883,7 @@ async function fetchGalleryData() {
         console.log('Fetching Gallery from:', url);
         const response = await fetch(url);
         const data = await response.json();
-        
+
         console.log('Gallery Data Received:', data);
 
         if (data.values && data.values.length > 0) {
@@ -912,7 +912,7 @@ function renderGuestGallery(rows) {
         const [url, type, caption] = row;
         if (!url) return '';
         const isVideo = type ? type.toLowerCase().includes('video') : false;
-        
+
         return `
             <div class="guest-card" onclick="openMediaModal('${url}', ${isVideo})">
                 ${isVideo ? `
@@ -948,7 +948,7 @@ function renderGuestGallery(rows) {
     });
 }
 
-window.openMediaModal = function(url, isVideo) {
+window.openMediaModal = function (url, isVideo) {
     // Reusing the existing room modal for a quick media preview
     const modalMainImg = document.getElementById('modal-main-img');
     const modalMainVideo = document.getElementById('modal-main-video');
@@ -967,10 +967,10 @@ window.openMediaModal = function(url, isVideo) {
     modalTitle.innerText = "Guest Moment";
     modalDesc.innerText = "Captured by one of our valued guests. Experience the same comfort at Hayyat.";
     modalPrice.style.display = 'none';
-    if(modalBadges) modalBadges.style.display = 'none';
-    if(modalAmenities) modalAmenities.style.display = 'none';
-    if(tabsEl) tabsEl.style.display = 'none';
-    
+    if (modalBadges) modalBadges.style.display = 'none';
+    if (modalAmenities) modalAmenities.style.display = 'none';
+    if (tabsEl) tabsEl.style.display = 'none';
+
     // Hide navigation arrows for single media preview
     const navButtons = document.querySelectorAll('.main-img-nav');
     navButtons.forEach(btn => btn.style.display = 'none');
@@ -996,34 +996,34 @@ window.openMediaModal = function(url, isVideo) {
     if (roomModal) {
         const modalContent = roomModal.querySelector('.modal-content');
         if (modalContent) modalContent.classList.add('gallery-mode');
-        
+
         roomModal.classList.add('active');
         document.body.style.overflow = 'hidden';
     }
 };
 
-window.closeMediaModal = function() {
+window.closeMediaModal = function () {
     closeAllModals();
 };
 
 // Also ensure the room modal reset shows the image again
 const originalOpenRoomModal = openRoomModal;
-openRoomModal = async function(type) {
+openRoomModal = async function (type) {
     const modalMainImg = document.getElementById('modal-main-img');
     const modalMainVideo = document.getElementById('modal-main-video');
-    
+
     const roomModal = document.getElementById('room-modal');
     if (roomModal) {
         const modalContent = roomModal.querySelector('.modal-content');
         if (modalContent) modalContent.classList.remove('gallery-mode');
     }
 
-    if(modalMainImg) modalMainImg.style.display = 'block';
-    if(modalMainVideo) {
+    if (modalMainImg) modalMainImg.style.display = 'block';
+    if (modalMainVideo) {
         modalMainVideo.style.display = 'none';
         modalMainVideo.pause();
     }
-    
+
     // Restore elements that might have been hidden by openMediaModal
     const modalPrice = document.getElementById('modal-price');
     const modalBadges = document.querySelector('.modal-badges');
@@ -1033,7 +1033,7 @@ openRoomModal = async function(type) {
     if (modalAmenities) modalAmenities.style.display = 'block';
 
     await originalOpenRoomModal(type);
-    
+
     // Handle nav buttons visibility based on images count
     const navButtons = document.querySelectorAll('.main-img-nav');
     if (currentModalImages.length > 1) {
@@ -1062,7 +1062,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (finalForm) {
         finalForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            
+
             const gName = document.getElementById('guest-name').value;
             const gPhone = document.getElementById('guest-phone').value;
             const gEmail = document.getElementById('guest-email').value || 'Not provided';
@@ -1082,32 +1082,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 let bfTotalCost = 1200 * bfCount * nights;
                 finalPrice += bfTotalCost;
                 bfCostStr = `🍳 *Breakfast Added:*\n` +
-                            `Type: ${bfType}\n` +
-                            `Quantity: ${bfCount} per day\n` +
-                            `Cost: Rs ${bfTotalCost.toLocaleString()} (Rs 1200 pp x ${bfCount} x ${nights})\n`;
+                    `Type: ${bfType}\n` +
+                    `Quantity: ${bfCount} per day\n` +
+                    `Cost: Rs ${bfTotalCost.toLocaleString()} (Rs 1200 pp x ${bfCount} x ${nights})\n`;
             }
 
             const msg = `*New Booking Request!* 🏨\n\n` +
-                        `*Guest Details:*\n` +
-                        `👤 Name: ${gName}\n` +
-                        `📞 Phone: ${gPhone}\n` +
-                        `✉️ Email: ${gEmail}\n\n` +
-                        `*Stay Details:*\n` +
-                        `📅 Check-in: ${cin}\n` +
-                        `📅 Check-out: ${cout}\n` +
-                        `🌙 Duration: ${nights} ${nights > 1 ? 'Nights' : 'Night'}\n` +
-                        `👥 Guests: ${adults} Adults, ${children} Children\n` +
-                        `🕒 Est. Arrival: ${gArrival}\n\n` +
-                        `*Room Selection:*\n` +
-                        `🛏️ ${details}\n` +
-                        `💳 Rate: Rs ${basePrice} / night\n` +
-                        `💰 *Room Total: Rs ${totalPrice}*\n\n` +
-                        bfCostStr +
-                        (bfCostStr ? `\n` : ``) +
-                        `🔥 *Grand Total: Rs ${finalPrice.toLocaleString()}*\n\n` +
-                        `*Special Requests:*\n` +
-                        `💬 ${gReq}\n\n` +
-                        `Please process my reservation.`;
+                `*Guest Details:*\n` +
+                `👤 Name: ${gName}\n` +
+                `📞 Phone: ${gPhone}\n` +
+                `✉️ Email: ${gEmail}\n\n` +
+                `*Stay Details:*\n` +
+                `📅 Check-in: ${cin}\n` +
+                `📅 Check-out: ${cout}\n` +
+                `🌙 Duration: ${nights} ${nights > 1 ? 'Nights' : 'Night'}\n` +
+                `👥 Guests: ${adults} Adults, ${children} Children\n` +
+                `🕒 Est. Arrival: ${gArrival}\n\n` +
+                `*Room Selection:*\n` +
+                `🛏️ ${details}\n` +
+                `💳 Rate: Rs ${basePrice} / night\n` +
+                `💰 *Room Total: Rs ${totalPrice}*\n\n` +
+                bfCostStr +
+                (bfCostStr ? `\n` : ``) +
+                `🔥 *Grand Total: Rs ${finalPrice.toLocaleString()}*\n\n` +
+                `*Special Requests:*\n` +
+                `💬 ${gReq}\n\n` +
+                `Please process my reservation.`;
 
             window.open(`https://wa.me/923136766699?text=${encodeURIComponent(msg)}`);
         });
