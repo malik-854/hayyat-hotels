@@ -34,6 +34,12 @@ const roomDetails = {
 let sheetData = {};
 
 // --- Link Transformer Helper ---
+function isVideo(url) {
+    if (!url || typeof url !== 'string') return false;
+    const lowerUrl = url.toLowerCase();
+    return lowerUrl.includes('.mp4') || lowerUrl.includes('.webm') || lowerUrl.includes('.mov') || lowerUrl.includes('.ogg');
+}
+
 function transformToDirectLink(url) {
     if (!url || typeof url !== 'string') return url || '';
     
@@ -105,8 +111,8 @@ async function fetchHotelData() {
                 if (!type) return;
                 sheetData[type.trim()] = {
                     price: price,
-                    mainImg: mainImg,
-                    gallery: gallery ? gallery.split(',').map(s => s.trim()) : [],
+                    mainImg: transformToDirectLink(mainImg ? mainImg.trim() : ''),
+                    gallery: gallery ? gallery.split(',').map(s => transformToDirectLink(s.trim())).filter(s => s) : [],
                     inventory: parseInt(inventory) || 0,
                     adults: parseInt(adultsCap) || 2,
                     children: parseInt(childrenCap) || 0
@@ -266,15 +272,34 @@ async function openRoomModal(type) {
     amenitiesList.innerHTML = staticData.amenities.map(a => `<li>${a}</li>`).join('');
 
     const mainImg = document.getElementById('modal-main-img');
+    const mainVideo = document.getElementById('modal-main-video');
     const thumbRow = document.getElementById('modal-thumbnails');
     let images = sData ? [...sData.gallery] : [];
     if (sData && sData.mainImg) images.unshift(sData.mainImg);
 
     if (images.length > 0) {
-        mainImg.src = images[0];
-        thumbRow.innerHTML = images.map((img, i) => `
-            <img src="${img}" class="${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}')">
-        `).join('');
+        if (isVideo(images[0])) {
+            mainImg.style.display = 'none';
+            mainVideo.style.display = 'block';
+            mainVideo.src = images[0];
+            mainVideo.play();
+        } else {
+            mainVideo.style.display = 'none';
+            mainVideo.pause();
+            mainImg.style.display = 'block';
+            mainImg.src = images[0];
+        }
+
+        thumbRow.innerHTML = images.map((img, i) => {
+            if (isVideo(img)) {
+                return `<div class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}')" style="position:relative;">
+                            <video src="${img}"></video>
+                            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:white; font-size:1.5rem; text-shadow:0 0 5px rgba(0,0,0,0.8); pointer-events:none;"><i class="fas fa-play-circle"></i></div>
+                        </div>`;
+            } else {
+                return `<img src="${img}" class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}')">`;
+            }
+        }).join('');
     }
 
     modal.classList.add('active');
@@ -282,9 +307,31 @@ async function openRoomModal(type) {
 }
 
 window.changeModalImg = function(el, src) {
-    document.getElementById('modal-main-img').src = src;
-    document.querySelectorAll('.thumbnail-row img').forEach(img => img.classList.remove('active'));
+    const mainImg = document.getElementById('modal-main-img');
+    const mainVideo = document.getElementById('modal-main-video');
+    
+    if (isVideo(src)) {
+        mainImg.style.display = 'none';
+        mainVideo.style.display = 'block';
+        mainVideo.src = src;
+        mainVideo.play();
+    } else {
+        mainVideo.style.display = 'none';
+        mainVideo.pause();
+        mainImg.style.display = 'block';
+        mainImg.src = src;
+    }
+
+    document.querySelectorAll('.thumbnail-row .thumb-item').forEach(img => img.classList.remove('active'));
     el.classList.add('active');
+};
+
+window.scrollThumbnails = function(direction) {
+    const thumbRow = document.getElementById('modal-thumbnails');
+    if (thumbRow) {
+        const scrollAmount = 100;
+        thumbRow.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+    }
 };
 
 // 5. Scroll Animation Observer
@@ -561,15 +608,34 @@ function loadRoomIntoModal(type) {
     amenitiesList.innerHTML = staticData.amenities.map(a => `<li>${a}</li>`).join('');
 
     const mainImg = document.getElementById('modal-main-img');
+    const mainVideo = document.getElementById('modal-main-video');
     const thumbRow = document.getElementById('modal-thumbnails');
     let images = sData ? [...sData.gallery] : [];
     if (sData && sData.mainImg) images.unshift(sData.mainImg);
 
     if (images.length > 0) {
-        mainImg.src = images[0];
-        thumbRow.innerHTML = images.map((img, i) => `
-            <img src="${img}" class="${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}')">
-        `).join('');
+        if (isVideo(images[0])) {
+            mainImg.style.display = 'none';
+            mainVideo.style.display = 'block';
+            mainVideo.src = images[0];
+            mainVideo.play();
+        } else {
+            mainVideo.style.display = 'none';
+            mainVideo.pause();
+            mainImg.style.display = 'block';
+            mainImg.src = images[0];
+        }
+
+        thumbRow.innerHTML = images.map((img, i) => {
+            if (isVideo(img)) {
+                return `<div class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}')" style="position:relative;">
+                            <video src="${img}"></video>
+                            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:white; font-size:1.5rem; text-shadow:0 0 5px rgba(0,0,0,0.8); pointer-events:none;"><i class="fas fa-play-circle"></i></div>
+                        </div>`;
+            } else {
+                return `<img src="${img}" class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}')">`;
+            }
+        }).join('');
     }
 }
 

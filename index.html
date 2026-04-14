@@ -487,8 +487,12 @@
                         <img id="modal-main-img" src="" alt="Room Detail">
                         <video id="modal-main-video" src="" controls muted style="display:none; width:100%; height:100%; object-fit:cover;"></video>
                     </div>
-                    <div class="thumbnail-row" id="modal-thumbnails">
-                        <!-- Thumbnails injected here -->
+                    <div class="thumbnail-container" style="position: relative; margin-top: 10px;">
+                        <button class="thumb-nav-btn prev-thumb" onclick="scrollThumbnails(-1)" style="position:absolute; left:-16px; top:50%; transform:translateY(-50%); z-index:5; background:var(--clr-white); border:1px solid var(--clr-gray-light); border-radius:50%; width:32px; height:32px; cursor:pointer; box-shadow:var(--shadow-sm);"><i class="fas fa-chevron-left"></i></button>
+                        <div class="thumbnail-row" id="modal-thumbnails" style="display:flex; gap:0.75rem; overflow-x:auto; scroll-behavior:smooth; scrollbar-width:none; padding-bottom:0.5rem; flex:1;">
+                            <!-- Thumbnails injected here -->
+                        </div>
+                        <button class="thumb-nav-btn next-thumb" onclick="scrollThumbnails(1)" style="position:absolute; right:-16px; top:50%; transform:translateY(-50%); z-index:5; background:var(--clr-white); border:1px solid var(--clr-gray-light); border-radius:50%; width:32px; height:32px; cursor:pointer; box-shadow:var(--shadow-sm);"><i class="fas fa-chevron-right"></i></button>
                     </div>
                 </div>
                 <div class="modal-info">
