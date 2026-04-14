@@ -335,6 +335,21 @@ header.scrolled .bar { background-color: var(--clr-darker); }
     z-index: 10;
 }
 
+.booking-bar.animate-up {
+    animation: fadeUpBooking 1s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+@keyframes fadeUpBooking {
+    from {
+        opacity: 0;
+        transform: translate(-50%, calc(50% + 30px));
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 50%);
+    }
+}
+
 .booking-form {
     display: flex;
     justify-content: space-between;
@@ -960,6 +975,7 @@ footer {
         top: auto !important;
         right: auto !important;
         transform: none !important;
+        animation: none !important;
         width: 100% !important;
         max-width: 100% !important;
         border-radius: 0 !important;
