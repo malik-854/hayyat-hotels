@@ -1087,70 +1087,80 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Create PDF Content Template
             const pdfTemplate = `
-                <div style="padding: 40px; font-family: 'Outfit', sans-serif; color: #1e293b; line-height: 1.6;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ea580c; padding-bottom: 20px; margin-bottom: 30px;">
+                <div style="padding: 20px 40px; font-family: 'Outfit', sans-serif; color: #1e293b; line-height: 1.4;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #ea580c; padding-bottom: 15px; margin-bottom: 25px;">
                         <div>
-                            <h1 style="margin: 0; color: #ea580c; font-size: 28px; text-transform: uppercase; letter-spacing: 2px;">Hayyat Hotels</h1>
-                            <p style="margin: 5px 0 0; color: #64748b;">Luxury Boutique Apartments • Lahore</p>
+                            <h1 style="margin: 0; color: #ea580c; font-size: 26px; text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">Hayyat Hotels</h1>
+                            <p style="margin: 3px 0 0; color: #64748b; font-size: 13px;">2 Lawrance Road, China Chowk, 54000 Lahore, Pakistan</p>
                         </div>
                         <div style="text-align: right;">
-                            <p style="margin: 0; font-weight: 700;">Reservation Confirmation</p>
-                            <p style="margin: 0; color: #64748b;">Date: ${new Date().toLocaleDateString()}</p>
+                            <p style="margin: 0; font-weight: 700; font-size: 15px; color: #1e293b;">Reservation Confirmation</p>
+                            <p style="margin: 0; color: #64748b; font-size: 13px;">Date: ${new Date().toLocaleDateString()}</p>
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 30px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 25px;">
                         <div>
-                            <h3 style="color: #ea580c; border-bottom: 1px solid #fed7aa; padding-bottom: 5px; margin-bottom: 15px;">Guest Information</h3>
-                            <p style="margin: 5px 0;"><strong>Name:</strong> ${gName}</p>
-                            <p style="margin: 5px 0;"><strong>Country:</strong> ${gCountry}</p>
-                            <p style="margin: 5px 0;"><strong>Phone:</strong> ${gPhone}</p>
-                            <p style="margin: 5px 0;"><strong>Email:</strong> ${gEmail}</p>
+                            <h3 style="color: #ea580c; border-bottom: 1px solid #fed7aa; padding-bottom: 5px; margin-bottom: 12px; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px;">Guest Information</h3>
+                            <p style="margin: 4px 0; font-size: 14px;"><strong>Name:</strong> ${gName}</p>
+                            <p style="margin: 4px 0; font-size: 14px;"><strong>Country:</strong> ${gCountry}</p>
+                            <p style="margin: 4px 0; font-size: 14px;"><strong>Phone:</strong> ${gPhone}</p>
+                            <p style="margin: 4px 0; font-size: 14px;"><strong>Email:</strong> ${gEmail}</p>
                         </div>
                         <div>
-                            <h3 style="color: #ea580c; border-bottom: 1px solid #fed7aa; padding-bottom: 5px; margin-bottom: 15px;">Stay Details</h3>
-                            <p style="margin: 5px 0;"><strong>Check-in:</strong> ${cin}</p>
-                            <p style="margin: 5px 0;"><strong>Check-out:</strong> ${cout}</p>
-                            <p style="margin: 5px 0;"><strong>Duration:</strong> ${nights} ${nights > 1 ? 'Nights' : 'Night'}</p>
-                            <p style="margin: 5px 0;"><strong>Guests:</strong> ${adults} Adults, ${children} Children</p>
+                            <h3 style="color: #ea580c; border-bottom: 1px solid #fed7aa; padding-bottom: 5px; margin-bottom: 12px; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px;">Stay Details</h3>
+                            <p style="margin: 4px 0; font-size: 14px;"><strong>Check-in:</strong> ${cin}</p>
+                            <p style="margin: 4px 0; font-size: 14px;"><strong>Check-out:</strong> ${cout}</p>
+                            <p style="margin: 4px 0; font-size: 14px;"><strong>Duration:</strong> ${nights} ${nights > 1 ? 'Nights' : 'Night'}</p>
+                            <p style="margin: 4px 0; font-size: 14px;"><strong>Guests:</strong> ${adults} Adults, ${children} Children</p>
                         </div>
                     </div>
 
-                    <div style="margin-bottom: 30px; background: #fff7ed; padding: 20px; border-radius: 8px;">
-                        <h3 style="color: #ea580c; margin-top: 0; margin-bottom: 15px;">Selected Accommodation</h3>
-                        <p style="margin: 5px 0; font-size: 18px; font-weight: 700;">${details}</p>
-                        <p style="margin: 10px 0 0; color: #64748b;">Special Requests: ${gReq}</p>
+                    <div style="margin-bottom: 25px; background: #fff7ed; padding: 15px 20px; border-radius: 8px; border-left: 4px solid #ea580c;">
+                        <h3 style="color: #ea580c; margin-top: 0; margin-bottom: 8px; font-size: 15px; text-transform: uppercase;">Selected Accommodation</h3>
+                        <p style="margin: 0; font-size: 16px; font-weight: 700; color: #1e293b;">${details}</p>
+                        <p style="margin: 8px 0 0; color: #64748b; font-size: 13px; font-style: italic;">Special Requests: ${gReq}</p>
                     </div>
 
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 14px;">
                         <thead>
                             <tr style="background: #ea580c; color: white;">
-                                <th style="padding: 12px; text-align: left;">Description</th>
-                                <th style="padding: 12px; text-align: right;">Amount</th>
+                                <th style="padding: 10px 15px; text-align: left; border-radius: 4px 0 0 4px;">Description</th>
+                                <th style="padding: 10px 15px; text-align: right; border-radius: 0 4px 4px 0;">Amount</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Base Room Rate (${nights} Nights)</td>
-                                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: right;">Rs ${totalPrice}</td>
+                                <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; color: #475569;">
+                                    <strong>Rate per Night (${nights} Nights)</strong><br>
+                                    <small style="color: #94a3b8;">Base accommodation charges</small>
+                                </td>
+                                <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600;">Rs ${totalPrice}</td>
                             </tr>
                             ${addBf ? `
                             <tr>
-                                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Breakfast Supplement<br><small style="color: #64748b;">${bfCostInfo}</small></td>
-                                <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: right;">Rs ${bfTotalCost.toLocaleString()}</td>
+                                <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; color: #475569;">
+                                    <strong>Breakfast Supplement</strong><br>
+                                    <small style="color: #94a3b8;">${bfCostInfo}</small>
+                                </td>
+                                <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600;">Rs ${bfTotalCost.toLocaleString()}</td>
                             </tr>
                             ` : ''}
-                            <tr style="font-weight: 700; font-size: 20px; color: #ea580c;">
-                                <td style="padding: 20px 12px;">Grand Total</td>
-                                <td style="padding: 20px 12px; text-align: right;">Rs ${finalPrice.toLocaleString()}</td>
+                            <tr style="background: #f8fafc;">
+                                <td style="padding: 15px; color: #1e293b; font-size: 18px; font-weight: 800;">GRAND TOTAL</td>
+                                <td style="padding: 15px; text-align: right; font-size: 20px; font-weight: 800; color: #ea580c;">Rs ${finalPrice.toLocaleString()}</td>
                             </tr>
                         </tbody>
                     </table>
 
-                    <div style="background: #f8fafc; padding: 20px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0;">
-                        <p style="margin: 0; font-weight: 700; color: #1e293b;">Important Information</p>
-                        <p style="margin: 5px 0; font-size: 14px; color: #64748b;">This is a preliminary reservation request. Our team will contact you shortly to confirm availability and payment details.</p>
-                        <p style="margin: 15px 0 0; font-weight: 700; color: #ea580c;">Contact Us: +923136766699 | info@hayyathotels.com</p>
+                    <div style="background: #ffffff; padding: 20px; border-radius: 8px; text-align: center; border: 1px dashed #cbd5e1;">
+                        <p style="margin: 0; font-weight: 700; color: #1e293b; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Booking Policy</p>
+                        <p style="margin: 8px 0; font-size: 13px; color: #64748b;">This is a preliminary reservation request. Our team will contact you shortly to confirm availability and payment details.</p>
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #f1f5f9; display: flex; justify-content: center; gap: 20px; font-size: 13px; font-weight: 600; color: #ea580c;">
+                            <span>📞 +923136766699</span>
+                            <span>📧 info@hayyathotels.com</span>
+                            <span>📍 Lahore, Pakistan</span>
+                        </div>
                     </div>
                 </div>
             `;
@@ -1192,12 +1202,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Send Email Silently via Google Apps Script (Webhook)
             const googleScriptURL = 'https://script.google.com/macros/s/AKfycbyCIp5BWdtdw1kLzVXuofmvhx8on-4ESR6aqHxJQ1jFjbHEqGoER3Z3_-hDQITHc14E/exec'; 
             
-            if (googleScriptURL !== 'YOUR_GOOGLE_SCRIPT_WEB_APP_URL') {
-                fetch(googleScriptURL, {
-                    method: 'POST',
-                    body: JSON.stringify(reservationData)
-                }).catch(err => console.error("Error sending notification:", err));
-            }
+            fetch(googleScriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reservationData)
+            }).catch(err => console.error("Error sending notification:", err));
         });
     }
 });
