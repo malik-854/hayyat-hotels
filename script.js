@@ -1060,7 +1060,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const finalForm = document.getElementById('final-booking-form');
     if (finalForm) {
-        finalForm.addEventListener('submit', (e) => {
+        finalForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const gName = document.getElementById('guest-name').value;
@@ -1087,7 +1087,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Create PDF Content Template
             const pdfTemplate = `
-                <div style="padding: 0; font-family: 'Outfit', sans-serif; color: #1e293b; line-height: 1.4;">
+                <div style="width: 800px; max-width: 800px; box-sizing: border-box; padding: 20px 40px; font-family: 'Outfit', sans-serif; color: #1e293b; line-height: 1.4; background: white;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #ea580c; padding-bottom: 15px; margin-bottom: 25px;">
                         <div>
                             <h1 style="margin: 0; color: #ea580c; font-size: 26px; text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">Hayyat Hotels</h1>
@@ -1167,21 +1167,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const element = document.createElement('div');
             element.innerHTML = pdfTemplate;
-            
-            const opt = {
-                margin: [0.5, 0.5, 0.5, 0.5],
+             const opt = {
+                margin: 0.2, // Tiny uniform margin
                 filename: `Reservation_for_${gName.replace(/\s+/g, '_')}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowWidth: 800 },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
-
-            // Generate PDF and open in a new tab
-            html2pdf().set(opt).from(element).toPdf().get('pdf').then(function(pdf) {
-                window.open(pdf.output('bloburl'), '_blank');
-                closeAllModals();
-                alert("Reservation Made!");
-            });
 
             // Prepare Payload for Google Apps Script
             const reservationData = {
@@ -1202,16 +1194,24 @@ document.addEventListener('DOMContentLoaded', () => {
             // Send Email Silently via Google Apps Script (Webhook)
             const googleScriptURL = 'https://script.google.com/macros/s/AKfycbyCIp5BWdtdw1kLzVXuofmvhx8on-4ESR6aqHxJQ1jFjbHEqGoER3Z3_-hDQITHc14E/exec'; 
             
-            fetch(googleScriptURL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(reservationData)
-            }).catch(err => console.error("Error sending notification:", err));
+            try {
+                // Awaiting the fetch ensures the email safely dispatches before alerts freeze the browser
+                await fetch(googleScriptURL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(reservationData)
+                });
+            } catch (err) {
+                console.error("Error sending notification:", err);
+            }
+
+            // Generate exactly named PDF and download to avoid blob URL gibberish
+            html2pdf().set(opt).from(element).save();
+
+            // Finish
+            closeAllModals();
+            alert("Reservation Made!");
         });
     }
 });
-
-
