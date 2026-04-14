@@ -1064,6 +1064,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
 
             const gName = document.getElementById('guest-name').value;
+            const gCountry = document.getElementById('guest-country').value;
             const gPhone = document.getElementById('guest-phone').value;
             const gEmail = document.getElementById('guest-email').value || 'Not provided';
             const gArrival = document.getElementById('guest-arrival').value;
@@ -1074,7 +1075,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const addBf = document.getElementById('add-breakfast').checked;
             const bfCount = parseInt(document.getElementById('breakfast-count').value) || 1;
-            const bfType = document.getElementById('breakfast-type').value;
 
             let finalPrice = parseInt(totalPrice.replace(/,/g, ''));
             let bfCostStr = "";
@@ -1082,7 +1082,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 let bfTotalCost = 1200 * bfCount * nights;
                 finalPrice += bfTotalCost;
                 bfCostStr = `🍳 *Breakfast Added:*\n` +
-                    `Type: ${bfType}\n` +
                     `Quantity: ${bfCount} per day\n` +
                     `Cost: Rs ${bfTotalCost.toLocaleString()} (Rs 1200 pp x ${bfCount} x ${nights})\n`;
             }
@@ -1090,6 +1089,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const msg = `*New Booking Request!* 🏨\n\n` +
                 `*Guest Details:*\n` +
                 `👤 Name: ${gName}\n` +
+                `🌍 Country: ${gCountry}\n` +
                 `📞 Phone: ${gPhone}\n` +
                 `✉️ Email: ${gEmail}\n\n` +
                 `*Stay Details:*\n` +
