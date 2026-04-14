@@ -63,6 +63,9 @@ function transformToDirectLink(url) {
     return url;
 }
 
+let currentModalImages = [];
+let currentModalImageIndex = 0;
+
 // 1. Navbar Scroll Effect
 const header = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
@@ -277,6 +280,9 @@ async function openRoomModal(type) {
     let images = sData ? [...sData.gallery] : [];
     if (sData && sData.mainImg) images.unshift(sData.mainImg);
 
+    currentModalImages = images;
+    currentModalImageIndex = 0;
+
     if (images.length > 0) {
         if (isVideo(images[0])) {
             mainImg.style.display = 'none';
@@ -292,12 +298,12 @@ async function openRoomModal(type) {
 
         thumbRow.innerHTML = images.map((img, i) => {
             if (isVideo(img)) {
-                return `<div class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}')" style="position:relative;">
+                return `<div class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}', ${i})" style="position:relative;">
                             <video src="${img}"></video>
                             <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:white; font-size:1.5rem; text-shadow:0 0 5px rgba(0,0,0,0.8); pointer-events:none;"><i class="fas fa-play-circle"></i></div>
                         </div>`;
             } else {
-                return `<img src="${img}" class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}')">`;
+                return `<img src="${img}" class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}', ${i})">`;
             }
         }).join('');
     }
@@ -306,9 +312,13 @@ async function openRoomModal(type) {
     document.body.style.overflow = 'hidden';
 }
 
-window.changeModalImg = function(el, src) {
+window.changeModalImg = function(el, src, index) {
     const mainImg = document.getElementById('modal-main-img');
     const mainVideo = document.getElementById('modal-main-video');
+    
+    if (index !== undefined) {
+        currentModalImageIndex = index;
+    }
     
     if (isVideo(src)) {
         mainImg.style.display = 'none';
@@ -323,8 +333,53 @@ window.changeModalImg = function(el, src) {
     }
 
     document.querySelectorAll('.thumbnail-row .thumb-item').forEach(img => img.classList.remove('active'));
-    el.classList.add('active');
+    if (el) {
+        el.classList.add('active');
+        // Scroll the thumbnail row to bring the active thumbnail into view
+        const thumbRow = document.getElementById('modal-thumbnails');
+        if (thumbRow) {
+            const scrollPos = el.offsetLeft - thumbRow.offsetWidth / 2 + el.offsetWidth / 2;
+            thumbRow.scrollTo({ left: scrollPos, behavior: 'smooth' });
+        }
+    }
 };
+
+window.navigateMainImage = function(direction) {
+    if (!currentModalImages || currentModalImages.length === 0) return;
+    currentModalImageIndex += direction;
+    if (currentModalImageIndex < 0) currentModalImageIndex = currentModalImages.length - 1;
+    if (currentModalImageIndex >= currentModalImages.length) currentModalImageIndex = 0;
+    
+    const src = currentModalImages[currentModalImageIndex];
+    const thumbRow = document.getElementById('modal-thumbnails');
+    if (thumbRow) {
+        const thumbItems = thumbRow.querySelectorAll('.thumb-item');
+        if (thumbItems && thumbItems.length > currentModalImageIndex) {
+            const el = thumbItems[currentModalImageIndex];
+            changeModalImg(el, src, currentModalImageIndex);
+        }
+    }
+};
+
+let touchstartX = 0;
+let touchendX = 0;
+
+window.handleSwipeStart = function(e) {
+    touchstartX = e.changedTouches[0].screenX;
+};
+
+window.handleSwipeEnd = function(e) {
+    touchendX = e.changedTouches[0].screenX;
+    if (touchendX < touchstartX - 50) navigateMainImage(1); // Swipe left
+    if (touchendX > touchstartX + 50) navigateMainImage(-1); // Swipe right
+};
+
+document.addEventListener('keydown', (e) => {
+    if (modal && modal.classList.contains('active')) {
+        if (e.key === 'ArrowLeft') navigateMainImage(-1);
+        if (e.key === 'ArrowRight') navigateMainImage(1);
+    }
+});
 
 window.scrollThumbnails = function(direction) {
     const thumbRow = document.getElementById('modal-thumbnails');
@@ -628,12 +683,12 @@ function loadRoomIntoModal(type) {
 
         thumbRow.innerHTML = images.map((img, i) => {
             if (isVideo(img)) {
-                return `<div class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}')" style="position:relative;">
+                return `<div class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}', ${i})" style="position:relative;">
                             <video src="${img}"></video>
                             <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:white; font-size:1.5rem; text-shadow:0 0 5px rgba(0,0,0,0.8); pointer-events:none;"><i class="fas fa-play-circle"></i></div>
                         </div>`;
             } else {
-                return `<img src="${img}" class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}')">`;
+                return `<img src="${img}" class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeModalImg(this, '${img}', ${i})">`;
             }
         }).join('');
     }
