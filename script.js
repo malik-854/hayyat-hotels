@@ -1190,8 +1190,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             // Send Email Silently via Google Apps Script (Webhook)
-            // IMPORTANT: Replace 'YOUR_GOOGLE_SCRIPT_WEB_APP_URL' with your actual Google Script deployment URL
-            const googleScriptURL = 'YOUR_GOOGLE_SCRIPT_WEB_APP_URL'; 
+            const googleScriptURL = 'https://script.google.com/macros/s/AKfycbyCIp5BWdtdw1kLzVXuofmvhx8on-4ESR6aqHxJQ1jFjbHEqGoER3Z3_-hDQITHc14E/exec'; 
             
             if (googleScriptURL !== 'YOUR_GOOGLE_SCRIPT_WEB_APP_URL') {
                 fetch(googleScriptURL, {
