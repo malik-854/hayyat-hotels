@@ -1057,7 +1057,7 @@ footer {
 
 .modal.active {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
 }
 
@@ -1445,7 +1445,6 @@ footer {
 .checkout-content {
     max-width: 1000px !important;
     padding: 0 !important;
-    overflow: hidden;
     background: transparent !important;
 }
 

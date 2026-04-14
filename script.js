@@ -781,7 +781,7 @@ function initModals() {
     if (bfCheckbox) {
         bfCheckbox.addEventListener('change', (e) => {
             if (e.target.checked) {
-                bfOptions.style.display = 'block';
+                bfOptions.style.display = 'flex';
             } else {
                 bfOptions.style.display = 'none';
             }
