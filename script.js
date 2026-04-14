@@ -1087,7 +1087,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Create PDF Content Template
             const pdfTemplate = `
-                <div style="padding: 20px 40px; font-family: 'Outfit', sans-serif; color: #1e293b; line-height: 1.4;">
+                <div style="padding: 0; font-family: 'Outfit', sans-serif; color: #1e293b; line-height: 1.4;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #ea580c; padding-bottom: 15px; margin-bottom: 25px;">
                         <div>
                             <h1 style="margin: 0; color: #ea580c; font-size: 26px; text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">Hayyat Hotels</h1>
@@ -1133,7 +1133,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <tr>
                                 <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; color: #475569;">
                                     <strong>Rate per Night (${nights} Nights)</strong><br>
-                                    <small style="color: #94a3b8;">Base accommodation charges</small>
+                                    <small style="color: #94a3b8;">Base accommodation expenses</small>
                                 </td>
                                 <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600;">Rs ${totalPrice}</td>
                             </tr>
@@ -1169,10 +1169,10 @@ document.addEventListener('DOMContentLoaded', () => {
             element.innerHTML = pdfTemplate;
             
             const opt = {
-                margin: 0,
-                filename: `Reservation_${gName.replace(/\s+/g, '_')}.pdf`,
+                margin: [0.5, 0.5, 0.5, 0.5],
+                filename: `Reservation_for_${gName.replace(/\s+/g, '_')}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowWidth: 800 },
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
 
