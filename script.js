@@ -2,6 +2,7 @@
 const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
 const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI'; // Reusing your webstore key
 const CLOUD_NAME = ''; // To be filled once provided
+const APP_VERSION = '2026.04.15.01'; // Matches version in Google Sheet (K1)
 
 // Static Room Data (Descriptions and Features match the ones in HTML)
 const roomDetails = {
@@ -104,6 +105,19 @@ let currentHeroIndex = 0;
 
 async function fetchHotelData() {
     try {
+        // 1. Version Check
+        const versionUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!K1?key=${API_KEY}`;
+        const vResponse = await fetch(versionUrl);
+        const vData = await vResponse.json();
+        const serverVersion = vData.values ? vData.values[0][0] : null;
+
+        if (serverVersion && serverVersion !== APP_VERSION) {
+            console.error("Version Mismatch: Local:", APP_VERSION, "Server:", serverVersion);
+            showUpdateOverlay(serverVersion);
+            return; // Stop loading if version is wrong
+        }
+
+        // 2. Fetch Main Data
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A2:H?key=${API_KEY}`;
         const response = await fetch(url);
         const data = await response.json();
@@ -137,6 +151,35 @@ async function fetchHotelData() {
     } catch (error) {
         console.error('Error fetching hotel data:', error);
     }
+}
+
+function showUpdateOverlay(newVersion) {
+    const overlay = document.createElement('div');
+    overlay.id = 'update-overlay';
+    overlay.style = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(17, 24, 39, 0.98); color: white; z-index: 10000;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        text-align: center; font-family: 'Outfit', sans-serif; padding: 2rem;
+    `;
+    overlay.innerHTML = `
+        <div style="background: #1f2937; padding: 3rem; border-radius: 20px; border: 1px solid #ea580c; box-shadow: 0 0 50px rgba(234, 88, 12, 0.2);">
+            <div style="font-size: 4rem; margin-bottom: 1.5rem;">🚀</div>
+            <h1 style="color: #ea580c; margin-bottom: 1rem; font-size: 2rem;">Updates Required</h1>
+            <p style="color: #94a3b8; font-size: 1.1rem; margin-bottom: 2.5rem; max-width: 400px;">
+                A new version and performance improvements have been released for Hayyat Hotels. 
+                Keep your experience premium by updating now.
+            </p>
+            <button onclick="location.reload(true)" style="
+                background: #ea580c; color: white; border: none; padding: 1rem 2.5rem; 
+                border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 1.1rem;
+                transition: all 0.3s ease; box-shadow: 0 10px 15px -3px rgba(234, 88, 12, 0.3);
+            ">UPDATE NOW</button>
+            <p style="margin-top: 1.5rem; color: #4b5563; font-size: 0.8rem;">Current: ${APP_VERSION} | Available: ${newVersion}</p>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
 }
 
 function startHeroSlideshow(urls) {
