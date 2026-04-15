@@ -33,6 +33,8 @@ const roomDetails = {
 };
 
 let sheetData = {};
+let pendingPDFElement = null;
+let pendingPDFOptions = null;
 
 // --- Link Transformer Helper ---
 function isVideo(url) {
@@ -1262,38 +1264,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Error sending notification:", err);
             }
 
-            // 1. Create a placeholder tab IMMEDIATELY to bypass popup blockers
-            const pdfWindow = window.open('', '_blank');
-            if (pdfWindow) {
-                pdfWindow.document.write('<p style="font-family:sans-serif; text-align:center; margin-top:50px; color:#1e293b;">Generating your reservation certificate... Please wait.</p>');
+            // 1. Store PDF data globally for manual download
+            pendingPDFElement = element;
+            pendingPDFOptions = opt;
+
+            // 2. Hide Checkout and Show Success Modal
+            closeAllModals();
+            const successModal = document.getElementById('success-modal');
+            if (successModal) {
+                successModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
             }
 
-            // 2. Generate PDF and handle completion
-            html2pdf().set(opt).from(element).outputPdf('bloburl').then(url => {
-                if (pdfWindow) {
-                    pdfWindow.location.href = url;
-                } else {
-                    window.open(url, '_blank');
-                }
-                
-                // Finish UI updates
-                closeAllModals();
-                alert("Reservation Request Submitted Successfully! Your confirmation has opened in a new tab.");
-                
-                // Force reload to clear state and ensure page isn't stuck
-                location.reload();
-            }).catch(err => {
-                console.error("PDF Error:", err);
-                if (pdfWindow) pdfWindow.close();
-                
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnText;
-                    submitBtn.style.opacity = '1';
-                    submitBtn.style.cursor = 'pointer';
-                }
-                alert("Reservation saved, but there was an error showing the PDF. Our team will contact you.");
-            });
+            // Move the submit button reset inside the fetch or logic if needed, 
+            // but since we are closing modal and showing success, it's fine.
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
+            }
         });
+
+        // Handle Manual PDF Download
+        const downloadBtn = document.getElementById('download-receipt-btn');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', () => {
+                if (pendingPDFElement && pendingPDFOptions) {
+                    html2pdf().set(pendingPDFOptions).from(pendingPDFElement).save();
+                } else {
+                    alert("Error: PDF data not found. Please contact support.");
+                }
+            });
+        }
     }
 });

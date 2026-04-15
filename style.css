@@ -1832,3 +1832,14 @@ footer {
         -webkit-mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent) !important;
     }
 }
+
+/* Success Pulse Animation */
+.pulse-checkmark {
+    display: inline-block;
+    animation: pulseCheck 2s infinite;
+}
+@keyframes pulseCheck {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
