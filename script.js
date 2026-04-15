@@ -2,7 +2,7 @@
 const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
 const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI'; // Reusing your webstore key
 const CLOUD_NAME = ''; // To be filled once provided
-const APP_VERSION = '2026.04.16.03'; // Matches version in Google Sheet (K1)
+const APP_VERSION = '2026.04.16.04'; // Matches version in Google Sheet (K1)
 
 // Static Room Data (Descriptions and Features match the ones in HTML)
 const roomDetails = {
@@ -1291,7 +1291,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (downloadBtn) {
             downloadBtn.addEventListener('click', () => {
                 if (pendingPDFElement && pendingPDFOptions) {
-                    html2pdf().set(pendingPDFOptions).from(pendingPDFElement).save();
+                    // Feedback: Change button to "Downloading..."
+                    downloadBtn.disabled = true;
+                    downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Downloading Receipt...';
+                    downloadBtn.style.opacity = '0.7';
+                    downloadBtn.style.cursor = 'not-allowed';
+
+                    // Save PDF and refresh page afterwards
+                    html2pdf().set(pendingPDFOptions).from(pendingPDFElement).save().then(() => {
+                        // Small delay to ensure the download starts before refreshing
+                        setTimeout(() => {
+                            location.reload();
+                        }, 800);
+                    });
                 } else {
                     alert("Error: PDF data not found. Please contact support.");
                 }
