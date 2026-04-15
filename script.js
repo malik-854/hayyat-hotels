@@ -2,7 +2,7 @@
 const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
 const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI'; // Reusing your webstore key
 const CLOUD_NAME = ''; // To be filled once provided
-const APP_VERSION = '2026.04.16.01'; // Matches version in Google Sheet (K1)
+const APP_VERSION = '2026.04.16.02'; // Matches version in Google Sheet (K1)
 
 // Static Room Data (Descriptions and Features match the ones in HTML)
 const roomDetails = {
@@ -1262,21 +1262,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Error sending notification:", err);
             }
 
-            // Generate PDF and open in a new tab for better mobile/iPhone compatibility
+            // 1. Create a placeholder tab IMMEDIATELY to bypass popup blockers
+            const pdfWindow = window.open('', '_blank');
+            if (pdfWindow) {
+                pdfWindow.document.write('<p style="font-family:sans-serif; text-align:center; margin-top:50px; color:#1e293b;">Generating your reservation certificate... Please wait.</p>');
+            }
+
+            // 2. Generate PDF and handle completion
             html2pdf().set(opt).from(element).outputPdf('bloburl').then(url => {
-                window.open(url, '_blank');
+                if (pdfWindow) {
+                    pdfWindow.location.href = url;
+                } else {
+                    window.open(url, '_blank');
+                }
                 
                 // Finish UI updates
                 closeAllModals();
                 alert("Reservation Request Submitted Successfully! Your confirmation has opened in a new tab.");
+                
+                // Force reload to clear state and ensure page isn't stuck
+                location.reload();
+            }).catch(err => {
+                console.error("PDF Error:", err);
+                if (pdfWindow) pdfWindow.close();
+                
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.style.opacity = '1';
+                    submitBtn.style.cursor = 'pointer';
+                }
+                alert("Reservation saved, but there was an error showing the PDF. Our team will contact you.");
             });
-            
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnText;
-                submitBtn.style.opacity = '1';
-                submitBtn.style.cursor = 'pointer';
-            }
         });
     }
 });
