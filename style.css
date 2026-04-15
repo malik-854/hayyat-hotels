@@ -976,6 +976,7 @@ footer {
         right: auto !important;
         transform: none !important;
         animation: none !important;
+        opacity: 1 !important; /* Ensure visibility as animation:none might leave it at opacity:0 */
         width: 100% !important;
         max-width: 100% !important;
         border-radius: 0 !important;
@@ -1564,7 +1565,13 @@ footer {
 
 /* --- 768px: Tablets portrait and large phones --- */
 @media (max-width: 768px) {
-    header nav > a.btn-primary { display: none; }
+    header nav > a.btn-primary { 
+        display: inline-block; 
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        margin-right: 0.5rem;
+    }
+    nav { gap: 0.5rem; }
     .hero-content { max-width: 100%; text-align: center; }
     .hero-desc { margin: 1rem auto 0; }
     /* NOTE: .booking-bar and .booking-form are handled by the !important rules above */
