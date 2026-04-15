@@ -1196,8 +1196,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 adults: adults,
                 children: children,
                 roomDetails: details,
+                perNightRate: basePrice,
                 totalPrice: finalPrice.toLocaleString(),
-                specialRequests: gReq
+                specialRequests: gReq,
+                breakfastAdded: addBf ? "Yes" : "No",
+                breakfastCount: addBf ? bfCount : 0,
+                breakfastCharges: addBf ? `Rs ${bfTotalCost.toLocaleString()}` : "Rs 0"
             };
 
             // Send Email Silently via Google Apps Script (Webhook)

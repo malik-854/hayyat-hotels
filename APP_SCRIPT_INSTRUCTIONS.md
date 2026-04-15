@@ -41,18 +41,25 @@ Guests: ${data.adults} Adults, ${data.children} Children
 SELECTED ACCOMMODATION:
 -----------------
 ${data.roomDetails}
+Rate per Night: Rs ${data.perNightRate}
+
+BREAKFAST INFORMATION:
+-----------------
+Breakfast Included: ${data.breakfastAdded}
+Number of Guests: ${data.breakfastCount}
+Total Breakfast Charges: ${data.breakfastCharges}
 
 Special Requests: ${data.specialRequests}
 
 FINANCIAL SUMMARY:
 -----------------
-Grand Total: Rs ${data.totalPrice}
+Grand Total (Including Breakfast): Rs ${data.totalPrice}
 
 ================================
 Booking Submitted at: ${new Date().toLocaleString()}
 `;
 
-    // 4. Send email (using GmailApp exactly like your other project)
+    // 4. Send email (using GmailApp)
     GmailApp.sendEmail("info@hayyathotels.com", emailSubject, emailBody);
 
     // 5. Return success response
