@@ -1262,12 +1262,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Error sending notification:", err);
             }
 
-            // Generate exactly named PDF and download to avoid blob URL gibberish
-            html2pdf().set(opt).from(element).save();
-
-            // Finish
-            closeAllModals();
-            alert("Reservation Made!");
+            // Generate PDF and open in a new tab for better mobile/iPhone compatibility
+            html2pdf().set(opt).from(element).outputPdf('bloburl').then(url => {
+                window.open(url, '_blank');
+                
+                // Finish UI updates
+                closeAllModals();
+                alert("Reservation Request Submitted Successfully! Your confirmation has opened in a new tab.");
+            });
             
             if (submitBtn) {
                 submitBtn.disabled = false;
