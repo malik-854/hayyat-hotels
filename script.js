@@ -2,7 +2,7 @@
 const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
 const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI'; // Reusing your webstore key
 const CLOUD_NAME = ''; // To be filled once provided
-const APP_VERSION = '2026.04.16.05'; // Matches version in Google Sheet (K1)
+const APP_VERSION = '2026.04.16.06'; // Matches version in Google Sheet (K1)
 
 // Static Room Data (Descriptions and Features match the ones in HTML)
 const roomDetails = {
@@ -1280,10 +1280,13 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
 
             const element = document.createElement('div');
+            // Generate a unique short code for the filename to prevent overwriting downloads
+            const uniqueCode = Math.random().toString(36).substring(2, 7).toUpperCase();
+            
             element.innerHTML = pdfTemplate;
              const opt = {
                 margin: 0.2, // Tiny uniform margin
-                filename: `Reservation_for_${gName.replace(/\s+/g, '_')}.pdf`,
+                filename: `Reservation_for_${gName.replace(/\s+/g, '_')}_${uniqueCode}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
