@@ -2,7 +2,7 @@
 const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
 const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI'; // Reusing your webstore key
 const CLOUD_NAME = ''; // To be filled once provided
-const APP_VERSION = '2026.04.16.07'; // Matches version in Google Sheet (K1)
+const APP_VERSION = '2026.04.16.08'; // Matches version in Google Sheet (K1)
 
 // Static Room Data (Descriptions and Features match the ones in HTML)
 const roomDetails = {
@@ -33,7 +33,7 @@ const roomDetails = {
 };
 
 let sheetData = {};
-let activeDeal = null; // Stores currently active promotional deal
+let allDeals = []; // Stores all promotional deals from Google Sheets
 let pendingPDFElement = null;
 let pendingPDFOptions = null;
 
@@ -152,23 +152,19 @@ async function fetchHotelData() {
             
             // 3. Fetch Deals/Promotions
             try {
-                const dealsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Deals!A2:C?key=${API_KEY}`;
+                const dealsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Deals!A2:D?key=${API_KEY}`;
                 const dResponse = await fetch(dealsUrl);
                 const dData = await dResponse.json();
                 
                 if (dData.values && dData.values.length > 0) {
-                    let activeDeals = dData.values
+                    allDeals = dData.values
                         .filter(row => row[2] && row[2].trim().toLowerCase() === 'active')
                         .map(row => ({
                             name: row[0],
-                            percentage: parseInt(row[1]) || 0
-                        }))
-                        .sort((a, b) => b.percentage - a.percentage); // Sort by highest percentage
-
-                    if (activeDeals.length > 0) {
-                        activeDeal = activeDeals[0];
-                        console.log('Highest Active Deal Found:', activeDeal);
-                    }
+                            percentage: parseInt(row[1]) || 0,
+                            minNights: parseInt(row[3]) || 0
+                        }));
+                    console.log('Active Deals Loaded:', allDeals);
                 }
             } catch (dealErr) {
                 console.warn('Could not fetch deals:', dealErr);
@@ -911,13 +907,22 @@ function updateCheckoutSummary() {
     const bfCount = parseInt(document.getElementById('breakfast-count').value) || 1;
     const { basePrice, totalPrice, nights } = currentBookingSelection;
     
+    // Find the best qualifying deal for the length of stay
+    let bestDealForStay = null;
+    if (allDeals && allDeals.length > 0) {
+        const qualifying = allDeals.filter(d => nights >= d.minNights);
+        if (qualifying.length > 0) {
+            bestDealForStay = qualifying.sort((a, b) => b.percentage - a.percentage)[0];
+        }
+    }
+
     let roomPriceVal = parseInt(totalPrice.replace(/,/g, ''));
     let discountVal = 0;
     let dealHtml = '';
 
-    if (activeDeal && activeDeal.percentage > 0) {
-        discountVal = Math.round(roomPriceVal * (activeDeal.percentage / 100));
-        dealHtml = `<br><small style="color:var(--clr-orange-dark); font-size: 0.85em; font-weight: 600;">- ${activeDeal.name} (${activeDeal.percentage}% Off): Rs ${discountVal.toLocaleString()}</small>`;
+    if (bestDealForStay) {
+        discountVal = Math.round(roomPriceVal * (bestDealForStay.percentage / 100));
+        dealHtml = `<br><small style="color:var(--clr-orange-dark); font-size: 0.85em; font-weight: 600;">- ${bestDealForStay.name} (${bestDealForStay.percentage}% Off): Rs ${discountVal.toLocaleString()}</small>`;
     }
 
     let roomTotalWithDiscount = roomPriceVal - discountVal;
@@ -1184,8 +1189,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let roomPriceVal = parseInt(totalPrice.replace(/,/g, ''));
             let discountVal = 0;
-            if (activeDeal && activeDeal.percentage > 0) {
-                discountVal = Math.round(roomPriceVal * (activeDeal.percentage / 100));
+            let appliedDealName = "None";
+            let appliedDealPct = 0;
+
+            // Re-find the best deal for the final calculation/PDF
+            if (allDeals && allDeals.length > 0) {
+                const qualifying = allDeals.filter(d => nights >= d.minNights);
+                if (qualifying.length > 0) {
+                    const best = qualifying.sort((a, b) => b.percentage - a.percentage)[0];
+                    discountVal = Math.round(roomPriceVal * (best.percentage / 100));
+                    appliedDealName = best.name;
+                    appliedDealPct = best.percentage;
+                }
             }
 
             let finalPrice = roomPriceVal - discountVal;
@@ -1252,8 +1267,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${discountVal > 0 ? `
                             <tr>
                                 <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; color: #ea580c;">
-                                    <strong>Discount: ${activeDeal.name}</strong><br>
-                                    <small style="color: #94a3b8;">${activeDeal.percentage}% Off on Room Rent</small>
+                                    <strong>Discount: ${appliedDealName}</strong><br>
+                                    <small style="color: #94a3b8;">${appliedDealPct}% Off for ${nights} Nights Stay</small>
                                 </td>
                                 <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600; color: #ea580c;">- Rs ${discountVal.toLocaleString()}</td>
                             </tr>
@@ -1313,7 +1328,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 roomDetails: details,
                 perNightRate: basePrice,
                 totalPrice: finalPrice.toLocaleString(),
-                discountApplied: discountVal > 0 ? `Rs ${discountVal.toLocaleString()} (${activeDeal.name})` : "None",
+                discountApplied: discountVal > 0 ? `Rs ${discountVal.toLocaleString()} (${appliedDealName} - ${appliedDealPct}%)` : "None",
                 specialRequests: gReq,
                 breakfastAdded: addBf ? "Yes" : "No",
                 breakfastCount: addBf ? bfCount : 0,
