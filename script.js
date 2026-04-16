@@ -2,7 +2,7 @@
 const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
 const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI'; // Reusing your webstore key
 const CLOUD_NAME = ''; // To be filled once provided
-const APP_VERSION = '2026.04.16.04'; // Matches version in Google Sheet (K1)
+const APP_VERSION = '2026.04.16.05'; // Matches version in Google Sheet (K1)
 
 // Static Room Data (Descriptions and Features match the ones in HTML)
 const roomDetails = {
@@ -33,6 +33,7 @@ const roomDetails = {
 };
 
 let sheetData = {};
+let activeDeal = null; // Stores currently active promotional deal
 let pendingPDFElement = null;
 let pendingPDFOptions = null;
 
@@ -148,6 +149,31 @@ async function fetchHotelData() {
             }
 
             updateRoomCards();
+            
+            // 3. Fetch Deals/Promotions
+            try {
+                const dealsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Deals!A2:C?key=${API_KEY}`;
+                const dResponse = await fetch(dealsUrl);
+                const dData = await dResponse.json();
+                
+                if (dData.values && dData.values.length > 0) {
+                    let activeDeals = dData.values
+                        .filter(row => row[2] && row[2].trim().toLowerCase() === 'active')
+                        .map(row => ({
+                            name: row[0],
+                            percentage: parseInt(row[1]) || 0
+                        }))
+                        .sort((a, b) => b.percentage - a.percentage); // Sort by highest percentage
+
+                    if (activeDeals.length > 0) {
+                        activeDeal = activeDeals[0];
+                        console.log('Highest Active Deal Found:', activeDeal);
+                    }
+                }
+            } catch (dealErr) {
+                console.warn('Could not fetch deals:', dealErr);
+            }
+
             fetchGalleryData(); // Single call to get the gallery
         }
     } catch (error) {
@@ -877,7 +903,18 @@ function updateCheckoutSummary() {
     const addBf = document.getElementById('add-breakfast').checked;
     const bfCount = parseInt(document.getElementById('breakfast-count').value) || 1;
     const { basePrice, totalPrice, nights } = currentBookingSelection;
-    let finalPrice = parseInt(totalPrice.replace(/,/g, ''));
+    
+    let roomPriceVal = parseInt(totalPrice.replace(/,/g, ''));
+    let discountVal = 0;
+    let dealHtml = '';
+
+    if (activeDeal && activeDeal.percentage > 0) {
+        discountVal = Math.round(roomPriceVal * (activeDeal.percentage / 100));
+        dealHtml = `<br><small style="color:var(--clr-orange-dark); font-size: 0.85em; font-weight: 600;">- ${activeDeal.name} (${activeDeal.percentage}% Off): Rs ${discountVal.toLocaleString()}</small>`;
+    }
+
+    let roomTotalWithDiscount = roomPriceVal - discountVal;
+    let finalPrice = roomTotalWithDiscount;
 
     let bfHtml = '';
     if (addBf) {
@@ -886,7 +923,15 @@ function updateCheckoutSummary() {
         bfHtml = `<br><small style="color:var(--clr-orange); font-size: 0.85em;">+ Breakfast: Rs ${bfCost.toLocaleString()} (Rs ${1200 * bfCount} x ${nights})</small>`;
     }
 
-    document.getElementById('summary-price').innerHTML = `Rs ${basePrice} / night<br><small style="color:var(--clr-gray); font-size: 0.8em; font-weight: normal;">Room Total: Rs ${totalPrice}</small>${bfHtml}<br><strong style="font-size: 1.1em; color: var(--clr-darker); display: block; margin-top: 5px;">Grand Total: Rs ${finalPrice.toLocaleString()}</strong>`;
+    let priceDisplayHtml = `Rs ${basePrice} / night<br>`;
+    
+    if (discountVal > 0) {
+        priceDisplayHtml += `<small style="color:var(--clr-gray); font-size: 0.8em; font-weight: normal;">Room Total: <span style="text-decoration: line-through;">Rs ${totalPrice}</span> Rs ${roomTotalWithDiscount.toLocaleString()}</small>${dealHtml}`;
+    } else {
+        priceDisplayHtml += `<small style="color:var(--clr-gray); font-size: 0.8em; font-weight: normal;">Room Total: Rs ${totalPrice}</small>`;
+    }
+
+    document.getElementById('summary-price').innerHTML = `${priceDisplayHtml}${bfHtml}<br><strong style="font-size: 1.1em; color: var(--clr-darker); display: block; margin-top: 5px;">Grand Total: Rs ${finalPrice.toLocaleString()}</strong>`;
 }
 
 // Initial Setup logic
@@ -1130,7 +1175,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const addBf = document.getElementById('add-breakfast').checked;
             const bfCount = parseInt(document.getElementById('breakfast-count').value) || 1;
 
-            let finalPrice = parseInt(totalPrice.replace(/,/g, ''));
+            let roomPriceVal = parseInt(totalPrice.replace(/,/g, ''));
+            let discountVal = 0;
+            if (activeDeal && activeDeal.percentage > 0) {
+                discountVal = Math.round(roomPriceVal * (activeDeal.percentage / 100));
+            }
+
+            let finalPrice = roomPriceVal - discountVal;
             let bfCostInfo = "";
             let bfTotalCost = 0;
             if (addBf) {
@@ -1191,6 +1242,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                 </td>
                                 <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600;">Rs ${totalPrice}</td>
                             </tr>
+                            ${discountVal > 0 ? `
+                            <tr>
+                                <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; color: #ea580c;">
+                                    <strong>Discount: ${activeDeal.name}</strong><br>
+                                    <small style="color: #94a3b8;">${activeDeal.percentage}% Off on Room Rent</small>
+                                </td>
+                                <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600; color: #ea580c;">- Rs ${discountVal.toLocaleString()}</td>
+                            </tr>
+                            ` : ''}
                             ${addBf ? `
                             <tr>
                                 <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; color: #475569;">
@@ -1243,6 +1303,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 roomDetails: details,
                 perNightRate: basePrice,
                 totalPrice: finalPrice.toLocaleString(),
+                discountApplied: discountVal > 0 ? `Rs ${discountVal.toLocaleString()} (${activeDeal.name})` : "None",
                 specialRequests: gReq,
                 breakfastAdded: addBf ? "Yes" : "No",
                 breakfastCount: addBf ? bfCount : 0,

@@ -49,6 +49,10 @@ Breakfast Included: ${data.breakfastAdded}
 Number of Guests: ${data.breakfastCount}
 Total Breakfast Charges: ${data.breakfastCharges}
 
+DISCOUNT INFORMATION:
+-----------------
+Promotion Applied: ${data.discountApplied}
+
 Special Requests: ${data.specialRequests}
 
 FINANCIAL SUMMARY:
