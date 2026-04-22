@@ -38,26 +38,23 @@ Check-out: ${data.checkout}
 Duration: ${data.nights} Nights
 Guests: ${data.adults} Adults, ${data.children} Children
 
-SELECTED ACCOMMODATION:
+ACCOMMODATION & BILLING:
 -----------------
-${data.roomDetails}
-Rate per Night: Rs ${data.perNightRate}
+Room: ${data.roomDetails}
+Stay: ${data.nights} ${data.nights > 1 ? 'Nights' : 'Night'}
 
-BREAKFAST INFORMATION:
------------------
-Breakfast Included: ${data.breakfastAdded}
-Number of Guests: ${data.breakfastCount}
-Total Breakfast Charges: ${data.breakfastCharges}
+Base Rate: Rs ${data.perNightRate} / night
+Discount: ${data.discountApplied}
+Net Rate: Rs ${data.netRate} / night (after discount)
 
-DISCOUNT INFORMATION:
+Room Subtotal: Rs ${data.roomTotal}
+Breakfast: ${data.breakfastCharges} (Qty: ${data.breakfastCount})
+
 -----------------
-Promotion Applied: ${data.discountApplied}
+GRAND TOTAL: Rs ${data.totalPrice}
+-----------------
 
 Special Requests: ${data.specialRequests}
-
-FINANCIAL SUMMARY:
------------------
-Grand Total (Including Breakfast): Rs ${data.totalPrice}
 
 ================================
 Booking Submitted at: ${new Date().toLocaleString()}
@@ -75,6 +72,7 @@ Booking Submitted at: ${new Date().toLocaleString()}
     return ContentService.createTextOutput("Error: " + error.message);
   }
 }
+
 ```
 
 4. Click the **Deploy** button at the top right, then select **New Deployment**.

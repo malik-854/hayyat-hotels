@@ -2,7 +2,7 @@
 const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
 const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI'; // Reusing your webstore key
 const CLOUD_NAME = ''; // To be filled once provided
-const APP_VERSION = '2026.04.16.08'; // Matches version in Google Sheet (K1)
+const APP_VERSION = '2026.04.22.01'; // Matches version in Google Sheet (K1)
 
 // Static Room Data (Descriptions and Features match the ones in HTML)
 const roomDetails = {
@@ -1203,7 +1203,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            let finalPrice = roomPriceVal - discountVal;
+            let roomTotal = roomPriceVal - discountVal;
+            let netRate = Math.round(roomTotal / nights);
+            let finalPrice = roomTotal;
             let bfCostInfo = "";
             let bfTotalCost = 0;
             if (addBf) {
@@ -1268,7 +1270,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <tr>
                                 <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; color: #ea580c;">
                                     <strong>Discount: ${appliedDealName}</strong><br>
-                                    <small style="color: #94a3b8;">${appliedDealPct}% Off for ${nights} Nights Stay</small>
+                                    <small style="color: #94a3b8;">${appliedDealPct}% Off (Net Rate: Rs ${netRate.toLocaleString()} / night)</small>
                                 </td>
                                 <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600; color: #ea580c;">- Rs ${discountVal.toLocaleString()}</td>
                             </tr>
@@ -1327,8 +1329,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 children: children,
                 roomDetails: details,
                 perNightRate: basePrice,
+                netRate: netRate.toLocaleString(),
+                roomTotal: roomTotal.toLocaleString(),
+                discountApplied: discountVal > 0 ? `${appliedDealName} (${appliedDealPct}% Off: -Rs ${discountVal.toLocaleString()})` : "None",
                 totalPrice: finalPrice.toLocaleString(),
-                discountApplied: discountVal > 0 ? `Rs ${discountVal.toLocaleString()} (${appliedDealName} - ${appliedDealPct}%)` : "None",
                 specialRequests: gReq,
                 breakfastAdded: addBf ? "Yes" : "No",
                 breakfastCount: addBf ? bfCount : 0,
