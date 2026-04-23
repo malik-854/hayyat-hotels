@@ -2,7 +2,7 @@
 const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
 const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI'; // Reusing your webstore key
 const CLOUD_NAME = ''; // To be filled once provided
-const APP_VERSION = '2026.04.22.01'; // Matches version in Google Sheet (K1)
+const APP_VERSION = '2026.04.23.01'; // Matches version in Google Sheet (K1)
 
 // Static Room Data (Descriptions and Features match the ones in HTML)
 const roomDetails = {
@@ -1178,7 +1178,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const gCountry = document.getElementById('guest-country').value;
             const gPhone = document.getElementById('guest-phone').value;
             const gEmail = document.getElementById('guest-email').value || 'Not provided';
-            const gArrival = document.getElementById('guest-arrival').value;
             const gReq = document.getElementById('guest-requests').value || 'None';
 
             const { name, desc, basePrice, totalPrice, nights, cin, cout, adults, children } = currentBookingSelection;
@@ -1216,80 +1215,95 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Create PDF Content Template
             const pdfTemplate = `
-                <div style="width: 800px; max-width: 800px; box-sizing: border-box; padding: 20px 40px; font-family: 'Outfit', sans-serif; color: #1e293b; line-height: 1.4; background: white;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #ea580c; padding-bottom: 15px; margin-bottom: 25px;">
+                <div style="width: 800px; max-width: 800px; box-sizing: border-box; padding: 15px 40px; font-family: 'Outfit', sans-serif; color: #1e293b; line-height: 1.3; background: white;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #ea580c; padding-bottom: 10px; margin-bottom: 15px;">
                         <div>
-                            <h1 style="margin: 0; color: #ea580c; font-size: 26px; text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">Hayyat Hotels</h1>
-                            <p style="margin: 3px 0 0; color: #64748b; font-size: 13px;">2 Lawrance Road, China Chowk, 54000 Lahore, Pakistan</p>
+                            <h1 style="margin: 0; color: #ea580c; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800;">Hayyat Hotels</h1>
+                            <p style="margin: 2px 0 0; color: #64748b; font-size: 12px;">2 Lawrance Road, China Chowk, 54000 Lahore, Pakistan</p>
                         </div>
                         <div style="text-align: right;">
-                            <p style="margin: 0; font-weight: 700; font-size: 15px; color: #1e293b;">Reservation Confirmation</p>
-                            <p style="margin: 0; color: #64748b; font-size: 13px;">Date: ${new Date().toLocaleDateString()}</p>
+                            <p style="margin: 0; font-weight: 700; font-size: 14px; color: #1e293b;">Reservation Confirmation</p>
+                            <p style="margin: 0; color: #64748b; font-size: 12px;">Date: ${new Date().toLocaleDateString()}</p>
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 25px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; page-break-inside: avoid;">
                         <div>
-                            <h3 style="color: #ea580c; border-bottom: 1px solid #fed7aa; padding-bottom: 5px; margin-bottom: 12px; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px;">Guest Information</h3>
-                            <p style="margin: 4px 0; font-size: 14px;"><strong>Name:</strong> ${gName}</p>
-                            <p style="margin: 4px 0; font-size: 14px;"><strong>Country:</strong> ${gCountry}</p>
-                            <p style="margin: 4px 0; font-size: 14px;"><strong>Phone:</strong> ${gPhone}</p>
-                            <p style="margin: 4px 0; font-size: 14px;"><strong>Email:</strong> ${gEmail}</p>
+                            <h3 style="color: #ea580c; border-bottom: 1px solid #fed7aa; padding-bottom: 4px; margin-bottom: 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Guest Information</h3>
+                            <p style="margin: 3px 0; font-size: 13px;"><strong>Name:</strong> ${gName}</p>
+                            <p style="margin: 3px 0; font-size: 13px;"><strong>Country:</strong> ${gCountry}</p>
+                            <p style="margin: 3px 0; font-size: 13px;"><strong>Phone:</strong> ${gPhone}</p>
+                            <p style="margin: 3px 0; font-size: 13px;"><strong>Email:</strong> ${gEmail}</p>
                         </div>
                         <div>
-                            <h3 style="color: #ea580c; border-bottom: 1px solid #fed7aa; padding-bottom: 5px; margin-bottom: 12px; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px;">Stay Details</h3>
-                            <p style="margin: 4px 0; font-size: 14px;"><strong>Check-in:</strong> ${cin}</p>
-                            <p style="margin: 4px 0; font-size: 14px;"><strong>Check-out:</strong> ${cout}</p>
-                            <p style="margin: 4px 0; font-size: 14px;"><strong>Duration:</strong> ${nights} ${nights > 1 ? 'Nights' : 'Night'}</p>
-                            <p style="margin: 4px 0; font-size: 14px;"><strong>Guests:</strong> ${adults} Adults, ${children} Children</p>
+                            <h3 style="color: #ea580c; border-bottom: 1px solid #fed7aa; padding-bottom: 4px; margin-bottom: 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Stay Details</h3>
+                            <p style="margin: 3px 0; font-size: 13px;"><strong>Check-in:</strong> ${cin}</p>
+                            <p style="margin: 3px 0; font-size: 13px;"><strong>Check-out:</strong> ${cout}</p>
+                            <p style="margin: 3px 0; font-size: 13px;"><strong>Duration:</strong> ${nights} ${nights > 1 ? 'Nights' : 'Night'}</p>
+                            <p style="margin: 3px 0; font-size: 13px;"><strong>Guests:</strong> ${adults} Adults, ${children} Children</p>
                         </div>
                     </div>
 
-                    <div style="margin-bottom: 25px; background: #fff7ed; padding: 15px 20px; border-radius: 8px; border-left: 4px solid #ea580c;">
-                        <h3 style="color: #ea580c; margin-top: 0; margin-bottom: 8px; font-size: 15px; text-transform: uppercase;">Selected Accommodation</h3>
-                        <p style="margin: 0; font-size: 16px; font-weight: 700; color: #1e293b;">${details}</p>
-                        <p style="margin: 8px 0 0; color: #64748b; font-size: 13px; font-style: italic;">Special Requests: ${gReq}</p>
+                    <div style="margin-bottom: 15px; background: #fff7ed; padding: 10px 15px; border-radius: 8px; border-left: 4px solid #ea580c; page-break-inside: avoid;">
+                        <h3 style="color: #ea580c; margin-top: 0; margin-bottom: 5px; font-size: 13px; text-transform: uppercase;">Selected Accommodation</h3>
+                        <p style="margin: 0; font-size: 15px; font-weight: 700; color: #1e293b;">${details}</p>
+                        <p style="margin: 5px 0 0; color: #64748b; font-size: 12px; font-style: italic;">Special Requests: ${gReq}</p>
                     </div>
 
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 14px;">
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 13px; page-break-inside: avoid;">
                         <thead>
                             <tr style="background: #ea580c; color: white;">
-                                <th style="padding: 10px 15px; text-align: left; border-radius: 4px 0 0 4px;">Description</th>
-                                <th style="padding: 10px 15px; text-align: right; border-radius: 0 4px 4px 0;">Amount</th>
+                                <th style="padding: 8px 12px; text-align: left; border-radius: 4px 0 0 4px;">Description</th>
+                                <th style="padding: 8px 12px; text-align: right; border-radius: 0 4px 4px 0;">Amount</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; color: #475569;">
+                                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #475569;">
                                     <strong>Rate per Night (${nights} Nights)</strong><br>
                                     <small style="color: #94a3b8;">Rs ${basePrice} per night</small>
                                 </td>
-                                <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600;">Rs ${totalPrice}</td>
+                                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600;">Rs ${totalPrice}</td>
                             </tr>
                             ${discountVal > 0 ? `
                             <tr>
-                                <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; color: #ea580c;">
+                                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #ea580c;">
                                     <strong>Discount: ${appliedDealName}</strong><br>
                                     <small style="color: #94a3b8;">${appliedDealPct}% Off (Net Rate: Rs ${netRate.toLocaleString()} / night)</small>
                                 </td>
-                                <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600; color: #ea580c;">- Rs ${discountVal.toLocaleString()}</td>
+                                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600; color: #ea580c;">- Rs ${discountVal.toLocaleString()}</td>
                             </tr>
                             ` : ''}
                             ${addBf ? `
                             <tr>
-                                <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; color: #475569;">
+                                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #475569;">
                                     <strong>Breakfast Supplement</strong><br>
                                     <small style="color: #94a3b8;">${bfCostInfo}</small>
                                 </td>
-                                <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600;">Rs ${bfTotalCost.toLocaleString()}</td>
+                                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600;">Rs ${bfTotalCost.toLocaleString()}</td>
                             </tr>
                             ` : ''}
                             <tr style="background: #f8fafc;">
-                                <td style="padding: 15px; color: #1e293b; font-size: 18px; font-weight: 800;">GRAND TOTAL</td>
-                                <td style="padding: 15px; text-align: right; font-size: 20px; font-weight: 800; color: #ea580c;">Rs ${finalPrice.toLocaleString()}</td>
+                                <td style="padding: 10px 12px; color: #1e293b; font-size: 16px; font-weight: 800;">GRAND TOTAL</td>
+                                <td style="padding: 10px 12px; text-align: right; font-size: 18px; font-weight: 800; color: #ea580c;">Rs ${finalPrice.toLocaleString()}</td>
                             </tr>
                         </tbody>
                     </table>
+
+                    <div style="margin-bottom: 15px; padding: 10px 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; text-align: left; page-break-inside: avoid;">
+                        <h3 style="color: #ea580c; margin-top: 0; margin-bottom: 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">House Rules</h3>
+                        <ul style="margin: 0; padding-left: 15px; font-size: 11px; color: #475569; line-height: 1.5;">
+                            <li>No Female visitor allowed. Not for unmarried couples.</li>
+                            <li>All staying guests must provide valid ID before check-in.</li>
+                            <li>All couples must provide proof as husband and wife on ID card.</li>
+                            <li>Check-in time is at 14:00 hrs. Check-out time is at 12:00 noon.</li>
+                            <li>Guest will be responsible for any damage done in the room.</li>
+                            <li>The management reserves all rights of admission.</li>
+                            <li>Kindly deposit Room Key at the Front Desk while leaving hotel.</li>
+                            <li>Guest with confirmed booking if leave earlier will be charged first night room rent.</li>
+                            <li>Hotel Management holds no responsibility for any loss of valuables & currency left in the room.</li>
+                        </ul>
+                    </div>
 
                     <div style="background: #ffffff; padding: 20px; border-radius: 8px; text-align: center; border: 1px dashed #cbd5e1;">
                         <p style="margin: 0; font-weight: 700; color: #1e293b; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Booking Policy</p>
