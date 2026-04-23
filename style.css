@@ -1843,3 +1843,131 @@ footer {
     50% { transform: scale(1.1); opacity: 0.8; }
     100% { transform: scale(1); opacity: 1; }
 }
+/* Rate Plan Selection Styles */
+.rate-plan-card {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px 15px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: white;
+    text-align: center;
+}
+
+.rate-plan-card:hover {
+    border-color: #fed7aa;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.rate-plan-card.active {
+    border-color: #ea580c;
+    background: #fffaf0;
+    box-shadow: 0 8px 20px rgba(234, 88, 12, 0.1);
+}
+
+.plan-popular-badge {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ea580c;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 6px rgba(234, 88, 12, 0.3);
+    white-space: nowrap;
+}
+
+.plan-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+.plan-title {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #1e293b;
+}
+
+.check-icon {
+    color: #ea580c;
+    font-size: 1.1rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.rate-plan-card.active .check-icon {
+    opacity: 1;
+}
+
+.plan-tagline {
+    font-size: 0.85rem;
+    color: #ea580c;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+#plan-room-only .plan-tagline {
+    color: #64748b;
+}
+
+.plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.plan-features li {
+    font-size: 0.75rem;
+    color: #475569;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.plan-features li i {
+    font-size: 0.8rem;
+    width: 14px;
+    text-align: center;
+}
+
+.plan-features li.negative {
+    color: #94a3b8;
+}
+
+.qty-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid #ea580c;
+    background: white;
+    color: #ea580c;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.qty-btn:hover {
+    background: #ea580c;
+    color: white;
+}
+
+.qty-input {
+    width: 40px;
+    height: 30px;
+    text-align: center;
+    border: 1px solid #fed7aa;
+    border-radius: 6px;
+    font-weight: 700;
+    background: white;
+    color: #9a3412;
+}

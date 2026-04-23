@@ -584,39 +584,28 @@
                             </div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group breakfast-group"
-                                style="background: linear-gradient(145deg, #fff7ed, #ffedd5); padding: 12px 15px; border-radius: 8px; border: 2px solid var(--clr-orange); box-shadow: var(--shadow-sm);">
-                                <div
-                                    style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                                    <label
-                                        style="display: flex; align-items: center; gap: 8px; cursor: pointer; flex: 1; min-width: 200px;">
-                                        <input type="checkbox" id="add-breakfast"
-                                            style="width: 18px; height: 18px; accent-color: var(--clr-orange);">
-                                        <span style="font-weight: 700; color: var(--clr-darker); font-size: 1rem;">Add
-                                            Breakfast</span>
-                                        <span
-                                            style="font-weight: 600; color: var(--clr-orange); font-size: 0.9rem;">(Rs.
-                                            1200 per person per day)</span>
-                                        <span id="breakfast-info-icon"
-                                            style="color: var(--clr-orange); cursor: pointer; font-size: 1.1rem; margin-left: 5px;"><i
-                                                class="fas fa-info-circle"></i></span>
-                                    </label>
-
-                                    <div id="breakfast-options"
-                                        style="display: none; align-items: center; gap: 10px; background: var(--clr-white); padding: 5px 10px; border-radius: 6px; border: 1px solid var(--clr-orange-light);">
-                                        <span
-                                            style="font-size: 0.75rem; font-weight: 700; color: var(--clr-gray); text-transform: uppercase;">Qty:</span>
-                                        <div style="display: flex; align-items: center; gap: 5px;">
-                                            <button type="button" id="btn-decrease-bf"
-                                                style="width: 28px; height: 28px; border-radius: 4px; border: 1px solid var(--clr-gray-light); background: var(--clr-white); cursor: pointer; display: flex; align-items: center; justify-content: center;">-</button>
-                                            <input type="number" id="breakfast-count" value="1" min="1" readonly
-                                                style="width: 35px; height: 28px; text-align: center; border: 1px solid var(--clr-gray-light); border-radius: 4px; font-weight: 600; padding: 0; font-size: 0.9rem;">
-                                            <button type="button" id="btn-increase-bf"
-                                                style="width: 28px; height: 28px; border-radius: 4px; border: 1px solid var(--clr-gray-light); background: var(--clr-white); cursor: pointer; display: flex; align-items: center; justify-content: center;">+</button>
-                                        </div>
+                            <div class="rate-plans-container" style="margin: 20px 0 15px 0; width: 100%;">
+                                <p style="font-weight: 700; font-size: 0.8rem; color: var(--clr-gray); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; text-align: left;">Choose Your Rate Plan</p>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%;">
+                                <!-- Room Only -->
+                                <div id="plan-room-only" class="rate-plan-card active" onclick="selectRatePlanPlan('room-only')">
+                                    <div class="plan-header">
+                                        <span class="plan-title">Room Only</span>
+                                        <i class="fas fa-check-circle check-icon"></i>
                                     </div>
+                                    <p class="plan-tagline">Standard Booking</p>
+                                </div>
+                                <!-- Breakfast Plus -->
+                                <div id="plan-breakfast-plus" class="rate-plan-card" onclick="selectRatePlanPlan('breakfast-plus')">
+                                    <div class="plan-popular-badge">BEST VALUE</div>
+                                    <div class="plan-header">
+                                        <span class="plan-title">Breakfast Plus</span>
+                                        <i class="fas fa-check-circle check-icon"></i>
+                                    </div>
+                                    <p class="plan-tagline">Breakfast Included</p>
                                 </div>
                             </div>
+                        </div>
                         </div>
                         <div
                             style="margin: 15px 0; padding: 10px; border: 1px dashed #ef4444; border-radius: 6px; background: #fef2f2; text-align: center;">
@@ -846,7 +835,7 @@
 
     <!-- Libraries for PDF Generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="script.js?v=2026.04.16.08"></script>
+    <script src="script.js?v=2026.04.23.02"></script>
 </body>
 
 </html>

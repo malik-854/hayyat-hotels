@@ -2,7 +2,7 @@
 const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
 const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI'; // Reusing your webstore key
 const CLOUD_NAME = ''; // To be filled once provided
-const APP_VERSION = '2026.04.23.01'; // Matches version in Google Sheet (K1)
+const APP_VERSION = '2026.04.23.02'; // Matches version in Google Sheet (K1)
 
 // Static Room Data (Descriptions and Features match the ones in HTML)
 const roomDetails = {
@@ -34,6 +34,8 @@ const roomDetails = {
 
 let sheetData = {};
 let allDeals = []; // Stores all promotional deals from Google Sheets
+let breakfastPrices = { standard: 1200, bundle: 900 }; // Default prices
+let selectedRatePlan = 'room-only'; // 'room-only' or 'breakfast-plus'
 let pendingPDFElement = null;
 let pendingPDFOptions = null;
 
@@ -121,16 +123,18 @@ async function fetchHotelData() {
         }
 
         // 2. Fetch Main Data
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A2:H?key=${API_KEY}`;
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A2:I?key=${API_KEY}`;
         const response = await fetch(url);
         const data = await response.json();
 
         if (data.values) {
             data.values.forEach(row => {
-                const [type, price, mainImg, gallery, inventory, adultsCap, childrenCap, heroImages] = row;
+                const [type, price, mainImg, gallery, inventory, adultsCap, childrenCap, heroImages, withBfPrice] = row;
                 if (!type) return;
-                sheetData[type.trim()] = {
-                    price: price,
+                const roomType = type.trim();
+                sheetData[roomType] = {
+                    price: price ? String(price).trim() : '0',
+                    withBfPrice: withBfPrice ? String(withBfPrice).trim() : (price ? String(price).trim() : '0'),
                     mainImg: transformToDirectLink(mainImg ? mainImg.trim() : ''),
                     gallery: gallery ? gallery.split(',').map(s => transformToDirectLink(s.trim())).filter(s => s) : [],
                     inventory: parseInt(inventory) || 0,
@@ -430,7 +434,8 @@ document.querySelectorAll('.fade-in-scroll').forEach(el => observer.observe(el))
 document.querySelector('.btn-book-now').addEventListener('click', () => {
     if (viewingResultContext) {
         // Came from search results — proceed to checkout with full config
-        bookSelection(viewingResultContext.name, viewingResultContext.desc, viewingResultContext.price);
+        const compStr = viewingResultContext.composition ? JSON.stringify(viewingResultContext.composition) : '';
+        bookSelection(viewingResultContext.name, viewingResultContext.desc, viewingResultContext.price, compStr);
     } else {
         // Opened directly from room cards — close modal and scroll to booking bar
         if (modal) modal.classList.remove('active');
@@ -456,62 +461,83 @@ function performSearch(reqA, reqC) {
                 name: type,
                 price: room.price,
                 totalPriceVal: parseInt(room.price.replace(/,/g, '')),
-                capacity: `${room.adults} Adults, ${room.children} Children`
+                capacity: `${room.adults} Adults, ${room.children} Children`,
+                composition: { [type]: 1 }
             });
             uniqueCombos.add(JSON.stringify({ [type]: 1 }));
         }
     });
 
-    // 2. Generate Multi-room combinations (Trying each room as a starting point for variety)
+    // 2. Generate Multi-room combinations (Trying varied strategies for more options)
+    const strategies = ['largest', 'smallest', 'balanced'];
+    
     allAvailable.forEach(startType => {
-        let tempHeads = totalReq;
-        let combo = [];
-        let invTracker = {};
-        Object.keys(sheetData).forEach(t => invTracker[t] = sheetData[t].inventory);
+        strategies.forEach(strategy => {
+            let tempHeads = totalReq;
+            let tempAdults = reqA;
+            let combo = [];
+            let invTracker = {};
+            Object.keys(sheetData).forEach(t => invTracker[t] = sheetData[t].inventory);
 
-        // Force the first room
-        combo.push(startType);
-        invTracker[startType]--;
-        let r1 = sheetData[startType];
-        tempHeads -= (r1.adults + r1.children);
+            // Force the first room
+            combo.push(startType);
+            invTracker[startType]--;
+            let r1 = sheetData[startType];
+            tempHeads -= (r1.adults + r1.children);
+            tempAdults -= r1.adults;
 
-        // Fill greedily with available rooms
-        const sortedByCap = [...allAvailable].sort((a, b) => (sheetData[b].adults + sheetData[b].children) - (sheetData[a].adults + sheetData[a].children));
+            // Sorting for strategy
+            let sortedByCap = [...allAvailable];
+            if (strategy === 'largest') {
+                sortedByCap.sort((a, b) => (sheetData[b].adults + sheetData[b].children) - (sheetData[a].adults + sheetData[a].children));
+            } else if (strategy === 'smallest') {
+                sortedByCap.sort((a, b) => (sheetData[a].adults + sheetData[a].children) - (sheetData[b].adults + sheetData[b].children));
+            } else {
+                // Balanced/Shuffled for variety
+                sortedByCap.sort(() => Math.random() - 0.5);
+            }
 
-        while (tempHeads > 0) {
-            let found = false;
-            for (let type of sortedByCap) {
-                if (invTracker[type] > 0) {
-                    const r = sheetData[type];
-                    combo.push(type);
-                    invTracker[type]--;
-                    tempHeads -= (r.adults + r.children);
-                    found = true;
-                    break;
+            while (tempHeads > 0 || tempAdults > 0) {
+                let found = false;
+                for (let type of sortedByCap) {
+                    if (invTracker[type] > 0) {
+                        const r = sheetData[type];
+                        combo.push(type);
+                        invTracker[type]--;
+                        tempHeads -= (r.adults + r.children);
+                        tempAdults -= r.adults;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) break;
+            }
+
+            // Only add if group is satisfied and it's actually a combination
+            if (tempHeads <= 0 && tempAdults <= 0 && combo.length > 1) {
+                // Limit to 3 rooms max for sanity, unless group is huge
+                if (combo.length > 3 && totalReq < 12) return;
+
+                let counts = {};
+                combo.sort().forEach(t => counts[t] = (counts[t] || 0) + 1);
+                let comboKey = JSON.stringify(counts);
+                if (!uniqueCombos.has(comboKey)) {
+                    uniqueCombos.add(comboKey);
+                    let totalPrice = combo.reduce((s, t) => s + parseInt(sheetData[t].price.replace(/[^\d]/g, '')), 0);
+                    let comboDesc = Object.entries(counts).map(([t, c]) => `${c} x ${t}`).join(' + ');
+
+                    matches.push({
+                        isGroup: true,
+                        name: "Privacy / Split Group Option",
+                        desc: comboDesc,
+                        price: totalPrice.toLocaleString(),
+                        totalPriceVal: totalPrice,
+                        capacity: `Up to ${combo.reduce((s, t) => s + sheetData[t].adults + sheetData[t].children, 0)} Guests`,
+                        composition: counts
+                    });
                 }
             }
-            if (!found) break;
-        }
-
-        if (tempHeads <= 0 && combo.length > 1) {
-            let counts = {};
-            combo.sort().forEach(t => counts[t] = (counts[t] || 0) + 1);
-            let comboKey = JSON.stringify(counts);
-            if (!uniqueCombos.has(comboKey)) {
-                uniqueCombos.add(comboKey);
-                let totalPrice = combo.reduce((s, t) => s + parseInt(sheetData[t].price.replace(/,/g, '')), 0);
-                let comboDesc = Object.entries(counts).map(([t, c]) => `${c} x ${t}`).join(' + ');
-
-                matches.push({
-                    isGroup: true,
-                    name: "Privacy / Split Group Option",
-                    desc: comboDesc,
-                    price: totalPrice.toLocaleString(),
-                    totalPriceVal: totalPrice,
-                    capacity: `Up to ${combo.reduce((s, t) => s + sheetData[t].adults + sheetData[t].children, 0)} Guests`
-                });
-            }
-        }
+        });
     });
 
     // 3. Efficiency Filter: Relaxed! 
@@ -579,9 +605,11 @@ function displayResults(matches, reqA, reqC) {
         matches.forEach(m => {
             const card = document.createElement('div');
             card.className = 'result-card fade-in-scroll visible';
+            const compStr = JSON.stringify(m.composition).replace(/"/g, '&quot;');
             const detailsBtn = m.isGroup
-                ? `<button class="btn-details" onclick="viewComboDetails('${m.desc}', '${m.name}', '${m.price}')">View Room Details</button>`
-                : `<button class="btn-details" onclick="viewDetails('${m.name}', '${m.price}')">View Room Details</button>`;
+                ? `<button class="btn-details" onclick="viewComboDetails('${m.desc}', '${m.name}', '${m.price}', '${compStr}')">View Room Details</button>`
+                : `<button class="btn-details" onclick="viewDetails('${m.name}', '${m.price}', '${compStr}')">View Room Details</button>`;
+
             card.innerHTML = `
                 <div class="result-main">
                     ${m.tag ? `<span class="result-badge ${m.tagClass}">${m.tag}</span>` : ''}
@@ -591,7 +619,7 @@ function displayResults(matches, reqA, reqC) {
                 </div>
                 <div class="result-actions">
                     ${detailsBtn}
-                    <button class="btn-primary btn-result" onclick="bookSelection('${m.name}', '${m.isGroup ? m.desc : ''}', '${m.price}')">Proceed to Checkout</button>
+                    <button class="btn-primary btn-result" onclick="bookSelection('${m.name}', '${m.isGroup ? m.desc : ''}', '${m.price}', '${compStr}')">Proceed to Checkout</button>
                 </div>
             `;
             listEl.appendChild(card);
@@ -608,8 +636,13 @@ function displayResults(matches, reqA, reqC) {
 let viewingResultContext = null;
 
 // View Details for a single room type
-window.viewDetails = function (roomType, price) {
-    viewingResultContext = { name: roomType, desc: '', price: price };
+window.viewDetails = function (roomType, price, compositionJson) {
+    viewingResultContext = { 
+        name: roomType, 
+        desc: '', 
+        price: price, 
+        composition: compositionJson ? JSON.parse(compositionJson) : { [roomType]: 1 }
+    };
     const tabsEl = document.getElementById('room-tabs');
     tabsEl.style.display = 'none';
     tabsEl.innerHTML = '';
@@ -620,8 +653,13 @@ window.viewDetails = function (roomType, price) {
 };
 
 // View Details for a combo
-window.viewComboDetails = function (desc, name, price) {
-    viewingResultContext = { name: name, desc: desc, price: price };
+window.viewComboDetails = function (desc, name, price, compositionJson) {
+    viewingResultContext = { 
+        name: name, 
+        desc: desc, 
+        price: price,
+        composition: compositionJson ? JSON.parse(compositionJson) : {}
+    };
     const parts = desc.split('+').map(s => s.trim());
     const roomTypes = parts.map(p => p.replace(/^\d+\s*x\s*/, '').trim());
     const uniqueTypes = [...new Set(roomTypes)];
@@ -712,7 +750,7 @@ function loadRoomIntoModal(type) {
 }
 
 
-window.bookSelection = function (name, desc, price) {
+window.bookSelection = function (name, desc, price, compositionJson) {
     const cin = document.getElementById('checkin') ? document.getElementById('checkin').value : '';
     const cout = document.getElementById('checkout') ? document.getElementById('checkout').value : '';
     const reqA = document.getElementById('adults') ? document.getElementById('adults').value : '2';
@@ -736,7 +774,8 @@ window.bookSelection = function (name, desc, price) {
         cin: cin,
         cout: cout,
         adults: reqA,
-        children: reqC
+        children: reqC,
+        composition: compositionJson ? JSON.parse(compositionJson) : { [name]: 1 }
     };
 
     // Populate Sidebar Summary
@@ -760,6 +799,11 @@ window.bookSelection = function (name, desc, price) {
     const bfCount = document.getElementById('breakfast-count');
     if (bfCount) bfCount.value = 1;
 
+    // Reset rate plan to Room Only by default when opening checkout
+    selectedRatePlan = 'room-only';
+    document.getElementById('plan-room-only').classList.add('active');
+    document.getElementById('plan-breakfast-plus').classList.remove('active');
+
     updateCheckoutSummary();
 
     // Open Checkout Modal
@@ -776,6 +820,17 @@ let modal, resultsModal, checkoutModal, closeModal, closeResults, closeCheckout;
 
 // To store selected booking data for final checkout
 let currentBookingSelection = {};
+
+window.selectRatePlanPlan = function (plan) {
+    selectedRatePlan = plan;
+    document.getElementById('plan-room-only').classList.remove('active');
+    document.getElementById('plan-breakfast-plus').classList.remove('active');
+    document.getElementById(`plan-${plan}`).classList.add('active');
+
+    const qtyContainer = document.getElementById('breakfast-qty-container');
+    if (qtyContainer) qtyContainer.style.display = 'none'; // No longer needed
+    updateCheckoutSummary();
+};
 
 function initModals() {
     modal = document.getElementById('room-modal');
@@ -843,24 +898,15 @@ function initModals() {
     }
 
     // Breakfast Logic
-    const bfCheckbox = document.getElementById('add-breakfast');
-    const bfOptions = document.getElementById('breakfast-options');
     const bfInc = document.getElementById('btn-increase-bf');
     const bfDec = document.getElementById('btn-decrease-bf');
     const bfCount = document.getElementById('breakfast-count');
-    const bfInfoIcon = document.getElementById('breakfast-info-icon');
-    const bfInfoModal = document.getElementById('breakfast-info-modal');
-    const closeBfModal = document.getElementById('close-breakfast-modal');
+    const bfSavingsTag = document.getElementById('breakfast-savings-tag');
 
-    if (bfCheckbox) {
-        bfCheckbox.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                bfOptions.style.display = 'flex';
-            } else {
-                bfOptions.style.display = 'none';
-            }
-            updateCheckoutSummary();
-        });
+    // Update the savings tag with real data from sheet
+    if (bfSavingsTag && breakfastPrices) {
+        const savings = breakfastPrices.standard - breakfastPrices.bundle;
+        bfSavingsTag.innerText = `Save Rs. ${savings.toLocaleString()} / day`;
     }
 
     if (bfInc && bfCount) {
@@ -878,34 +924,26 @@ function initModals() {
             }
         });
     }
-
-    if (bfInfoIcon && bfInfoModal) {
-        bfInfoIcon.addEventListener('click', (e) => {
-            e.stopPropagation();
-            bfInfoModal.classList.add('active');
-        });
-    }
-
-    if (closeBfModal && bfInfoModal) {
-        closeBfModal.addEventListener('click', () => {
-            bfInfoModal.classList.remove('active');
-        });
-    }
-
-    if (bfInfoModal) {
-        bfInfoModal.addEventListener('click', (e) => {
-            if (e.target === bfInfoModal) {
-                bfInfoModal.classList.remove('active');
-            }
-        });
-    }
 }
 
 function updateCheckoutSummary() {
     if (!currentBookingSelection || !currentBookingSelection.totalPrice) return;
-    const addBf = document.getElementById('add-breakfast').checked;
-    const bfCount = parseInt(document.getElementById('breakfast-count').value) || 1;
-    const { basePrice, totalPrice, nights } = currentBookingSelection;
+    const { composition, nights } = currentBookingSelection;
+    
+    // Calculate total base rate for all rooms in the composition
+    let activeBaseRate = 0;
+    
+    Object.entries(composition).forEach(([roomType, count]) => {
+        const roomData = sheetData[roomType.trim()];
+        if (roomData) {
+            // Robust number parsing: remove anything that isn't a digit
+            let rate = parseInt(roomData.price.replace(/[^\d]/g, '')) || 0;
+            if (selectedRatePlan === 'breakfast-plus' && roomData.withBfPrice) {
+                rate = parseInt(roomData.withBfPrice.replace(/[^\d]/g, '')) || rate;
+            }
+            activeBaseRate += (rate * count);
+        }
+    });
     
     // Find the best qualifying deal for the length of stay
     let bestDealForStay = null;
@@ -916,7 +954,7 @@ function updateCheckoutSummary() {
         }
     }
 
-    let roomPriceVal = parseInt(totalPrice.replace(/,/g, ''));
+    let roomPriceVal = activeBaseRate * nights;
     let discountVal = 0;
     let dealHtml = '';
 
@@ -928,22 +966,20 @@ function updateCheckoutSummary() {
     let roomTotalWithDiscount = roomPriceVal - discountVal;
     let finalPrice = roomTotalWithDiscount;
 
-    let bfHtml = '';
-    if (addBf) {
-        let bfCost = 1200 * bfCount * nights;
-        finalPrice += bfCost;
-        bfHtml = `<br><small style="color:var(--clr-orange); font-size: 0.85em;">+ Breakfast: Rs ${bfCost.toLocaleString()} (Rs ${1200 * bfCount} x ${nights})</small>`;
-    }
-
-    let priceDisplayHtml = `Rs ${basePrice} / night<br>`;
+    let priceDisplayHtml = "";
     
     if (discountVal > 0) {
-        priceDisplayHtml += `<small style="color:var(--clr-gray); font-size: 0.8em; font-weight: normal;">Room Total: <span style="text-decoration: line-through;">Rs ${totalPrice}</span> Rs ${roomTotalWithDiscount.toLocaleString()}</small>${dealHtml}`;
+        // Show original rate with strikethrough
+        priceDisplayHtml = `<span style="text-decoration: line-through; opacity: 0.6;">Rs ${activeBaseRate.toLocaleString()}</span> / night<br>`;
+        // Show discounted total in orange
+        priceDisplayHtml += `<span style="color: var(--clr-orange); font-weight: 700; font-size: 1.1em;">Rs ${roomTotalWithDiscount.toLocaleString()}</span> ${dealHtml}`;
     } else {
-        priceDisplayHtml += `<small style="color:var(--clr-gray); font-size: 0.8em; font-weight: normal;">Room Total: Rs ${totalPrice}</small>`;
+        // Standard view
+        priceDisplayHtml = `Rs ${activeBaseRate.toLocaleString()} / night<br>`;
+        priceDisplayHtml += `<small style="color:var(--clr-gray); font-size: 0.8em; font-weight: normal;">Room Total: Rs ${roomPriceVal.toLocaleString()}</small>`;
     }
 
-    document.getElementById('summary-price').innerHTML = `${priceDisplayHtml}${bfHtml}<br><strong style="font-size: 1.1em; color: var(--clr-darker); display: block; margin-top: 5px;">Grand Total: Rs ${finalPrice.toLocaleString()}</strong>`;
+    document.getElementById('summary-price').innerHTML = `${priceDisplayHtml}<br><strong style="font-size: 1.1em; color: var(--clr-darker); display: block; margin-top: 5px;">Grand Total: Rs ${finalPrice.toLocaleString()}</strong>`;
 }
 
 // Initial Setup logic
@@ -1180,13 +1216,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const gEmail = document.getElementById('guest-email').value || 'Not provided';
             const gReq = document.getElementById('guest-requests').value || 'None';
 
-            const { name, desc, basePrice, totalPrice, nights, cin, cout, adults, children } = currentBookingSelection;
+            const { composition, nights, name, desc, cin, cout, adults, children } = currentBookingSelection;
             const details = desc ? `Combination: ${desc}` : `Room: ${name}`;
 
-            const addBf = document.getElementById('add-breakfast').checked;
-            const bfCount = parseInt(document.getElementById('breakfast-count').value) || 1;
+            // Calculate total base rate for all rooms in the composition for the PDF
+            let activeBaseRate = 0;
+            Object.entries(composition).forEach(([roomType, count]) => {
+                const roomData = sheetData[roomType.trim()];
+                if (roomData) {
+                    let rate = parseInt(roomData.price.replace(/[^\d]/g, '')) || 0;
+                    if (selectedRatePlan === 'breakfast-plus' && roomData.withBfPrice) {
+                        rate = parseInt(roomData.withBfPrice.replace(/[^\d]/g, '')) || rate;
+                    }
+                    activeBaseRate += (rate * count);
+                }
+            });
 
-            let roomPriceVal = parseInt(totalPrice.replace(/,/g, ''));
+            let roomPriceVal = activeBaseRate * nights;
             let discountVal = 0;
             let appliedDealName = "None";
             let appliedDealPct = 0;
@@ -1205,13 +1251,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let roomTotal = roomPriceVal - discountVal;
             let netRate = Math.round(roomTotal / nights);
             let finalPrice = roomTotal;
-            let bfCostInfo = "";
-            let bfTotalCost = 0;
-            if (addBf) {
-                bfTotalCost = 1200 * bfCount * nights;
-                finalPrice += bfTotalCost;
-                bfCostInfo = `Rs ${bfTotalCost.toLocaleString()} (Rs 1200 x ${bfCount} guests x ${nights} nights)`;
-            }
 
             // Create PDF Content Template
             const pdfTemplate = `
@@ -1245,8 +1284,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
 
                     <div style="margin-bottom: 15px; background: #fff7ed; padding: 10px 15px; border-radius: 8px; border-left: 4px solid #ea580c; page-break-inside: avoid;">
-                        <h3 style="color: #ea580c; margin-top: 0; margin-bottom: 5px; font-size: 13px; text-transform: uppercase;">Selected Accommodation</h3>
-                        <p style="margin: 0; font-size: 15px; font-weight: 700; color: #1e293b;">${details}</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <h3 style="color: #ea580c; margin: 0; font-size: 13px; text-transform: uppercase;">Selected Accommodation</h3>
+                            <span style="background: #ea580c; color: white; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px;">${selectedRatePlan === 'breakfast-plus' ? 'BREAKFAST PLUS RATE' : 'ROOM ONLY RATE'}</span>
+                        </div>
+                        <p style="margin: 0; font-size: 15px; font-weight: 700; color: #1e293b;">${desc ? `Combination: ${desc}` : `Room: ${name}`}</p>
                         <p style="margin: 5px 0 0; color: #64748b; font-size: 12px; font-style: italic;">Special Requests: ${gReq}</p>
                     </div>
 
@@ -1261,9 +1303,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             <tr>
                                 <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #475569;">
                                     <strong>Rate per Night (${nights} Nights)</strong><br>
-                                    <small style="color: #94a3b8;">Rs ${basePrice} per night</small>
+                                    <small style="color: #94a3b8;">Rs ${activeBaseRate.toLocaleString()} per night</small>
                                 </td>
-                                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600;">Rs ${totalPrice}</td>
+                                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600;">Rs ${roomPriceVal.toLocaleString()}</td>
                             </tr>
                             ${discountVal > 0 ? `
                             <tr>
@@ -1274,15 +1316,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600; color: #ea580c;">- Rs ${discountVal.toLocaleString()}</td>
                             </tr>
                             ` : ''}
-                            ${addBf ? `
-                            <tr>
-                                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #475569;">
-                                    <strong>Breakfast Supplement</strong><br>
-                                    <small style="color: #94a3b8;">${bfCostInfo}</small>
-                                </td>
-                                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600;">Rs ${bfTotalCost.toLocaleString()}</td>
-                            </tr>
-                            ` : ''}
+
                             <tr style="background: #f8fafc;">
                                 <td style="padding: 10px 12px; color: #1e293b; font-size: 16px; font-weight: 800;">GRAND TOTAL</td>
                                 <td style="padding: 10px 12px; text-align: right; font-size: 18px; font-weight: 800; color: #ea580c;">Rs ${finalPrice.toLocaleString()}</td>
@@ -1342,15 +1376,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 adults: adults,
                 children: children,
                 roomDetails: details,
-                perNightRate: basePrice,
+                perNightRate: activeBaseRate.toLocaleString(),
                 netRate: netRate.toLocaleString(),
                 roomTotal: roomTotal.toLocaleString(),
                 discountApplied: discountVal > 0 ? `${appliedDealName} (${appliedDealPct}% Off: -Rs ${discountVal.toLocaleString()})` : "None",
                 totalPrice: finalPrice.toLocaleString(),
                 specialRequests: gReq,
-                breakfastAdded: addBf ? "Yes" : "No",
-                breakfastCount: addBf ? bfCount : 0,
-                breakfastCharges: addBf ? `Rs ${bfTotalCost.toLocaleString()}` : "Rs 0"
+                ratePlan: selectedRatePlan === 'breakfast-plus' ? "Breakfast Plus" : "Room Only",
+                breakfastCharges: selectedRatePlan === 'breakfast-plus' ? "Included" : "Not Included",
+                breakfastCount: selectedRatePlan === 'breakfast-plus' ? "Yes" : "No",
+                version: "2026.04.23.02"
             };
 
             // Send Email Silently via Google Apps Script (Webhook)
