@@ -153,6 +153,7 @@ async function fetchHotelData() {
             }
 
             updateRoomCards();
+            updateDynamicSEO(); // Update Google Search Schema with real prices
             
             // 3. Fetch Deals/Promotions
             try {
@@ -1450,3 +1451,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+// --- SEO Engine: Dynamic Schema.org Generation ---
+function updateDynamicSEO() {
+    const schemaScript = document.getElementById('hotel-schema');
+    if (!schemaScript) return;
+
+    try {
+        let schemaData = JSON.parse(schemaScript.innerHTML);
+        
+        // Add dynamic offers based on current sheetData
+        schemaData.makesOffer = Object.entries(sheetData).map(([name, data]) => {
+            const price = parseInt(data.price.replace(/[^\d]/g, '')) || 0;
+            return {
+                "@type": "Offer",
+                "itemOffered": {
+                    "@type": "HotelRoom",
+                    "name": name,
+                    "occupancy": {
+                        "@type": "QuantitativeValue",
+                        "maxValue": data.adults + data.children
+                    },
+                    "amenityFeature": data.amenities ? data.amenities.map(a => ({
+                        "@type": "LocationFeatureSpecification",
+                        "name": a,
+                        "value": true
+                    })) : []
+                },
+                "price": price,
+                "priceCurrency": "PKR",
+                "availability": data.inventory > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+            };
+        });
+
+        // Add aggregate price info
+        const allPrices = Object.values(sheetData).map(d => parseInt(d.price.replace(/[^\d]/g, '')) || 99999).filter(p => p > 0);
+        if (allPrices.length > 0) {
+            schemaData.priceRange = `PKR ${Math.min(...allPrices)} - PKR ${Math.max(...allPrices)}`;
+        }
+
+        schemaScript.innerHTML = JSON.stringify(schemaData, null, 2);
+    } catch (e) {
+        console.warn("SEO Schema Update Failed:", e);
+    }
+}
