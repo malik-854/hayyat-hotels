@@ -2,7 +2,7 @@
 const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
 const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI'; // Reusing your webstore key
 const CLOUD_NAME = ''; // To be filled once provided
-const APP_VERSION = '2026.04.23.06'; // Matches version in Google Sheet (K1)
+const APP_VERSION = '2026.04.23.07'; // Matches version in Google Sheet (K1)
 
 // Static Room Data (Descriptions and Features match the ones in HTML)
 const roomDetails = {
@@ -1386,7 +1386,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ratePlan: selectedRatePlan === 'breakfast-plus' ? "Breakfast Plus" : "Room Only",
                 breakfastCharges: selectedRatePlan === 'breakfast-plus' ? "Included" : "Not Included",
                 breakfastCount: selectedRatePlan === 'breakfast-plus' ? "Yes" : "No",
-                version: "2026.04.23.06"
+                version: "2026.04.23.07"
             };
 
             // Send Email Silently via Google Apps Script (Webhook)
@@ -1460,33 +1460,8 @@ function updateDynamicSEO() {
     try {
         let schemaData = JSON.parse(schemaScript.innerHTML);
         
-        // Add dynamic offers based on current sheetData
-        schemaData.containsPlace = Object.entries(sheetData).map(([name, data]) => {
-            const priceVal = parseInt(data.price.replace(/[^\d]/g, '')) || 0;
-            return {
-                "@type": "HotelRoom",
-                "name": name,
-                "occupancy": {
-                    "@type": "QuantitativeValue",
-                    "maxValue": data.adults + data.children
-                },
-                "amenityFeature": data.amenities ? data.amenities.map(a => ({
-                    "@type": "LocationFeatureSpecification",
-                    "name": a,
-                    "value": true
-                })) : [],
-                "offers": {
-                    "@type": "Offer",
-                    "priceSpecification": {
-                        "@type": "PriceSpecification",
-                        "price": priceVal,
-                        "priceCurrency": "PKR"
-                    },
-                    "availability": data.inventory > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
-                }
-            };
-        });
-        delete schemaData.makesOffer;
+        // Google Hotel Schema only requires priceRange. 
+        // Individual room offers require Google Hotel Center API, not JSON-LD.
 
         // Add aggregate price info
         const allPrices = Object.values(sheetData).map(d => parseInt(d.price.replace(/[^\d]/g, '')) || 99999).filter(p => p > 0);
