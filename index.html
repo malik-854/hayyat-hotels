@@ -8,13 +8,21 @@
     <meta name="description"
         content="Best service apartments in Lahore. Located in the center of Lahore near Mall Road, PC Hotel, and Chamber of Commerce. Furnished luxury apartments perfect for families with full kitchens and premium amenities.">
     <meta name="keywords" content="best hotel in lahore, center of lahore, service apartments lahore, furnished apartments lahore, family hotel lahore, hotel near mall road lahore, hotel near pc hotel lahore, chamber of commerce lahore accommodation">
-    
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://hayyathotels.com/">
+
+    <!-- Tell Google to index this page and follow all links -->
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+
     <!-- OpenGraph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://hayyathotels.com/">
     <meta property="og:title" content="Hayyat Luxury Hotel Apartments | Best Family Hotel in Lahore">
     <meta property="og:description" content="Premium furnished service apartments in the heart of Lahore. Near Mall Road & PC Hotel. Best for families.">
     <meta property="og:image" content="https://hayyathotels.com/og-image.jpg">
+    <meta property="og:locale" content="en_PK">
+    <meta property="og:site_name" content="Hayyat Luxury Hotel Apartments">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
@@ -26,19 +34,27 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2026.04.23.02">
+    <link rel="stylesheet" href="style.css?v=2026.05.06.01">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- Schema.org / JSON-LD for Google Hotel Search -->
+    <!-- Schema.org / JSON-LD for Google Hotel Search & Rich Results -->
     <script type="application/ld+json" id="hotel-schema">
     {
       "@context": "https://schema.org",
-      "@type": "Hotel",
+      "@type": "LodgingBusiness",
       "name": "Hayyat Luxury Hotel Apartments",
-      "description": "Best luxury service apartments in the center of Lahore, near Mall Road and PC Hotel. Fully furnished and perfect for families.",
-      "image": "https://hayyathotels.com/Maisonette_1.png",
+      "alternateName": "Hayyat Hotel Lahore",
+      "description": "Premium luxury service apartments in the center of Lahore, near Mall Road and PC Hotel. Fully furnished and perfect for families, business travellers, and foreign tourists.",
+      "image": [
+        "https://hayyathotels.com/Logo.png"
+      ],
       "logo": "https://hayyathotels.com/Logo.png",
+      "url": "https://hayyathotels.com",
+      "telephone": "+923136766699",
+      "email": "info@hayyathotels.com",
       "priceRange": "PKR 15,000 - PKR 45,000",
+      "currenciesAccepted": "PKR",
+      "paymentAccepted": "Cash, Bank Transfer",
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "2 Lawrance Road, China Chowk",
@@ -52,28 +68,135 @@
         "latitude": 31.5546,
         "longitude": 74.3315
       },
-      "url": "https://hayyathotels.com",
-      "telephone": "+923136766699",
+      "hasMap": "https://maps.app.goo.gl/GDDSSphvpEfr51F58",
       "starRating": {
         "@type": "Rating",
+        "ratingValue": "4",
+        "bestRating": "5"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
         "ratingValue": "4.7",
+        "reviewCount": "500",
         "bestRating": "5",
         "worstRating": "1"
       },
-      "checkinTime": "14:00:00",
-      "checkoutTime": "12:00:00",
-      "hasMap": "https://maps.app.goo.gl/GDDSSphvpEfr51F58",
+      "checkinTime": "14:00",
+      "checkoutTime": "12:00",
+      "numberOfRooms": "6",
+      "petsAllowed": false,
+      "smokingAllowed": false,
       "amenityFeature": [
-        {"@type": "LocationFeatureSpecification", "name": "Near Mall Road", "value": true},
-        {"@type": "LocationFeatureSpecification", "name": "Near PC Hotel", "value": true},
-        {"@type": "LocationFeatureSpecification", "name": "Near Chamber of Commerce", "value": true},
         {"@type": "LocationFeatureSpecification", "name": "Free WiFi", "value": true},
+        {"@type": "LocationFeatureSpecification", "name": "Air Conditioning", "value": true},
         {"@type": "LocationFeatureSpecification", "name": "Full Kitchen", "value": true},
-        {"@type": "LocationFeatureSpecification", "name": "Family Friendly", "value": true}
+        {"@type": "LocationFeatureSpecification", "name": "24-hour Front Desk", "value": true},
+        {"@type": "LocationFeatureSpecification", "name": "Airport Shuttle", "value": true},
+        {"@type": "LocationFeatureSpecification", "name": "Power Backup", "value": true},
+        {"@type": "LocationFeatureSpecification", "name": "CCTV Security", "value": true},
+        {"@type": "LocationFeatureSpecification", "name": "Smart TV with Netflix", "value": true},
+        {"@type": "LocationFeatureSpecification", "name": "Laundry Service", "value": true},
+        {"@type": "LocationFeatureSpecification", "name": "Children's Play Area", "value": true},
+        {"@type": "LocationFeatureSpecification", "name": "Outdoor Garden", "value": true},
+        {"@type": "LocationFeatureSpecification", "name": "In-Room Safe", "value": true}
+      ],
+      "containsPlace": [
+        {
+          "@type": "HotelRoom",
+          "name": "The Maisonette",
+          "description": "Our premier luxury unit. The largest apartment in the building with an extremely spacious area. Includes 1 Queen and 2 Twin beds, full kitchen.",
+          "bed": [{"@type": "BedDetails", "typeOfBed": "Queen", "numberOfBeds": 1}, {"@type": "BedDetails", "typeOfBed": "Twin", "numberOfBeds": 2}],
+          "occupancy": {"@type": "QuantitativeValue", "maxValue": 6, "minValue": 1},
+          "offers": {
+            "@type": "Offer",
+            "price": "44000",
+            "priceCurrency": "PKR",
+            "url": "https://hayyathotels.com/#apartments",
+            "availability": "https://schema.org/InStock"
+          }
+        },
+        {
+          "@type": "HotelRoom",
+          "name": "Two-Bedroom Apartment",
+          "description": "Ideal for 4 adults. Includes a private balcony, full kitchen, spacious living area. 1 King and 2 Twin beds.",
+          "bed": [{"@type": "BedDetails", "typeOfBed": "King", "numberOfBeds": 1}, {"@type": "BedDetails", "typeOfBed": "Twin", "numberOfBeds": 2}],
+          "occupancy": {"@type": "QuantitativeValue", "maxValue": 4, "minValue": 1},
+          "offers": {
+            "@type": "Offer",
+            "price": "30000",
+            "priceCurrency": "PKR",
+            "url": "https://hayyathotels.com/#apartments",
+            "availability": "https://schema.org/InStock"
+          }
+        },
+        {
+          "@type": "HotelRoom",
+          "name": "One-Bedroom Apartment",
+          "description": "Large living space, complete kitchen, modern furniture for a premium feel. 1 King bed.",
+          "bed": [{"@type": "BedDetails", "typeOfBed": "King", "numberOfBeds": 1}],
+          "occupancy": {"@type": "QuantitativeValue", "maxValue": 2, "minValue": 1},
+          "offers": {
+            "@type": "Offer",
+            "price": "22000",
+            "priceCurrency": "PKR",
+            "url": "https://hayyathotels.com/#apartments",
+            "availability": "https://schema.org/InStock"
+          }
+        },
+        {
+          "@type": "HotelRoom",
+          "name": "Deluxe Apartment",
+          "description": "Studio-style layout featuring a fully equipped modern kitchen. 1 Queen bed.",
+          "bed": [{"@type": "BedDetails", "typeOfBed": "Queen", "numberOfBeds": 1}],
+          "occupancy": {"@type": "QuantitativeValue", "maxValue": 2, "minValue": 1},
+          "offers": {
+            "@type": "Offer",
+            "price": "18000",
+            "priceCurrency": "PKR",
+            "url": "https://hayyathotels.com/#apartments",
+            "availability": "https://schema.org/InStock"
+          }
+        },
+        {
+          "@type": "HotelRoom",
+          "name": "Twin Studio Apartment",
+          "description": "Includes a dedicated work station area. Perfect for friends or colleagues. 2 Twin beds.",
+          "bed": [{"@type": "BedDetails", "typeOfBed": "Twin", "numberOfBeds": 2}],
+          "occupancy": {"@type": "QuantitativeValue", "maxValue": 2, "minValue": 1},
+          "offers": {
+            "@type": "Offer",
+            "price": "16000",
+            "priceCurrency": "PKR",
+            "url": "https://hayyathotels.com/#apartments",
+            "availability": "https://schema.org/InStock"
+          }
+        },
+        {
+          "@type": "HotelRoom",
+          "name": "Twin Studio Room",
+          "description": "A beautifully curated, efficient space for the independent traveler. 2 Twin beds.",
+          "bed": [{"@type": "BedDetails", "typeOfBed": "Twin", "numberOfBeds": 2}],
+          "occupancy": {"@type": "QuantitativeValue", "maxValue": 2, "minValue": 1},
+          "offers": {
+            "@type": "Offer",
+            "price": "14000",
+            "priceCurrency": "PKR",
+            "url": "https://hayyathotels.com/#apartments",
+            "availability": "https://schema.org/InStock"
+          }
+        }
+      ],
+      "sameAs": [
+        "https://www.instagram.com/hayyatlahore",
+        "https://www.facebook.com/share/1Dkk2NuL6A/",
+        "https://youtube.com/@hayyatlahore",
+        "https://www.booking.com/Share-JjPXhtL",
+        "https://www.tripadvisor.com/Hotel_Review-g295413-d16819115-Reviews-Hayyat_Luxury_Apartments-Lahore_Punjab_Province.html"
       ]
     }
     </script>
 </head>
+
 
 <body>
     <!-- Navbar -->
