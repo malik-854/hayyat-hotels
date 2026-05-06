@@ -2,7 +2,50 @@
 const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
 const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI'; // Reusing your webstore key
 const CLOUD_NAME = ''; // To be filled once provided
-const APP_VERSION = '2026.04.23.07'; // Matches version in Google Sheet (K1)
+const APP_VERSION = '2026.05.07.01'; // Matches version in Google Sheet (K1)
+
+// --- Multi-Currency Global State ---
+let currentCurrency = 'PKR';
+let currencyRates = { PKR: 1, USD: 0.0036, EUR: 0.0033, GBP: 0.0028 }; // Initial fallbacks
+
+async function fetchCurrencyRates() {
+    try {
+        const response = await fetch('https://api.frankfurter.app/latest?from=PKR&to=USD,EUR,GBP');
+        const data = await response.json();
+        if (data && data.rates) {
+            currencyRates.USD = data.rates.USD;
+            currencyRates.EUR = data.rates.EUR;
+            currencyRates.GBP = data.rates.GBP;
+            console.log("Real-time exchange rates loaded:", currencyRates);
+        }
+    } catch (error) {
+        console.warn("Using fallback exchange rates:", error);
+    }
+}
+
+function formatPrice(pkrAmount, currency) {
+    const rawPrice = typeof pkrAmount === 'string' ? parseFloat(pkrAmount.replace(/,/g, '')) : pkrAmount;
+    if (currency === 'PKR') {
+        return `Rs ${Math.round(rawPrice).toLocaleString()}`;
+    }
+    const converted = rawPrice * currencyRates[currency];
+    const symbols = { USD: '$', EUR: '€', GBP: '£' };
+    // Show 1 decimal for EUR/GBP as they are higher value, 0 for USD
+    return `${symbols[currency]}${converted.toFixed(currency === 'USD' ? 0 : 1)}`;
+}
+
+function updateAllPricesOnPage() {
+    document.querySelectorAll('[data-pkr]').forEach(el => {
+        const pkr = el.getAttribute('data-pkr');
+        const formatted = formatPrice(pkr, currentCurrency);
+        // Preserve "/ night" if it was there
+        if (el.innerText.includes('/ night')) {
+            el.innerText = `${formatted} / night`;
+        } else {
+            el.innerText = formatted;
+        }
+    });
+}
 
 // Static Room Data (Descriptions and Features match the ones in HTML)
 const roomDetails = {
@@ -291,7 +334,8 @@ function updateRoomCards() {
             // Update Price
             const priceEl = card.querySelector('.price');
             if (priceEl && data.price) {
-                priceEl.innerText = `Rs ${data.price} / night`;
+                priceEl.setAttribute('data-pkr', data.price);
+                priceEl.innerText = `${formatPrice(data.price, currentCurrency)} / night`;
             }
             // Update Main Image
             const imgEl = card.querySelector('.room-img');
@@ -326,7 +370,12 @@ async function openRoomModal(type) {
     document.getElementById('modal-title').innerText = type;
     const mPrice = document.getElementById('modal-price');
     mPrice.style.display = 'block';
-    mPrice.innerText = sData ? `Rs ${sData.price} / night` : 'View Rates';
+    if (sData) {
+        mPrice.setAttribute('data-pkr', sData.price);
+        mPrice.innerText = `${formatPrice(sData.price, currentCurrency)} / night`;
+    } else {
+        mPrice.innerText = 'View Rates';
+    }
     document.getElementById('modal-size').innerText = staticData.size;
 
     const mBadges = document.querySelector('.modal-badges');
@@ -616,7 +665,7 @@ function displayResults(matches, reqA, reqC) {
                     ${m.tag ? `<span class="result-badge ${m.tagClass}">${m.tag}</span>` : ''}
                     <div class="result-name">${m.name}</div>
                     ${m.isGroup ? `<div class="result-combination">${m.desc}</div>` : `<div class="result-combination">Max Capacity: ${m.capacity}</div>`}
-                    <div class="result-price">Rs ${m.price} / night</div>
+                    <div class="result-price" data-pkr="${m.price}">${formatPrice(m.price, currentCurrency)} / night</div>
                 </div>
                 <div class="result-actions">
                     ${detailsBtn}
@@ -709,7 +758,13 @@ function loadRoomIntoModal(type) {
     if (!staticData) return;
 
     document.getElementById('modal-title').innerText = type;
-    document.getElementById('modal-price').innerText = sData ? `Rs ${sData.price} / night` : 'View Rates';
+    const modalPriceEl = document.getElementById('modal-price');
+    if (sData) {
+        modalPriceEl.setAttribute('data-pkr', sData.price);
+        modalPriceEl.innerText = `${formatPrice(sData.price, currentCurrency)} / night`;
+    } else {
+        modalPriceEl.innerText = 'View Rates';
+    }
     document.getElementById('modal-size').innerText = staticData.size;
 
     const card = document.querySelector(`[data-room="${type}"]`);
@@ -961,7 +1016,7 @@ function updateCheckoutSummary() {
 
     if (bestDealForStay) {
         discountVal = Math.round(roomPriceVal * (bestDealForStay.percentage / 100));
-        dealHtml = `<br><small style="color:var(--clr-orange-dark); font-size: 0.85em; font-weight: 600;">- ${bestDealForStay.name} (${bestDealForStay.percentage}% Off): Rs ${discountVal.toLocaleString()}</small>`;
+        dealHtml = `<br><small style="color:var(--clr-orange-dark); font-size: 0.85em; font-weight: 600;">- ${bestDealForStay.name} (${bestDealForStay.percentage}% Off): ${formatPrice(discountVal, currentCurrency)}</small>`;
     }
 
     let roomTotalWithDiscount = roomPriceVal - discountVal;
@@ -971,16 +1026,16 @@ function updateCheckoutSummary() {
     
     if (discountVal > 0) {
         // Show original rate with strikethrough
-        priceDisplayHtml = `<span style="text-decoration: line-through; opacity: 0.6;">Rs ${activeBaseRate.toLocaleString()}</span> / night<br>`;
+        priceDisplayHtml = `<span style="text-decoration: line-through; opacity: 0.6;">${formatPrice(activeBaseRate, currentCurrency)}</span> / night<br>`;
         // Show discounted total in orange
-        priceDisplayHtml += `<span style="color: var(--clr-orange); font-weight: 700; font-size: 1.1em;">Rs ${roomTotalWithDiscount.toLocaleString()}</span> ${dealHtml}`;
+        priceDisplayHtml += `<span style="color: var(--clr-orange); font-weight: 700; font-size: 1.1em;">${formatPrice(roomTotalWithDiscount, currentCurrency)}</span> ${dealHtml}`;
     } else {
         // Standard view
-        priceDisplayHtml = `Rs ${activeBaseRate.toLocaleString()} / night<br>`;
-        priceDisplayHtml += `<small style="color:var(--clr-gray); font-size: 0.8em; font-weight: normal;">Room Total: Rs ${roomPriceVal.toLocaleString()}</small>`;
+        priceDisplayHtml = `${formatPrice(activeBaseRate, currentCurrency)} / night<br>`;
+        priceDisplayHtml += `<small style="color:var(--clr-gray); font-size: 0.8em; font-weight: normal;">Room Total: ${formatPrice(roomPriceVal, currentCurrency)}</small>`;
     }
 
-    document.getElementById('summary-price').innerHTML = `${priceDisplayHtml}<br><strong style="font-size: 1.1em; color: var(--clr-darker); display: block; margin-top: 5px;">Grand Total: Rs ${finalPrice.toLocaleString()}</strong>`;
+    document.getElementById('summary-price').innerHTML = `${priceDisplayHtml}<br><strong style="font-size: 1.1em; color: var(--clr-darker); display: block; margin-top: 5px;">Grand Total: ${formatPrice(finalPrice, currentCurrency)}</strong>`;
 }
 
 // Initial Setup logic
@@ -1184,8 +1239,17 @@ openRoomModal = async function (type) {
 
 document.addEventListener('DOMContentLoaded', () => {
     fetchHotelData();
+    fetchCurrencyRates();
     initDateConstraints();
     initModals();
+
+    const currencySelector = document.getElementById('currency-selector');
+    if (currencySelector) {
+        currencySelector.addEventListener('change', (e) => {
+            currentCurrency = e.target.value;
+            updateAllPricesOnPage();
+        });
+    }
 
     const bookingForm = document.querySelector('.booking-form');
     if (bookingForm) {
@@ -1304,23 +1368,23 @@ document.addEventListener('DOMContentLoaded', () => {
                             <tr>
                                 <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #475569;">
                                     <strong>Rate per Night (${nights} Nights)</strong><br>
-                                    <small style="color: #94a3b8;">Rs ${activeBaseRate.toLocaleString()} per night</small>
+                                    <small style="color: #94a3b8;">${formatPrice(activeBaseRate, currentCurrency)} per night${currentCurrency !== 'PKR' ? ' (est.)' : ''}</small>
                                 </td>
-                                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600;">Rs ${roomPriceVal.toLocaleString()}</td>
+                                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600;">${formatPrice(roomPriceVal, currentCurrency)}</td>
                             </tr>
                             ${discountVal > 0 ? `
                             <tr>
                                 <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #ea580c;">
                                     <strong>Discount: ${appliedDealName}</strong><br>
-                                    <small style="color: #94a3b8;">${appliedDealPct}% Off (Net Rate: Rs ${netRate.toLocaleString()} / night)</small>
+                                    <small style="color: #94a3b8;">${appliedDealPct}% Off (Net Rate: ${formatPrice(netRate, currentCurrency)} / night)</small>
                                 </td>
-                                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600; color: #ea580c;">- Rs ${discountVal.toLocaleString()}</td>
+                                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600; color: #ea580c;">- ${formatPrice(discountVal, currentCurrency)}</td>
                             </tr>
                             ` : ''}
 
                             <tr style="background: #f8fafc;">
-                                <td style="padding: 10px 12px; color: #1e293b; font-size: 16px; font-weight: 800;">GRAND TOTAL</td>
-                                <td style="padding: 10px 12px; text-align: right; font-size: 18px; font-weight: 800; color: #ea580c;">Rs ${finalPrice.toLocaleString()}</td>
+                                <td style="padding: 10px 12px; color: #1e293b; font-size: 16px; font-weight: 800;">GRAND TOTAL${currentCurrency !== 'PKR' ? ' (est.)' : ''}</td>
+                                <td style="padding: 10px 12px; text-align: right; font-size: 18px; font-weight: 800; color: #ea580c;">${formatPrice(finalPrice, currentCurrency)}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1474,3 +1538,97 @@ function updateDynamicSEO() {
         console.warn("SEO Schema Update Failed:", e);
     }
 }
+
+// 8. FAQ Accordion Logic
+document.addEventListener('DOMContentLoaded', () => {
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const questionBtn = item.querySelector('.faq-question');
+        questionBtn.addEventListener('click', () => {
+            // Close other items
+            faqItems.forEach(otherItem => {
+                if (otherItem !== item && otherItem.classList.contains('active')) {
+                    otherItem.classList.remove('active');
+                }
+            });
+            // Toggle current item
+            item.classList.toggle('active');
+        });
+    });
+});
+
+// 9. Neighborhood Map Logic
+document.addEventListener('DOMContentLoaded', () => {
+    const nhTabs = document.querySelectorAll('.nh-tab');
+    const nhContents = document.querySelectorAll('.nh-content');
+    const interactiveElements = document.querySelectorAll('.nh-card[data-query], .nh-pill[data-query]');
+    const iframe = document.getElementById('nh-iframe');
+    const loader = document.getElementById('nh-map-loader');
+    
+    // Default Hotel Query
+    const baseQuery = "2 Lawrance Road, China Chowk, Lahore (Hayyat Luxury Hotel)";
+
+    // Tab Switching
+    nhTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active from all tabs
+            nhTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            // Hide all content
+            nhContents.forEach(c => c.classList.remove('active'));
+            
+            // Show target content
+            const targetId = tab.getAttribute('data-target');
+            document.getElementById(targetId).classList.add('active');
+            
+            // Reset map to home when switching tabs
+            updateMap(baseQuery, 14);
+            interactiveElements.forEach(el => el.classList.remove('active'));
+        });
+    });
+
+    // Clicking a Card or Pill -> Update Map with Directions
+    interactiveElements.forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            
+            const destination = el.getAttribute('data-query');
+            const origin = "Hayyat Luxury Hotel Apartments Lahore";
+
+            if (window.innerWidth < 900) {
+                // Mobile behavior: Open external Google Maps with Directions
+                const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=driving`;
+                window.open(url, '_blank');
+            } else {
+                // Desktop behavior: Update inline map with Directions route
+                interactiveElements.forEach(item => item.classList.remove('active'));
+                el.classList.add('active');
+                updateMapWithRoute(origin, destination);
+            }
+        });
+    });
+
+    function updateMapWithRoute(origin, destination) {
+        if (!iframe) return;
+        loader.style.display = 'flex';
+        // Using saddr (source) and daddr (destination) for the directions view in embed
+        const url = `https://maps.google.com/maps?width=100%25&height=600&hl=en&saddr=${encodeURIComponent(origin)}&daddr=${encodeURIComponent(destination)}&t=&z=14&ie=UTF8&iwloc=B&output=embed`;
+        iframe.src = url;
+        
+        iframe.onload = () => {
+            loader.style.display = 'none';
+        };
+    }
+
+    function updateMap(query, zoom) {
+        if (!iframe) return;
+        loader.style.display = 'flex';
+        const url = `https://maps.google.com/maps?width=100%25&height=600&hl=en&q=${encodeURIComponent(query)}&t=&z=${zoom}&ie=UTF8&iwloc=B&output=embed`;
+        iframe.src = url;
+        
+        iframe.onload = () => {
+            loader.style.display = 'none';
+        };
+    }
+});

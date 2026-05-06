@@ -195,6 +195,56 @@
       ]
     }
     </script>
+    
+    <!-- FAQ Schema for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What are the check-in and check-out times?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Standard check-in is from 14:00, and check-out is until 12:00. Early check-in or late check-out is subject to availability."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is your policy regarding couples?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "We strictly accommodate families, married couples, business travelers, and foreign tourists. Unmarried couples are not permitted as per property policy."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do the apartments have fully equipped kitchens?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, all our apartments (except the Studio Room) feature gourmet kitchens equipped with an oven, stovetop, refrigerator, and necessary utensils for your convenience."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How far are you from the airport and key locations?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "We are centrally located near Mall Road and PC Hotel. Allama Iqbal International Airport is approximately a 25-minute drive away. We also offer airport shuttle services upon request."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need to pay in advance to secure my booking?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No payment is required at the time of booking. You can reserve your room online and pay securely at the property upon arrival."
+          }
+        }
+      ]
+    }
+    </script>
 </head>
 
 
@@ -211,8 +261,18 @@
                     <li><a href="#home">Home</a></li>
                     <li><a href="#apartments">Apartments</a></li>
                     <li><a href="#amenities">Amenities</a></li>
+                    <li><a href="#neighborhood">Location</a></li>
+                    <li><a href="#faq">FAQ</a></li>
                     <li><a href="#contact">Contact</a></li>
                 </ul>
+                <div class="currency-container">
+                    <select id="currency-selector" class="currency-dropdown">
+                        <option value="PKR">PKR (Rs)</option>
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                    </select>
+                </div>
                 <a href="#booking-section" class="btn-primary">Book Now</a>
             </nav>
             <div class="hamburger">
@@ -498,6 +558,10 @@
         </div>
     </section>
 
+    <div class="container currency-disclaimer fade-in-scroll">
+        <p>* Prices in currencies other than PKR are estimates based on real-time exchange rates. Final payment will be processed in PKR at the property.</p>
+    </div>
+
     <!-- Guest Gallery Section -->
     <section id="gallery" class="guest-gallery section-padding">
         <div class="container">
@@ -626,6 +690,194 @@
         </div>
     </section>
 
+    <!-- Neighborhood Section -->
+    <section id="neighborhood" class="neighborhood section-padding pattern-bg">
+        <div class="container">
+            <div class="gallery-header text-center fade-in-scroll">
+                <span class="trust-tag">Prime Location</span>
+                <h2 class="section-title">Explore the Neighborhood.</h2>
+                <p>Located in the historic center of Lahore, everything is within reach.</p>
+            </div>
+
+            <div class="nh-layout fade-in-scroll">
+                <!-- Left: Interactive List -->
+                <div class="nh-list">
+                    <div class="nh-tabs">
+                        <button class="nh-tab active" data-target="nh-immediate">Immediate Area (5-10 Mins)</button>
+                        <button class="nh-tab" data-target="nh-explore">Explore Lahore</button>
+                    </div>
+
+                    <p class="nh-hint">📍 Touch a location to view on map or get directions</p>
+
+                    <div id="nh-immediate" class="nh-content active">
+                        <div class="nh-card" data-query="Pearl Continental Hotel Lahore">
+                            <div class="nh-icon">⭐</div>
+                            <div class="nh-info">
+                                <h4>Pearl Continental (PC)</h4>
+                                <p>Premium dining & business.</p>
+                            </div>
+                            <div class="nh-dist">3 Mins</div>
+                        </div>
+                        <div class="nh-card" data-query="Mall Road Lahore">
+                            <div class="nh-icon">🏛️</div>
+                            <div class="nh-info">
+                                <h4>Mall Road (The Mall)</h4>
+                                <p>Historic heart of Lahore.</p>
+                            </div>
+                            <div class="nh-dist">4 Mins</div>
+                        </div>
+                        <div class="nh-card" data-query="Lahore Chamber of Commerce">
+                            <div class="nh-icon">💼</div>
+                            <div class="nh-info">
+                                <h4>Chamber of Commerce</h4>
+                                <p>LCCI Corporate Hub.</p>
+                            </div>
+                            <div class="nh-dist">3 Mins</div>
+                        </div>
+                        <div class="nh-card" data-query="Bagh e Jinnah Lahore">
+                            <div class="nh-icon">🌳</div>
+                            <div class="nh-info">
+                                <h4>Bagh-e-Jinnah</h4>
+                                <p>Gardens & Quaid-e-Azam Library.</p>
+                            </div>
+                            <div class="nh-dist">2 Mins</div>
+                        </div>
+                    </div>
+
+                    <div id="nh-explore" class="nh-content">
+                        <div class="nh-card explore-card">
+                            <div class="nh-card-header">
+                                <div class="nh-icon">🕌</div>
+                                <div class="nh-info">
+                                    <h4>Heritage & Landmarks</h4>
+                                </div>
+                            </div>
+                            <div class="nh-sub-links">
+                                <button class="nh-pill" data-query="Badshahi Mosque Lahore">Badshahi Mosque</button>
+                                <button class="nh-pill" data-query="Lahore Fort">Lahore Fort</button>
+                                <button class="nh-pill" data-query="Minar e Pakistan Lahore">Minar-e-Pakistan</button>
+                                <button class="nh-pill" data-query="Wagah Border Lahore">Wagah Border</button>
+                            </div>
+                        </div>
+
+                        <div class="nh-card explore-card">
+                            <div class="nh-card-header">
+                                <div class="nh-icon">🛍️</div>
+                                <div class="nh-info">
+                                    <h4>Shopping Hubs</h4>
+                                </div>
+                            </div>
+                            <div class="nh-sub-links">
+                                <button class="nh-pill" data-query="Gulberg Galleria Lahore">Gulberg Galleria</button>
+                                <button class="nh-pill" data-query="MM Alam Road Lahore">MM Alam Road</button>
+                                <button class="nh-pill" data-query="Packages Mall Lahore">Packages Mall</button>
+                                <button class="nh-pill" data-query="Emporium Mall Lahore">Emporium Mall</button>
+                            </div>
+                        </div>
+
+                        <div class="nh-card explore-card">
+                            <div class="nh-card-header">
+                                <div class="nh-icon">🏥</div>
+                                <div class="nh-info">
+                                    <h4>Healthcare Facilities</h4>
+                                </div>
+                            </div>
+                            <div class="nh-sub-links">
+                                <button class="nh-pill" data-query="Mayo Hospital Lahore">Mayo Hospital</button>
+                                <button class="nh-pill" data-query="Services Hospital Lahore">Services Hospital</button>
+                                <button class="nh-pill" data-query="Ganga Ram Hospital Lahore">Ganga Ram</button>
+                                <button class="nh-pill" data-query="Shaukat Khanum Hospital Lahore">Shaukat Khanum</button>
+                            </div>
+                        </div>
+
+                        <div class="nh-card explore-card">
+                            <div class="nh-card-header">
+                                <div class="nh-icon">✈️</div>
+                                <div class="nh-info">
+                                    <h4>Regional Transit</h4>
+                                </div>
+                            </div>
+                            <div class="nh-sub-links">
+                                <button class="nh-pill" data-query="Lahore Railway Station">Railway Station</button>
+                                <button class="nh-pill" data-query="Allama Iqbal International Airport Lahore">LHE Airport</button>
+                                <button class="nh-pill" data-query="Daewoo Express Thokar Niaz Baig Lahore">Daewoo Terminal</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Map -->
+                <div class="nh-map-container">
+                    <div id="nh-map-loader" class="nh-map-loader" style="display: none;">
+                        <i class="fas fa-circle-notch fa-spin"></i>
+                    </div>
+                    <iframe 
+                        id="nh-iframe"
+                        src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=2%20Lawrance%20Road,%20China%20Chowk,%20Lahore+(Hayyat%20Luxury%20Hotel)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed" 
+                        width="100%" 
+                        height="100%" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="faq section-padding">
+        <div class="container">
+            <div class="gallery-header text-center fade-in-scroll">
+                <span class="trust-tag">Got Questions?</span>
+                <h2 class="section-title">Frequently Asked Questions.</h2>
+                <p>Everything you need to know about your stay.</p>
+            </div>
+            
+            <div class="faq-container fade-in-scroll">
+                <div class="faq-item">
+                    <button class="faq-question">What are the check-in and check-out times? <i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer">
+                        <p>Standard check-in is from 14:00, and check-out is until 12:00. Early check-in or late check-out is subject to availability.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question">What is your policy regarding couples? <i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer">
+                        <p>We strictly accommodate families, married couples, business travelers, and foreign tourists. Unmarried couples are not permitted as per property policy.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question">Do the apartments have fully equipped kitchens? <i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer">
+                        <p>Yes, all our apartments (except the Studio Room) feature gourmet kitchens equipped with an oven, stovetop, refrigerator, and necessary utensils for your convenience.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question">How far are you from the airport and key locations? <i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer">
+                        <p>We are centrally located near Mall Road and PC Hotel. Allama Iqbal International Airport is approximately a 25-minute drive away. We also offer airport shuttle services upon request.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question">Do I need to pay in advance to secure my booking? <i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer">
+                        <p>No payment is required at the time of booking. You can reserve your room online and pay securely at the property upon arrival.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="faq-cta text-center fade-in-scroll">
+                <p>Still have questions? <a href="https://wa.me/923136766699" target="_blank" class="faq-whatsapp-link"><i class="fab fa-whatsapp"></i> WhatsApp Us</a></p>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer id="contact">
         <div class="container footer-grid">
@@ -642,6 +894,8 @@
                     <li><a href="#home">Home</a></li>
                     <li><a href="#apartments">Rooms</a></li>
                     <li><a href="#amenities">Facilities</a></li>
+                    <li><a href="#neighborhood">Location</a></li>
+                    <li><a href="#faq">FAQ</a></li>
                 </ul>
             </div>
             <div class="footer-contact">
