@@ -414,6 +414,14 @@ async function openRoomModal(type) {
         changeModalImg(images[0], 0);
     }
 
+    // Google Analytics: Track Room View
+    gtag('event', 'view_item', {
+        item_name: type,
+        item_category: 'Apartment',
+        price: sData ? parseFloat(sData.price.replace(/[^\d]/g, '')) : 0,
+        currency: 'PKR'
+    });
+
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
@@ -622,6 +630,14 @@ function performSearch(reqA, reqC) {
                 m.tagClass = "badge-premium";
             }
         }
+    });
+
+    // Google Analytics: Track Availability Search
+    gtag('event', 'search', {
+        search_term: `Adults: ${reqA}, Children: ${reqC}`,
+        number_of_adults: reqA,
+        number_of_children: reqC,
+        results_count: matches.length
     });
 
     displayResults(optimalMatches, reqA, reqC);
@@ -1505,6 +1521,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 2. Hide Checkout and Show Success Modal
             closeAllModals();
+
+            // Google Analytics: Track Successful Booking
+            gtag('event', 'purchase', {
+                transaction_id: uniqueCode,
+                value: finalPrice,
+                currency: 'PKR',
+                items: [{
+                    item_name: name,
+                    item_variant: selectedRatePlan,
+                    quantity: 1,
+                    price: finalPrice
+                }]
+            });
+
             const successModal = document.getElementById('success-modal');
             if (successModal) {
                 successModal.classList.add('active');
