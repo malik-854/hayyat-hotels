@@ -45,6 +45,8 @@ A premium, modern, and high-performance hotel apartment website for **Hayyat Lux
 - **Multi-Currency Viewer:** Real-time exchange rate integration via Frankfurter API. Allows users to view prices in USD, EUR, and GBP dynamically across room cards, booking modals, summary panels, and final PDF receipts.
 - **Mobile Header Optimization:** Cleaned up mobile navigation by converting the currency selector to a borderless text link and hiding redundant "Book Now" buttons to prevent layout crowding.
 - **Neighborhood Map UX:** Split-view approach where Desktop uses interactive Google Maps iframes with dynamic route rendering, while Mobile uses horizontal pill-buttons linking out to native map applications for better performance.
+- **Custom Currency Selector (Dual-Screen Fix):** Replaced native `<select>` with a custom HTML/CSS dropdown to resolve rendering issues in WindowTop software on dual-screen setups. Ensures visibility on both staff laptop and guest monitors.
+- **Mobile Location Layout:** Optimized the "Explore Lahore" section for mobile by allowing location tags to wrap to multiple rows, ensuring all points of interest are immediately accessible without swiping.
 
 ## 🔍 SEO Strategy (May 2026 Updates)
 - **Canonicalization:** Fixed to `https://hayyathotels.com/` to overwrite old Wix indexing.

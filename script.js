@@ -2,7 +2,7 @@
 const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
 const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI'; // Reusing your webstore key
 const CLOUD_NAME = ''; // To be filled once provided
-const APP_VERSION = '2026.05.07.01'; // Matches version in Google Sheet (K1)
+const APP_VERSION = '2026.05.07.02'; // Matches version in Google Sheet (K1)
 
 // --- Multi-Currency Global State ---
 let currentCurrency = 'PKR';
@@ -1243,11 +1243,42 @@ document.addEventListener('DOMContentLoaded', () => {
     initDateConstraints();
     initModals();
 
-    const currencySelector = document.getElementById('currency-selector');
-    if (currencySelector) {
-        currencySelector.addEventListener('change', (e) => {
-            currentCurrency = e.target.value;
-            updateAllPricesOnPage();
+    // 10. Custom Currency Dropdown Logic
+    const currencyWrapper = document.getElementById('currency-dropdown-wrapper');
+    const currencyTrigger = document.getElementById('selected-currency-trigger');
+    const currencyText = document.getElementById('current-currency-text');
+    const currencyOptions = document.querySelectorAll('#currency-options-list li');
+
+    if (currencyTrigger && currencyWrapper) {
+        currencyTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            currencyWrapper.classList.toggle('active');
+        });
+
+        currencyOptions.forEach(option => {
+            option.addEventListener('click', (e) => {
+                const val = option.getAttribute('data-value');
+                const text = option.innerText;
+                
+                // Update State
+                currentCurrency = val;
+                currencyText.innerText = text;
+                
+                // Update UI active state
+                currencyOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                
+                // Trigger updates
+                updateAllPricesOnPage();
+                
+                // Close dropdown
+                currencyWrapper.classList.remove('active');
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+            currencyWrapper.classList.remove('active');
         });
     }
 

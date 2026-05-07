@@ -34,7 +34,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2026.05.06.01">
+    <link rel="stylesheet" href="style.css?v=2026.05.07.02">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- Schema.org / JSON-LD for Google Hotel Search & Rich Results -->
@@ -266,12 +266,18 @@
                     <li><a href="#contact">Contact</a></li>
                 </ul>
                 <div class="currency-container">
-                    <select id="currency-selector" class="currency-dropdown">
-                        <option value="PKR">PKR (Rs)</option>
-                        <option value="USD">USD ($)</option>
-                        <option value="EUR">EUR (€)</option>
-                        <option value="GBP">GBP (£)</option>
-                    </select>
+                    <div class="custom-currency-dropdown" id="currency-dropdown-wrapper">
+                        <div class="selected-currency" id="selected-currency-trigger">
+                            <span id="current-currency-text">PKR (Rs)</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <ul class="currency-options" id="currency-options-list">
+                            <li data-value="PKR">PKR (Rs)</li>
+                            <li data-value="USD">USD ($)</li>
+                            <li data-value="EUR">EUR (€)</li>
+                            <li data-value="GBP">GBP (£)</li>
+                        </ul>
+                    </div>
                 </div>
                 <a href="#booking-section" class="btn-primary">Book Now</a>
             </nav>
