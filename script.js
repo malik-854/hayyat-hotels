@@ -2,7 +2,7 @@
 const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
 const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI'; // Reusing your webstore key
 const CLOUD_NAME = ''; // To be filled once provided
-const APP_VERSION = '2026.05.08.01'; // Matches version in Google Sheet (K1)
+const APP_VERSION = '2026.05.08.02'; // Matches version in Google Sheet (K1)
 
 // --- Multi-Currency Global State ---
 let currentCurrency = 'PKR';
@@ -10,13 +10,19 @@ let currencyRates = { PKR: 1, USD: 0.0036, EUR: 0.0033, GBP: 0.0028 }; // Initia
 
 async function fetchCurrencyRates() {
     try {
-        const response = await fetch('https://api.frankfurter.app/latest?from=PKR&to=USD,EUR,GBP');
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Rates!A2:B5?key=${API_KEY}`;
+        const response = await fetch(url);
         const data = await response.json();
-        if (data && data.rates) {
-            currencyRates.USD = data.rates.USD;
-            currencyRates.EUR = data.rates.EUR;
-            currencyRates.GBP = data.rates.GBP;
-            console.log("Real-time exchange rates loaded:", currencyRates);
+        
+        if (data && data.values) {
+            data.values.forEach(row => {
+                const currency = row[0];
+                const rate = parseFloat(row[1]);
+                if (currency && !isNaN(rate)) {
+                    currencyRates[currency] = rate;
+                }
+            });
+            console.log("Exchange rates synced from Google Sheets:", currencyRates);
         }
     } catch (error) {
         console.warn("Using fallback exchange rates:", error);
