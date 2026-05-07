@@ -2,7 +2,7 @@
 const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
 const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI'; // Reusing your webstore key
 const CLOUD_NAME = ''; // To be filled once provided
-const APP_VERSION = '2026.05.07.02'; // Matches version in Google Sheet (K1)
+const APP_VERSION = '2026.05.08.01'; // Matches version in Google Sheet (K1)
 
 // --- Multi-Currency Global State ---
 let currentCurrency = 'PKR';
