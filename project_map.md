@@ -34,7 +34,7 @@ A premium, modern, and high-performance hotel apartment website for **Hayyat Lux
     - **Endpoint:** `https://script.google.com/macros/s/AKfycbyCIp5BWdtdw1kLzVXuofmvhx8on-4ESR6aqHxJQ1jFjbHEqGoER3Z3_-hDQITHc14E/exec`
     - **Action:** Sends a `POST` request with guest details when a booking is confirmed.
 - **Google Analytics (GA4):**
-    - **Measurement ID:** `G-6K4B95DY69`
+    - **Measurement ID:** `G-4G284LXML2`
     - **Custom Events:** Search, View Room, and Purchase (Conversion Tracking).
 
 ## 🚀 Key Features
