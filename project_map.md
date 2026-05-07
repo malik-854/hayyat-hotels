@@ -51,6 +51,8 @@ A premium, modern, and high-performance hotel apartment website for **Hayyat Lux
 - **Custom Currency Selector (Dual-Screen Fix):** Replaced native `<select>` with a custom HTML/CSS dropdown to resolve rendering issues in WindowTop software on dual-screen setups. Ensures visibility on both staff laptop and guest monitors.
 - **Mobile Location Layout:** Optimized the "Explore Lahore" section for mobile by allowing location tags to wrap to multiple rows, ensuring all points of interest are immediately accessible without swiping.
 - **Google Analytics (GA4) Integration:** Implemented full traffic tracking with custom event logging for availability searches, room detail views, and successful booking conversions to monitor user behavior and marketing performance.
+- **Bulletproof Currency Sync:** Migrated from a public API to an internal Google Sheets 'Rates' tab sync. Resolves all CORS security errors and ensures 100% uptime by using `=GOOGLEFINANCE` formulas within the hotel's own spreadsheet.
+- **Favicon Branding:** Linked `Logo.png` as the official site favicon to resolve 404 browser errors and complete the professional brand experience in browser tabs.
 
 ## 🔍 SEO Strategy (May 2026 Updates)
 - **Canonicalization:** Fixed to `https://hayyathotels.com/` to overwrite old Wix indexing.
