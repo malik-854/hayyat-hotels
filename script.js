@@ -2,7 +2,7 @@
 const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
 const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI'; // Reusing your webstore key
 const CLOUD_NAME = ''; // To be filled once provided
-const APP_VERSION = '2026.05.10.01'; // Matches version in Google Sheet (K1)
+const APP_VERSION = '2026.05.10.02'; // Matches version in Google Sheet (K1)
 
 // --- Multi-Currency Global State ---
 let currentCurrency = 'PKR';
@@ -1698,21 +1698,31 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- SEO Engine: Dynamic Schema.org Generation ---
 function updateDynamicSEO() {
     const schemaScript = document.getElementById('hotel-schema');
-    if (!schemaScript) return;
+    if (!schemaScript || !sheetData) return;
 
     try {
         let schemaData = JSON.parse(schemaScript.innerHTML);
         
-        // Google Hotel Schema only requires priceRange. 
-        // Individual room offers require Google Hotel Center API, not JSON-LD.
-
-        // Add aggregate price info
-        const allPrices = Object.values(sheetData).map(d => parseInt(d.price.replace(/[^\d]/g, '')) || 99999).filter(p => p > 0);
+        // 1. Update Aggregate Price Range
+        const allPrices = Object.values(sheetData).map(d => parseInt(d.price.replace(/[^\d]/g, ''))).filter(p => p > 0);
         if (allPrices.length > 0) {
             schemaData.priceRange = `PKR ${Math.min(...allPrices)} - PKR ${Math.max(...allPrices)}`;
         }
 
+        // 2. Update Individual Room Offers (Critical for Google Hotel Search)
+        if (schemaData.containsPlace && Array.isArray(schemaData.containsPlace)) {
+            schemaData.containsPlace.forEach(room => {
+                const liveData = sheetData[room.name];
+                if (liveData && liveData.price && room.offers) {
+                    // Update the price to match your Google Sheet exactly
+                    room.offers.price = liveData.price.replace(/[^\d]/g, '');
+                    room.offers.availability = "https://schema.org/InStock";
+                }
+            });
+        }
+
         schemaScript.innerHTML = JSON.stringify(schemaData, null, 2);
+        console.log("SEO Schema Synchronized with Google Sheets Prices.");
     } catch (e) {
         console.warn("SEO Schema Update Failed:", e);
     }
