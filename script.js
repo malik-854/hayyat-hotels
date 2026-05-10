@@ -2,7 +2,7 @@
 const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
 const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI'; // Reusing your webstore key
 const CLOUD_NAME = ''; // To be filled once provided
-const APP_VERSION = '2026.05.08.02'; // Matches version in Google Sheet (K1)
+const APP_VERSION = '2026.05.10.01'; // Matches version in Google Sheet (K1)
 
 // --- Multi-Currency Global State ---
 let currentCurrency = 'PKR';
@@ -82,6 +82,7 @@ const roomDetails = {
 };
 
 let sheetData = {};
+let roomOverrides = []; // Stores date-specific price and availability overrides
 let allDeals = []; // Stores all promotional deals from Google Sheets
 let breakfastPrices = { standard: 1200, bundle: 900 }; // Default prices
 let selectedRatePlan = 'room-only'; // 'room-only' or 'breakfast-plus'
@@ -204,7 +205,27 @@ async function fetchHotelData() {
             updateRoomCards();
             updateDynamicSEO(); // Update Google Search Schema with real prices
             
-            // 3. Fetch Deals/Promotions
+            // 3. Fetch Overrides (Date-specific pricing/closures)
+            try {
+                const overridesUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Overrides!A2:E?key=${API_KEY}`;
+                const oResponse = await fetch(overridesUrl);
+                const oData = await oResponse.json();
+                
+                if (oData.values && oData.values.length > 0) {
+                    roomOverrides = oData.values.map(row => ({
+                        roomType: (row[0] || '').trim(),
+                        startDate: (row[1] || '').trim(),
+                        endDate: (row[2] || '').trim(),
+                        status: (row[3] || 'Open').trim().toLowerCase(),
+                        customPrice: parseInt((row[4] || '0').replace(/[^\d]/g, '')) || 0
+                    }));
+                    console.log('Room Overrides Loaded:', roomOverrides);
+                }
+            } catch (err) {
+                console.warn('Could not fetch overrides:', err);
+            }
+
+            // 4. Fetch Deals/Promotions
             try {
                 const dealsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Deals!A2:D?key=${API_KEY}`;
                 const dResponse = await fetch(dealsUrl);
@@ -508,11 +529,78 @@ document.querySelector('.btn-book-now').addEventListener('click', () => {
     }
 });
 
+// --- Overrides Helper Logic ---
+
+/**
+ * Calculates the total room-only price and availability for a specific stay.
+ * Iterates night-by-night to handle date-specific overrides.
+ */
+function getStayDetails(roomType, checkin, checkout) {
+    const data = sheetData[roomType.trim()];
+    if (!data) return { available: false, totalPrice: 0, nights: 0, basePricePerNight: 0 };
+
+    const start = new Date(checkin);
+    const end = new Date(checkout);
+    const nights = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)));
+    
+    let totalRoomOnlyPrice = 0;
+    let isAvailable = data.inventory > 0;
+
+    for (let i = 0; i < nights; i++) {
+        const currentDate = new Date(start);
+        currentDate.setDate(start.getDate() + i);
+        
+        // Robust date formatting (YYYY-MM-DD) that ignores timezone shifts
+        const y = currentDate.getFullYear();
+        const m = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const d = String(currentDate.getDate()).padStart(2, '0');
+        const dateStr = `${y}-${m}-${d}`;
+
+        // Check for overrides on this specific night
+        const override = roomOverrides.find(o => {
+            const isMatch = o.roomType.toLowerCase() === roomType.toLowerCase();
+            const inRange = dateStr >= o.startDate && dateStr <= o.endDate;
+            return isMatch && inRange;
+        });
+
+        if (override) {
+            // Check for 'closed' or 'close'
+            if (override.status === 'closed' || override.status === 'close') {
+                isAvailable = false;
+                break;
+            }
+            if (override.customPrice > 0) {
+                totalRoomOnlyPrice += override.customPrice;
+                continue;
+            }
+        }
+        
+        // Default to base price if no override
+        totalRoomOnlyPrice += parseInt(data.price.replace(/[^\d]/g, '')) || 0;
+    }
+
+    return {
+        available: isAvailable,
+        totalPrice: totalRoomOnlyPrice,
+        nights: nights,
+        avgPricePerNight: Math.round(totalRoomOnlyPrice / nights)
+    };
+}
+
 // 7. Search Algorithm (Option B: Smart Suite - Varied Options)
 function performSearch(reqA, reqC) {
+    const cin = document.getElementById('checkin').value;
+    const cout = document.getElementById('checkout').value;
+    
     let matches = [];
     const totalReq = reqA + reqC;
-    const allAvailable = Object.keys(sheetData).filter(t => sheetData[t].inventory > 0);
+    
+    // Filter rooms that are available for the ENTIRE duration of stay
+    const allAvailable = Object.keys(sheetData).filter(type => {
+        const stay = getStayDetails(type, cin, cout);
+        return stay.available;
+    });
+
     let uniqueCombos = new Set();
 
     // 1. Check for single room matches
@@ -520,11 +608,12 @@ function performSearch(reqA, reqC) {
         const room = sheetData[type];
         const capacity = room.adults + room.children;
         if (totalReq <= capacity) {
+            const stay = getStayDetails(type, cin, cout);
             matches.push({
                 isGroup: false,
                 name: type,
-                price: room.price,
-                totalPriceVal: parseInt(room.price.replace(/,/g, '')),
+                price: stay.avgPricePerNight.toLocaleString(),
+                totalPriceVal: stay.totalPrice,
                 capacity: `${room.adults} Adults, ${room.children} Children`,
                 composition: { [type]: 1 }
             });
@@ -587,18 +676,31 @@ function performSearch(reqA, reqC) {
                 let comboKey = JSON.stringify(counts);
                 if (!uniqueCombos.has(comboKey)) {
                     uniqueCombos.add(comboKey);
-                    let totalPrice = combo.reduce((s, t) => s + parseInt(sheetData[t].price.replace(/[^\d]/g, '')), 0);
-                    let comboDesc = Object.entries(counts).map(([t, c]) => `${c} x ${t}`).join(' + ');
+                    
+                    let totalPrice = 0;
+                    let isComboAvailable = true;
+                    
+                    for (let t of combo) {
+                        const stay = getStayDetails(t, cin, cout);
+                        if (!stay.available) {
+                            isComboAvailable = false;
+                            break;
+                        }
+                        totalPrice += stay.totalPrice;
+                    }
 
-                    matches.push({
-                        isGroup: true,
-                        name: "Privacy / Split Group Option",
-                        desc: comboDesc,
-                        price: totalPrice.toLocaleString(),
-                        totalPriceVal: totalPrice,
-                        capacity: `Up to ${combo.reduce((s, t) => s + sheetData[t].adults + sheetData[t].children, 0)} Guests`,
-                        composition: counts
-                    });
+                    if (isComboAvailable) {
+                        let comboDesc = Object.entries(counts).map(([t, c]) => `${c} x ${t}`).join(' + ');
+                        matches.push({
+                            isGroup: true,
+                            name: "Privacy / Split Group Option",
+                            desc: comboDesc,
+                            price: (Math.round(totalPrice / combo.length)).toLocaleString(), // This is just a label
+                            totalPriceVal: totalPrice,
+                            capacity: `Up to ${combo.reduce((s, t) => s + sheetData[t].adults + sheetData[t].children, 0)} Guests`,
+                            composition: counts
+                        });
+                    }
                 }
             }
         });
@@ -834,20 +936,20 @@ window.bookSelection = function (name, desc, price, compositionJson) {
     const reqA = document.getElementById('adults') ? document.getElementById('adults').value : '2';
     const reqC = document.getElementById('children') ? document.getElementById('children').value : '0';
 
-    // Calculate nights
-    const dateIn = new Date(cin);
-    const dateOut = new Date(cout);
-    const diffTime = Math.abs(dateOut - dateIn);
-    const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
+    // Calculate nights and dynamic total price
+    let totalStayPrice = 0;
+    Object.entries(compositionJson ? JSON.parse(compositionJson) : { [name]: 1 }).forEach(([roomType, count]) => {
+        const stay = getStayDetails(roomType, cin, cout);
+        totalStayPrice += (stay.totalPrice * count);
+    });
 
-    const priceNum = parseInt(price.replace(/,/g, ''));
-    const totalPrice = (priceNum * nights).toLocaleString();
+    const nights = Math.max(1, Math.round((new Date(cout) - new Date(cin)) / (1000 * 60 * 60 * 24))) || 1;
 
     currentBookingSelection = {
         name: name,
         desc: desc,
-        basePrice: price,
-        totalPrice: totalPrice,
+        basePrice: (Math.round(totalStayPrice / nights)).toLocaleString(),
+        totalPrice: totalStayPrice.toLocaleString(),
         nights: nights,
         cin: cin,
         cout: cout,
@@ -1008,20 +1110,30 @@ function updateCheckoutSummary() {
     if (!currentBookingSelection || !currentBookingSelection.totalPrice) return;
     const { composition, nights } = currentBookingSelection;
     
-    // Calculate total base rate for all rooms in the composition
-    let activeBaseRate = 0;
-    
+    // Calculate total base rate for all rooms in the composition for the ENTIRE stay
+    let totalRoomOnlyForStay = 0;
+    let totalBreakfastPremiumForStay = 0;
+    const { cin, cout } = currentBookingSelection;
+
     Object.entries(composition).forEach(([roomType, count]) => {
         const roomData = sheetData[roomType.trim()];
         if (roomData) {
-            // Robust number parsing: remove anything that isn't a digit
-            let rate = parseInt(roomData.price.replace(/[^\d]/g, '')) || 0;
-            if (selectedRatePlan === 'breakfast-plus' && roomData.withBfPrice) {
-                rate = parseInt(roomData.withBfPrice.replace(/[^\d]/g, '')) || rate;
+            // 1. Get the dynamic room-only price for this stay (includes overrides)
+            const stay = getStayDetails(roomType.trim(), cin, cout);
+            totalRoomOnlyForStay += (stay.totalPrice * count);
+
+            // 2. Calculate the breakfast premium (fixed difference between base rates)
+            if (selectedRatePlan === 'breakfast-plus') {
+                const baseRoomOnly = parseInt(roomData.price.replace(/[^\d]/g, '')) || 0;
+                const baseWithBf = parseInt(roomData.withBfPrice.replace(/[^\d]/g, '')) || baseRoomOnly;
+                const premiumPerNight = Math.max(0, baseWithBf - baseRoomOnly);
+                totalBreakfastPremiumForStay += (premiumPerNight * nights * count);
             }
-            activeBaseRate += (rate * count);
         }
     });
+
+    const activeTotalPriceForStay = totalRoomOnlyForStay + totalBreakfastPremiumForStay;
+    const avgRatePerNight = Math.round(activeTotalPriceForStay / nights);
     
     // Find the best qualifying deal for the length of stay
     let bestDealForStay = null;
@@ -1032,7 +1144,7 @@ function updateCheckoutSummary() {
         }
     }
 
-    let roomPriceVal = activeBaseRate * nights;
+    let roomPriceVal = activeTotalPriceForStay;
     let discountVal = 0;
     let dealHtml = '';
 
@@ -1047,13 +1159,13 @@ function updateCheckoutSummary() {
     let priceDisplayHtml = "";
     
     if (discountVal > 0) {
-        // Show original rate with strikethrough
-        priceDisplayHtml = `<span style="text-decoration: line-through; opacity: 0.6;">${formatPrice(activeBaseRate, currentCurrency)}</span> / night<br>`;
+        // Show original rate with strikethrough (using average night rate)
+        priceDisplayHtml = `<span style="text-decoration: line-through; opacity: 0.6;">${formatPrice(avgRatePerNight, currentCurrency)}</span> / night<br>`;
         // Show discounted total in orange
-        priceDisplayHtml += `<span style="color: var(--clr-orange); font-weight: 700; font-size: 1.1em;">${formatPrice(roomTotalWithDiscount, currentCurrency)}</span> ${dealHtml}`;
+        priceDisplayHtml += `<span style="color: var(--clr-orange); font-weight: 700; font-size: 1.1em;">${formatPrice(roomTotalWithDiscount / nights, currentCurrency)}</span> ${dealHtml}`;
     } else {
         // Standard view
-        priceDisplayHtml = `${formatPrice(activeBaseRate, currentCurrency)} / night<br>`;
+        priceDisplayHtml = `${formatPrice(avgRatePerNight, currentCurrency)} / night<br>`;
         priceDisplayHtml += `<small style="color:var(--clr-gray); font-size: 0.8em; font-weight: normal;">Room Total: ${formatPrice(roomPriceVal, currentCurrency)}</small>`;
     }
 

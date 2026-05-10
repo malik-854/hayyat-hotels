@@ -29,6 +29,7 @@ A premium, modern, and high-performance hotel apartment website for **Hayyat Lux
 - **Google Sheets CMS:**
     - **Sheet ID:** `1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY`
     - **Data Columns:** Room Type, Price, Main Image, Gallery, Inventory, Capacity, Hero Images, Breakfast Price.
+- **Overrides Tab:** Added for date-specific closures and custom pricing logic.
 - **Booking Webhook:**
     - **Service:** Google Apps Script.
     - **Endpoint:** `https://script.google.com/macros/s/AKfycbyCIp5BWdtdw1kLzVXuofmvhx8on-4ESR6aqHxJQ1jFjbHEqGoER3Z3_-hDQITHc14E/exec`
@@ -39,7 +40,8 @@ A premium, modern, and high-performance hotel apartment website for **Hayyat Lux
 
 ## 🚀 Key Features
 1. **Dynamic Pricing:** Prices are fetched in real-time from Google Sheets.
-2. **Smart Suite Search:** An algorithm that finds the best room or combination of rooms (Group Booking) based on guest count.
+2. **Date-Specific Overrides:** Allows management to close rooms for specific dates or set holiday pricing via the 'Overrides' tab.
+3. **Smart Suite Search:** An algorithm that finds the best room or combination of rooms (Group Booking) based on guest count.
 3. **Automated Checkout:** Guests enter details, a notification is sent to management, and a PDF receipt is generated for the guest.
 4. **Guest Gallery Reel:** A scrolling slideshow of guest moments fetched from Google Sheets.
 5. **Mobile First:** Fully optimized for touch devices with swipeable galleries.
@@ -53,6 +55,7 @@ A premium, modern, and high-performance hotel apartment website for **Hayyat Lux
 - **Google Analytics (GA4) Integration:** Implemented full traffic tracking with custom event logging for availability searches, room detail views, and successful booking conversions to monitor user behavior and marketing performance.
 - **Bulletproof Currency Sync:** Migrated from a public API to an internal Google Sheets 'Rates' tab sync. Resolves all CORS security errors and ensures 100% uptime by using `=GOOGLEFINANCE` formulas within the hotel's own spreadsheet.
 - **Favicon Branding:** Linked `Logo.png` as the official site favicon to resolve 404 browser errors and complete the professional brand experience in browser tabs.
+- **Date-Specific Logic (PMS Upgrade):** Implemented a night-by-night availability and pricing engine. The system now respects "Closed" status and "Custom Price" overrides for specific date ranges, ensuring accurate bookings during peak seasons or maintenance periods.
 
 ## 🔍 SEO Strategy (May 2026 Updates)
 - **Canonicalization:** Fixed to `https://hayyathotels.com/` to overwrite old Wix indexing.
@@ -63,4 +66,5 @@ A premium, modern, and high-performance hotel apartment website for **Hayyat Lux
 ## 📝 Maintenance Notes
 - To update prices or room images, edit the linked **Google Sheet (Sheet1)**.
 - To add/remove deals, edit the **Deals** tab in the Google Sheet.
+- To close rooms or change prices for specific dates, use the **Overrides** tab.
 - Versioning is controlled by `APP_VERSION` in `script.js` and cell `K1` in the Sheet. If they don't match, the site prompts for a refresh.
