@@ -2,7 +2,7 @@
 const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
 const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI'; // Reusing your webstore key
 const CLOUD_NAME = ''; // To be filled once provided
-const APP_VERSION = '2026.05.10.02'; // Matches version in Google Sheet (K1)
+const APP_VERSION = '2026.05.17.01'; // Matches version in Google Sheet (K1)
 
 // --- Multi-Currency Global State ---
 let currentCurrency = 'PKR';
@@ -1376,6 +1376,43 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchCurrencyRates();
     initDateConstraints();
     initModals();
+    
+    // 11. Deep Link Handler: Checks if Google sent dates in the URL
+    async function checkDeepLinks() {
+        const params = new URLSearchParams(window.location.search);
+        // Google and OTAs use various parameter names, we catch the most common ones
+        const cin = params.get('checkin') || params.get('check_in') || params.get('start');
+        const cout = params.get('checkout') || params.get('check_out') || params.get('end');
+        const adults = params.get('adults');
+        const children = params.get('children');
+
+        if (cin && cout) {
+            // Wait for data to be ready
+            let attempts = 0;
+            const waitForData = setInterval(() => {
+                attempts++;
+                if (Object.keys(sheetData).length > 0 || attempts > 20) {
+                    clearInterval(waitForData);
+                    if (Object.keys(sheetData).length > 0) {
+                        console.log("Deep Link Detected: Auto-filling dates and searching...");
+                        
+                        const cinEl = document.getElementById('checkin');
+                        const coutEl = document.getElementById('checkout');
+                        const adultsEl = document.getElementById('adults');
+                        const childrenEl = document.getElementById('children');
+
+                        if (cinEl) cinEl.value = cin;
+                        if (coutEl) coutEl.value = cout;
+                        if (adultsEl && adults) adultsEl.value = adults;
+                        if (childrenEl && children) childrenEl.value = children;
+
+                        performSearch(parseInt(adults) || 2, parseInt(children) || 0);
+                    }
+                }
+            }, 500);
+        }
+    }
+    checkDeepLinks();
 
     // 10. Custom Currency Dropdown Logic
     const currencyWrapper = document.getElementById('currency-dropdown-wrapper');
@@ -1717,6 +1754,12 @@ function updateDynamicSEO() {
                     // Update the price to match your Google Sheet exactly
                     room.offers.price = liveData.price.replace(/[^\d]/g, '');
                     room.offers.availability = "https://schema.org/InStock";
+                    
+                    // Deep Link URL for Google: Points back to your site with parameters
+                    // This tells Google how to "hand over" the dates to your site
+                    const today = new Date().toISOString().split('T')[0];
+                    const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+                    room.offers.url = `https://hayyathotels.com/?checkin=${today}&checkout=${tomorrow}&adults=2&children=0`;
                 }
             });
         }

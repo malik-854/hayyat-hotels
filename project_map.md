@@ -56,6 +56,8 @@ A premium, modern, and high-performance hotel apartment website for **Hayyat Lux
 - **Bulletproof Currency Sync:** Migrated from a public API to an internal Google Sheets 'Rates' tab sync. Resolves all CORS security errors and ensures 100% uptime by using `=GOOGLEFINANCE` formulas within the hotel's own spreadsheet.
 - **Favicon Branding:** Linked `Logo.png` as the official site favicon to resolve 404 browser errors and complete the professional brand experience in browser tabs.
 - **Date-Specific Logic (PMS Upgrade):** Implemented a night-by-night availability and pricing engine. The system now respects "Closed" status and "Custom Price" overrides for specific date ranges, ensuring accurate bookings during peak seasons or maintenance periods.
+- **Dynamic SEO Sync:** Upgraded the `updateDynamicSEO` engine to automatically synchronize individual room prices from Google Sheets to the hidden JSON-LD schema. This resolves price discrepancies in Google Hotel Search (Free Booking Links).
+- **Domain Consolidation:** Standardized the project on the apex domain `https://hayyathotels.com/`, resolving conflicts between Google Business Profile, Search Console, and GitHub Pages.
 
 ## 🔍 SEO Strategy (May 2026 Updates)
 - **Canonicalization:** Fixed to `https://hayyathotels.com/` to overwrite old Wix indexing.
@@ -67,4 +69,5 @@ A premium, modern, and high-performance hotel apartment website for **Hayyat Lux
 - To update prices or room images, edit the linked **Google Sheet (Sheet1)**.
 - To add/remove deals, edit the **Deals** tab in the Google Sheet.
 - To close rooms or change prices for specific dates, use the **Overrides** tab.
+- Google Hotel Search relies on the **Apex Domain** (`https://hayyathotels.com/`). Always use this version in external profiles (GBP, Socials, Search Console).
 - Versioning is controlled by `APP_VERSION` in `script.js` and cell `K1` in the Sheet. If they don't match, the site prompts for a refresh.
