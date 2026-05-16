@@ -2,7 +2,7 @@
 const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
 const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI'; // Reusing your webstore key
 const CLOUD_NAME = ''; // To be filled once provided
-const APP_VERSION = '2026.05.17.01'; // Matches version in Google Sheet (K1)
+const APP_VERSION = '2026.05.17.02'; // Matches version in Google Sheet (K1)
 
 // --- Multi-Currency Global State ---
 let currentCurrency = 'PKR';
@@ -1401,11 +1401,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         const adultsEl = document.getElementById('adults');
                         const childrenEl = document.getElementById('children');
 
-                        if (cinEl) cinEl.value = cin;
-                        if (coutEl) coutEl.value = cout;
+                        if (cinEl && cin) {
+                            cinEl.min = cin; // Ensure min doesn't block the value
+                            cinEl.value = cin;
+                            cinEl.dispatchEvent(new Event('change'));
+                        }
+                        if (coutEl && cout) {
+                            coutEl.value = cout;
+                            coutEl.dispatchEvent(new Event('change'));
+                        }
                         if (adultsEl && adults) adultsEl.value = adults;
                         if (childrenEl && children) childrenEl.value = children;
 
+                        console.log("Deep Link Applied Successfully. Running Search...");
                         performSearch(parseInt(adults) || 2, parseInt(children) || 0);
                     }
                 }
