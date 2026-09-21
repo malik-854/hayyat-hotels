@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4G284LXML2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-4G284LXML2');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Travel & Local Guide | Hayyat Luxury Hotel Apartments</title>
+
+    <link rel="icon" type="image/png" href="Logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=2026.05.17.02">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Blog Specific CSS -->
+    <style>
+        .blog-header {
+            padding-top: 150px;
+            padding-bottom: 50px;
+            background-color: var(--clr-light);
+            text-align: center;
+        }
+
+        .blog-header h1 {
+            color: var(--clr-orange);
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            padding: 4rem 0;
+        }
+
+        .blog-card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: var(--transition);
+            text-decoration: none;
+            color: var(--clr-dark);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .blog-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-5px);
+        }
+
+        .blog-img-container {
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+        }
+
+        .blog-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .blog-card:hover .blog-img {
+            transform: scale(1.05);
+        }
+
+        .blog-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .blog-date {
+            color: var(--clr-orange);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .blog-title {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .blog-read-more {
+            margin-top: auto;
+            color: var(--clr-orange-dark);
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .loader-container {
+            text-align: center;
+            padding: 5rem 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: var(--clr-orange);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <header id="navbar" style="background: white; box-shadow: var(--shadow-sm);">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <img src="Logo.png" alt="Hayyat Logo" class="logo-img">
+                <span class="logo-text">HAYYAT<span>.</span></span>
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html#home">Home</a></li>
+                    <li><a href="index.html#apartments">Apartments</a></li>
+                    <li><a href="index.html#amenities">Amenities</a></li>
+                    <li><a href="blog.html">Blog</a></li>
+                    <li><a href="index.html#contact">Contact</a></li>
+                </ul>
+                <a href="index.html#booking-section" class="btn-primary">Book Now</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="blog-header">
+        <div class="container">
+            <h1>Travel & Local Guide</h1>
+            <p style="color: var(--clr-gray); max-width: 600px; margin: 0 auto; line-height: 1.6;">Discover Lahore’s
+                best spots, travel tips, and premium stay experiences with Hayyat Luxury Hotel Apartments.</p>
+        </div>
+    </section>
+
+    <section class="container">
+        <div id="loading" class="loader-container">
+            <div class="spinner"></div>
+            <p>Loading articles...</p>
+        </div>
+        <div id="blog-grid" class="blog-grid" style="display: none;">
+            <!-- Blog cards will be injected here -->
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer
+        style="background-color: var(--clr-darker); color: var(--clr-white); padding: 5rem 0 2rem; margin-top: 5rem;">
+        <div class="container">
+            <h3
+                style="color: var(--clr-orange); font-family: 'Playfair Display'; margin-bottom: 1rem; font-size: 1.5rem;">
+                HAYYAT LUXURY APARTMENTS</h3>
+            <p>2 Lawrance Road, China Chowk, Lahore, Pakistan</p>
+            <p style="margin-top: 1rem;">Email: info@hayyathotels.com | Phone: +92 313 6766699</p>
+            <div
+                style="margin-top: 3rem; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2rem; font-size: 0.9rem; color: #94a3b8;">
+                &copy; 2026 Hayyat Luxury Hotel Apartments. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const SHEET_ID = '1PxkC_kniknYbxFRV6brev1Fv3y_ZrPx2AHEcKkYbJhY';
+        const API_KEY = 'AIzaSyA05kFZ9ejXco6wpLFfV8WUVaUBbjnhhVI';
+
+        async function fetchBlogs() {
+            try {
+                // Fetch Blogs tab, columns A to E
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Blogs!A2:E?key=${API_KEY}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                const grid = document.getElementById('blog-grid');
+                const loader = document.getElementById('loading');
+
+                if (data.values && data.values.length > 0) {
+                    // Filter empty rows and skip the header row (assuming header is row 0 if it exists)
+                    // Let's filter out row 0 by checking the exact string, or just using slice(1)
+                    // The range A2:E already skips A1:E1.
+                    const blogs = data.values.filter(row => row[0] && row[1]);
+
+                    if (blogs.length > 0) {
+                        let html = '';
+                        // Reverse to show newest (bottom of sheet) first
+                        blogs.reverse().forEach(row => {
+                            const slug = row[0];
+                            const title = row[1];
+                            const date = row[2] || '';
+                            const imgUrl = row[3] || 'https://via.placeholder.com/800x400?text=Hayyat+Hotels';
+
+                            html += `
+                                <a href="article.html?slug=${encodeURIComponent(slug)}" class="blog-card">
+                                    <div class="blog-img-container">
+                                        <img src="${imgUrl}" alt="${title}" class="blog-img" loading="lazy">
+                                    </div>
+                                    <div class="blog-content">
+                                        <div class="blog-date">${date}</div>
+                                        <h3 class="blog-title">${title}</h3>
+                                        <div class="blog-read-more">Read Article <i class="fas fa-arrow-right"></i></div>
+                                    </div>
+                                </a>
+                            `;
+                        });
+                        grid.innerHTML = html;
+                        loader.style.display = 'none';
+                        grid.style.display = 'grid';
+                    } else {
+                        throw new Error("No blogs found.");
+                    }
+                } else {
+                    throw new Error("Empty response.");
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loading').innerHTML = '<p>No articles found yet. Check back soon!</p>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchBlogs);
+    </script>
+</body>
+
+</html>
