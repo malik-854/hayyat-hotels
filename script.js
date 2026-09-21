@@ -13,7 +13,7 @@ async function fetchCurrencyRates() {
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Rates!A2:B5?key=${API_KEY}`;
         const response = await fetch(url);
         const data = await response.json();
-        
+
         if (data && data.values) {
             data.values.forEach(row => {
                 const currency = row[0];
@@ -51,6 +51,27 @@ function updateAllPricesOnPage() {
             el.innerText = formatted;
         }
     });
+}
+
+function applyDiscountToPriceEl(priceEl, basePricePkr, nights = 1) {
+    const rawPrice = typeof basePricePkr === 'string' ? (parseInt(basePricePkr.replace(/[^\d]/g, '')) || 0) : basePricePkr;
+    let dealPct = 0;
+    if (typeof allDeals !== 'undefined' && allDeals && allDeals.length > 0) {
+        const qualifying = allDeals.filter(d => nights >= d.minNights);
+        if (qualifying.length > 0) {
+            dealPct = qualifying.sort((a, b) => b.percentage - a.percentage)[0].percentage;
+        }
+    }
+
+    if (dealPct > 0 && rawPrice > 0) {
+        const discountVal = Math.round(rawPrice * (dealPct / 100));
+        const discountedPrice = rawPrice - discountVal;
+        priceEl.removeAttribute('data-pkr');
+        priceEl.innerHTML = '<span data-pkr="' + rawPrice + '" style="text-decoration: line-through; color: var(--clr-gray); font-size: 0.85em; font-weight: normal; margin-right: 8px;">' + formatPrice(rawPrice, currentCurrency) + '</span><span data-pkr="' + discountedPrice + '" style="color: var(--clr-orange);">' + formatPrice(discountedPrice, currentCurrency) + ' / night</span>';
+    } else {
+        priceEl.setAttribute('data-pkr', rawPrice);
+        priceEl.innerText = formatPrice(rawPrice, currentCurrency) + ' / night';
+    }
 }
 
 // Static Room Data (Descriptions and Features match the ones in HTML)
@@ -204,13 +225,13 @@ async function fetchHotelData() {
 
             updateRoomCards();
             updateDynamicSEO(); // Update Google Search Schema with real prices
-            
+
             // 3. Fetch Overrides (Date-specific pricing/closures)
             try {
                 const overridesUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Overrides!A2:E?key=${API_KEY}`;
                 const oResponse = await fetch(overridesUrl);
                 const oData = await oResponse.json();
-                
+
                 if (oData.values && oData.values.length > 0) {
                     roomOverrides = oData.values.map(row => ({
                         roomType: (row[0] || '').trim(),
@@ -230,7 +251,7 @@ async function fetchHotelData() {
                 const dealsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Deals!A2:D?key=${API_KEY}`;
                 const dResponse = await fetch(dealsUrl);
                 const dData = await dResponse.json();
-                
+
                 if (dData.values && dData.values.length > 0) {
                     allDeals = dData.values
                         .filter(row => row[2] && row[2].trim().toLowerCase() === 'active')
@@ -244,6 +265,9 @@ async function fetchHotelData() {
             } catch (dealErr) {
                 console.warn('Could not fetch deals:', dealErr);
             }
+
+            updateRoomCards();
+            updateDynamicSEO(); // Update Google Search Schema with real prices
 
             fetchGalleryData(); // Single call to get the gallery
         }
@@ -361,8 +385,7 @@ function updateRoomCards() {
             // Update Price
             const priceEl = card.querySelector('.price');
             if (priceEl && data.price) {
-                priceEl.setAttribute('data-pkr', data.price);
-                priceEl.innerText = `${formatPrice(data.price, currentCurrency)} / night`;
+                applyDiscountToPriceEl(priceEl, data.price);
             }
             // Update Main Image
             const imgEl = card.querySelector('.room-img');
@@ -398,8 +421,7 @@ async function openRoomModal(type) {
     const mPrice = document.getElementById('modal-price');
     mPrice.style.display = 'block';
     if (sData) {
-        mPrice.setAttribute('data-pkr', sData.price);
-        mPrice.innerText = `${formatPrice(sData.price, currentCurrency)} / night`;
+        applyDiscountToPriceEl(mPrice, sData.price);
     } else {
         mPrice.innerText = 'View Rates';
     }
@@ -542,14 +564,14 @@ function getStayDetails(roomType, checkin, checkout) {
     const start = new Date(checkin);
     const end = new Date(checkout);
     const nights = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)));
-    
+
     let totalRoomOnlyPrice = 0;
     let isAvailable = data.inventory > 0;
 
     for (let i = 0; i < nights; i++) {
         const currentDate = new Date(start);
         currentDate.setDate(start.getDate() + i);
-        
+
         // Robust date formatting (YYYY-MM-DD) that ignores timezone shifts
         const y = currentDate.getFullYear();
         const m = String(currentDate.getMonth() + 1).padStart(2, '0');
@@ -574,7 +596,7 @@ function getStayDetails(roomType, checkin, checkout) {
                 continue;
             }
         }
-        
+
         // Default to base price if no override
         totalRoomOnlyPrice += parseInt(data.price.replace(/[^\d]/g, '')) || 0;
     }
@@ -591,10 +613,10 @@ function getStayDetails(roomType, checkin, checkout) {
 function performSearch(reqA, reqC) {
     const cin = document.getElementById('checkin').value;
     const cout = document.getElementById('checkout').value;
-    
+
     let matches = [];
     const totalReq = reqA + reqC;
-    
+
     // Filter rooms that are available for the ENTIRE duration of stay
     const allAvailable = Object.keys(sheetData).filter(type => {
         const stay = getStayDetails(type, cin, cout);
@@ -623,7 +645,7 @@ function performSearch(reqA, reqC) {
 
     // 2. Generate Multi-room combinations (Trying varied strategies for more options)
     const strategies = ['largest', 'smallest', 'balanced'];
-    
+
     allAvailable.forEach(startType => {
         strategies.forEach(strategy => {
             let tempHeads = totalReq;
@@ -676,10 +698,10 @@ function performSearch(reqA, reqC) {
                 let comboKey = JSON.stringify(counts);
                 if (!uniqueCombos.has(comboKey)) {
                     uniqueCombos.add(comboKey);
-                    
+
                     let totalPrice = 0;
                     let isComboAvailable = true;
-                    
+
                     for (let t of combo) {
                         const stay = getStayDetails(t, cin, cout);
                         if (!stay.available) {
@@ -770,6 +792,18 @@ function displayResults(matches, reqA, reqC) {
     summaryEl.innerText = `Showing options for ${reqA} Adults and ${reqC} Children.`;
     listEl.innerHTML = '';
 
+    const cinRaw = document.getElementById('checkin') ? document.getElementById('checkin').value : '';
+    const coutRaw = document.getElementById('checkout') ? document.getElementById('checkout').value : '';
+    const nights = (cinRaw && coutRaw) ? Math.max(1, Math.round((new Date(coutRaw) - new Date(cinRaw)) / (1000 * 60 * 60 * 24))) : 1;
+
+    let dealPct = 0;
+    if (typeof allDeals !== 'undefined' && allDeals && allDeals.length > 0) {
+        const qualifying = allDeals.filter(d => nights >= d.minNights);
+        if (qualifying.length > 0) {
+            dealPct = qualifying.sort((a, b) => b.percentage - a.percentage)[0].percentage;
+        }
+    }
+
     if (matches.length === 0) {
         listEl.innerHTML = `<div class="no-results">
             <p>No available combinations found for this group size. Please contact us directly for customized group arrangements.</p>
@@ -784,12 +818,22 @@ function displayResults(matches, reqA, reqC) {
                 ? `<button class="btn-details" onclick="viewComboDetails('${m.desc}', '${m.name}', '${m.price}', '${compStr}')">View Room Details</button>`
                 : `<button class="btn-details" onclick="viewDetails('${m.name}', '${m.price}', '${compStr}')">View Room Details</button>`;
 
+            const rawPrice = parseInt(String(m.price).replace(/[^\d]/g, '')) || 0;
+            let priceHtml = '';
+            if (dealPct > 0 && rawPrice > 0) {
+                const discountVal = Math.round(rawPrice * (dealPct / 100));
+                const discountedPrice = rawPrice - discountVal;
+                priceHtml = '<div class="result-price"><span data-pkr="' + rawPrice + '" style="text-decoration: line-through; color: var(--clr-gray); font-size: 0.85em; font-weight: normal; margin-right: 8px;">' + formatPrice(rawPrice, currentCurrency) + '</span><span data-pkr="' + discountedPrice + '" style="color: var(--clr-orange);">' + formatPrice(discountedPrice, currentCurrency) + ' / night</span></div>';
+            } else {
+                priceHtml = '<div class="result-price" data-pkr="' + rawPrice + '">' + formatPrice(rawPrice, currentCurrency) + ' / night</div>';
+            }
+
             card.innerHTML = `
                 <div class="result-main">
                     ${m.tag ? `<span class="result-badge ${m.tagClass}">${m.tag}</span>` : ''}
                     <div class="result-name">${m.name}</div>
                     ${m.isGroup ? `<div class="result-combination">${m.desc}</div>` : `<div class="result-combination">Max Capacity: ${m.capacity}</div>`}
-                    <div class="result-price" data-pkr="${m.price}">${formatPrice(m.price, currentCurrency)} / night</div>
+                    ${priceHtml}
                 </div>
                 <div class="result-actions">
                     ${detailsBtn}
@@ -811,10 +855,10 @@ let viewingResultContext = null;
 
 // View Details for a single room type
 window.viewDetails = function (roomType, price, compositionJson) {
-    viewingResultContext = { 
-        name: roomType, 
-        desc: '', 
-        price: price, 
+    viewingResultContext = {
+        name: roomType,
+        desc: '',
+        price: price,
         composition: compositionJson ? JSON.parse(compositionJson) : { [roomType]: 1 }
     };
     const tabsEl = document.getElementById('room-tabs');
@@ -828,9 +872,9 @@ window.viewDetails = function (roomType, price, compositionJson) {
 
 // View Details for a combo
 window.viewComboDetails = function (desc, name, price, compositionJson) {
-    viewingResultContext = { 
-        name: name, 
-        desc: desc, 
+    viewingResultContext = {
+        name: name,
+        desc: desc,
         price: price,
         composition: compositionJson ? JSON.parse(compositionJson) : {}
     };
@@ -884,8 +928,7 @@ function loadRoomIntoModal(type) {
     document.getElementById('modal-title').innerText = type;
     const modalPriceEl = document.getElementById('modal-price');
     if (sData) {
-        modalPriceEl.setAttribute('data-pkr', sData.price);
-        modalPriceEl.innerText = `${formatPrice(sData.price, currentCurrency)} / night`;
+        applyDiscountToPriceEl(modalPriceEl, sData.price);
     } else {
         modalPriceEl.innerText = 'View Rates';
     }
@@ -1109,7 +1152,7 @@ function initModals() {
 function updateCheckoutSummary() {
     if (!currentBookingSelection || !currentBookingSelection.totalPrice) return;
     const { composition, nights } = currentBookingSelection;
-    
+
     // Calculate total base rate for all rooms in the composition for the ENTIRE stay
     let totalRoomOnlyForStay = 0;
     let totalBreakfastPremiumForStay = 0;
@@ -1134,7 +1177,7 @@ function updateCheckoutSummary() {
 
     const activeTotalPriceForStay = totalRoomOnlyForStay + totalBreakfastPremiumForStay;
     const avgRatePerNight = Math.round(activeTotalPriceForStay / nights);
-    
+
     // Find the best qualifying deal for the length of stay
     let bestDealForStay = null;
     if (allDeals && allDeals.length > 0) {
@@ -1157,7 +1200,7 @@ function updateCheckoutSummary() {
     let finalPrice = roomTotalWithDiscount;
 
     let priceDisplayHtml = "";
-    
+
     if (discountVal > 0) {
         // Show original rate with strikethrough (using average night rate)
         priceDisplayHtml = `<span style="text-decoration: line-through; opacity: 0.6;">${formatPrice(avgRatePerNight, currentCurrency)}</span> / night<br>`;
@@ -1376,7 +1419,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchCurrencyRates();
     initDateConstraints();
     initModals();
-    
+
     // 11. Deep Link Handler: Checks if Google sent dates in the URL
     async function checkDeepLinks() {
         const params = new URLSearchParams(window.location.search);
@@ -1395,7 +1438,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     clearInterval(waitForData);
                     if (Object.keys(sheetData).length > 0) {
                         console.log("Deep Link Detected: Auto-filling dates and searching...");
-                        
+
                         const cinEl = document.getElementById('checkin');
                         const coutEl = document.getElementById('checkout');
                         const adultsEl = document.getElementById('adults');
@@ -1438,18 +1481,18 @@ document.addEventListener('DOMContentLoaded', () => {
             option.addEventListener('click', (e) => {
                 const val = option.getAttribute('data-value');
                 const text = option.innerText;
-                
+
                 // Update State
                 currentCurrency = val;
                 currencyText.innerText = text;
-                
+
                 // Update UI active state
                 currencyOptions.forEach(opt => opt.classList.remove('active'));
                 option.classList.add('active');
-                
+
                 // Trigger updates
                 updateAllPricesOnPage();
-                
+
                 // Close dropdown
                 currencyWrapper.classList.remove('active');
             });
@@ -1475,7 +1518,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (finalForm) {
         finalForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const submitBtn = e.target.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn ? submitBtn.innerHTML : 'Confirm Reservation';
             if (submitBtn) {
@@ -1629,9 +1672,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const element = document.createElement('div');
             // Generate a unique short code for the filename to prevent overwriting downloads
             const uniqueCode = Math.random().toString(36).substring(2, 7).toUpperCase();
-            
+
             element.innerHTML = pdfTemplate;
-             const opt = {
+            const opt = {
                 margin: 0.2, // Tiny uniform margin
                 filename: `Reservation_for_${gName.replace(/\s+/g, '_')}_${uniqueCode}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
@@ -1664,8 +1707,8 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             // Send Email Silently via Google Apps Script (Webhook)
-            const googleScriptURL = 'https://script.google.com/macros/s/AKfycbyCIp5BWdtdw1kLzVXuofmvhx8on-4ESR6aqHxJQ1jFjbHEqGoER3Z3_-hDQITHc14E/exec'; 
-            
+            const googleScriptURL = 'https://script.google.com/macros/s/AKfycbyCIp5BWdtdw1kLzVXuofmvhx8on-4ESR6aqHxJQ1jFjbHEqGoER3Z3_-hDQITHc14E/exec';
+
             try {
                 // Awaiting the fetch ensures the email safely dispatches before alerts freeze the browser
                 await fetch(googleScriptURL, {
@@ -1747,7 +1790,7 @@ function updateDynamicSEO() {
 
     try {
         let schemaData = JSON.parse(schemaScript.innerHTML);
-        
+
         // 1. Update Aggregate Price Range
         const allPrices = Object.values(sheetData).map(d => parseInt(d.price.replace(/[^\d]/g, ''))).filter(p => p > 0);
         if (allPrices.length > 0) {
@@ -1762,7 +1805,7 @@ function updateDynamicSEO() {
                     // Update the price to match your Google Sheet exactly
                     room.offers.price = liveData.price.replace(/[^\d]/g, '');
                     room.offers.availability = "https://schema.org/InStock";
-                    
+
                     // Deep Link URL for Google: Points back to your site with parameters
                     // This tells Google how to "hand over" the dates to your site
                     const today = new Date().toISOString().split('T')[0];
@@ -1804,7 +1847,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const interactiveElements = document.querySelectorAll('.nh-card[data-query], .nh-pill[data-query]');
     const iframe = document.getElementById('nh-iframe');
     const loader = document.getElementById('nh-map-loader');
-    
+
     // Default Hotel Query
     const baseQuery = "2 Lawrance Road, China Chowk, Lahore (Hayyat Luxury Hotel)";
 
@@ -1814,14 +1857,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Remove active from all tabs
             nhTabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            
+
             // Hide all content
             nhContents.forEach(c => c.classList.remove('active'));
-            
+
             // Show target content
             const targetId = tab.getAttribute('data-target');
             document.getElementById(targetId).classList.add('active');
-            
+
             // Reset map to home when switching tabs
             updateMap(baseQuery, 14);
             interactiveElements.forEach(el => el.classList.remove('active'));
@@ -1832,7 +1875,7 @@ document.addEventListener('DOMContentLoaded', () => {
     interactiveElements.forEach(el => {
         el.addEventListener('click', (e) => {
             e.stopPropagation();
-            
+
             const destination = el.getAttribute('data-query');
             const origin = "Hayyat Luxury Hotel Apartments Lahore";
 
@@ -1855,7 +1898,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Using saddr (source) and daddr (destination) for the directions view in embed
         const url = `https://maps.google.com/maps?width=100%25&height=600&hl=en&saddr=${encodeURIComponent(origin)}&daddr=${encodeURIComponent(destination)}&t=&z=14&ie=UTF8&iwloc=B&output=embed`;
         iframe.src = url;
-        
+
         iframe.onload = () => {
             loader.style.display = 'none';
         };
@@ -1866,9 +1909,29 @@ document.addEventListener('DOMContentLoaded', () => {
         loader.style.display = 'flex';
         const url = `https://maps.google.com/maps?width=100%25&height=600&hl=en&q=${encodeURIComponent(query)}&t=&z=${zoom}&ie=UTF8&iwloc=B&output=embed`;
         iframe.src = url;
-        
+
         iframe.onload = () => {
             loader.style.display = 'none';
         };
+    }
+});
+
+// 10. Floating Contact Bubble Mobile Logic
+document.addEventListener('DOMContentLoaded', () => {
+    const fcMainBtn = document.getElementById('fc-main-btn');
+    const fcBubble = document.getElementById('floating-contact-bubble');
+
+    if (fcMainBtn && fcBubble) {
+        fcMainBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fcBubble.classList.toggle('active');
+        });
+
+        // Close bubble when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!fcBubble.contains(e.target)) {
+                fcBubble.classList.remove('active');
+            }
+        });
     }
 });
