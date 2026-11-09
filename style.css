@@ -199,11 +199,18 @@ header.scrolled .nav-links a {
     color: var(--clr-darker);
 }
 
-nav { display: flex; align-items: center; gap: 2rem; }
+nav { 
+    display: flex; 
+    align-items: center; 
+    gap: 1.75rem; 
+}
 
 .nav-links {
     display: flex;
-    gap: 2rem;
+    gap: 1.5rem;
+    align-items: center;
+    margin: 0;
+    padding: 0;
 }
 
 .nav-links a {
@@ -212,6 +219,29 @@ nav { display: flex; align-items: center; gap: 2rem; }
     font-size: 0.95rem;
     position: relative;
     transition: var(--transition);
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+header .btn-primary {
+    height: 38px;
+    padding: 0 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 8px;
+    box-sizing: border-box;
+    white-space: nowrap;
+    line-height: 1;
 }
 
 .nav-links a::after {
@@ -2334,21 +2364,24 @@ footer {
 }
 
 .selected-currency {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.35);
     color: var(--clr-white);
-    padding: 0.4rem 0.8rem;
+    padding: 0 0.85rem;
     border-radius: 8px;
     font-family: 'Outfit', sans-serif;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    min-width: 100px;
+    min-width: 95px;
+    height: 38px;
+    box-sizing: border-box;
     justify-content: space-between;
+    white-space: nowrap;
 }
 
 header.scrolled .selected-currency {
@@ -2537,4 +2570,786 @@ header.scrolled .selected-currency {
 
 .floating-contact-bubble.active .fc-main-btn i:before {
     content: "\f00d"; /* FA Times icon */
+}
+
+
+/*=============================================
+  PROPERTY SWITCHER & MULTI-PROPERTY STYLES
+=============================================*/
+.property-switcher-container {
+    position: relative;
+    user-select: none;
+}
+
+.custom-property-dropdown {
+    position: relative;
+    user-select: none;
+}
+
+.selected-property {
+    background: rgba(234, 88, 12, 0.15);
+    border: 1px solid rgba(234, 88, 12, 0.5);
+    color: var(--clr-white);
+    padding: 0 0.9rem;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    height: 38px;
+    box-sizing: border-box;
+}
+
+.selected-property i.fa-chevron-down {
+    font-size: 0.75rem;
+    transition: transform 0.3s ease;
+    margin-left: 2px;
+}
+
+header.scrolled .selected-property {
+    color: var(--clr-darker);
+    background: rgba(234, 88, 12, 0.08);
+    border-color: rgba(234, 88, 12, 0.3);
+}
+
+.selected-property:hover {
+    border-color: var(--clr-orange);
+    background: rgba(234, 88, 12, 0.2);
+}
+
+.custom-property-dropdown.active .selected-property i.fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+.property-options {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: var(--clr-white);
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    width: 280px;
+    padding: 0.6rem;
+    display: none;
+    flex-direction: column;
+    z-index: 2100;
+    border: 1px solid var(--clr-gray-light);
+    animation: fadeInDown 0.2s ease-out;
+}
+
+.custom-property-dropdown.active .property-options {
+    display: flex;
+}
+
+.property-option-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.75rem 0.9rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--clr-darker);
+    transition: var(--transition);
+    margin-bottom: 3px;
+}
+
+.property-option-item:last-child {
+    margin-bottom: 0;
+}
+
+.property-option-item:hover {
+    background: var(--clr-orange-light);
+}
+
+.property-option-item.active {
+    background: rgba(234, 88, 12, 0.1);
+    border-left: 3px solid var(--clr-orange);
+}
+
+.prop-opt-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: var(--clr-orange);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.property-option-item:not(.active) .prop-opt-icon {
+    background: #f1f5f9;
+    color: var(--clr-dark);
+}
+
+.prop-opt-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.prop-opt-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--clr-darker);
+    line-height: 1.2;
+}
+
+.prop-opt-loc {
+    font-size: 0.75rem;
+    color: var(--clr-gray);
+    margin-top: 2px;
+}
+
+.prop-badge-new {
+    background: #ea580c;
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 6px;
+}
+
+/* Announcement Banner */
+.property-announcement-banner {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-top: 1px solid rgba(234, 88, 12, 0.3);
+    border-bottom: 1px solid rgba(234, 88, 12, 0.3);
+    padding: 1rem 0;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.property-announcement-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(234, 88, 12, 0.08), transparent);
+    animation: shimmerBanner 6s infinite;
+}
+
+@keyframes shimmerBanner {
+    0% { transform: translateX(-30%); }
+    100% { transform: translateX(30%); }
+}
+
+.banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 2;
+}
+
+.banner-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+    min-width: 280px;
+}
+
+.banner-tag {
+    background: var(--clr-orange);
+    color: white;
+    font-weight: 800;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.banner-title {
+    font-size: 0.95rem;
+    color: #f8fafc;
+    margin: 0;
+    font-family: 'Outfit', sans-serif;
+}
+
+.banner-title strong {
+    color: #fdba74;
+}
+
+.banner-cta {
+    background: transparent;
+    color: #fdba74;
+    border: 1.5px solid #ea580c;
+    padding: 0.45rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: var(--transition);
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+}
+
+.banner-cta:hover {
+    background: var(--clr-orange);
+    color: white;
+    transform: translateX(3px);
+}
+
+/* Badges for Hayyat Heights Rooms */
+.badge-penthouse {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.badge-executive {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+}
+
+.badge-family {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .nav-actions > .btn-primary {
+        display: none !important;
+    }
+    .selected-property {
+        padding: 0 0.5rem;
+        font-size: 0.8rem;
+    }
+    .property-options {
+        width: 260px;
+        right: 0;
+        left: auto;
+    }
+    .banner-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    .banner-cta {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+
+/* ==========================================================================
+   MULTI-PROPERTY PROMOTIONAL ENHANCEMENTS (Ideas 1, 2, 3, 5)
+   ========================================================================== */
+
+/* Idea 5: Property Switcher Pulse & Dot */
+@keyframes propertyPulseGlow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.55);
+    }
+    70% {
+        box-shadow: 0 0 0 8px rgba(234, 88, 12, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(234, 88, 12, 0);
+    }
+}
+
+.selected-property {
+    animation: propertyPulseGlow 3s infinite;
+}
+
+.property-pulse-dot {
+    width: 7px;
+    height: 7px;
+    background: #ea580c;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 6px #ea580c;
+    flex-shrink: 0;
+    animation: dotBlink 2s infinite ease-in-out;
+}
+
+@keyframes dotBlink {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.35;
+        transform: scale(0.8);
+    }
+}
+
+/* Idea 1: Booking Bar Property Tabs */
+.booking-property-tabs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.booking-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0.45rem 0.9rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--clr-gray);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.86rem;
+    font-weight: 500;
+    transition: var(--transition);
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.booking-tab i {
+    font-size: 0.95rem;
+    color: var(--clr-gray);
+    transition: var(--transition);
+}
+
+.booking-tab .tab-name {
+    font-weight: 700;
+    color: var(--clr-darker);
+}
+
+.booking-tab .tab-location {
+    font-size: 0.75rem;
+    color: var(--clr-gray);
+    opacity: 0.85;
+}
+
+.booking-tab:hover:not(.active) {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.booking-tab.active {
+    background: rgba(234, 88, 12, 0.1);
+    border-color: rgba(234, 88, 12, 0.35);
+    color: var(--clr-orange);
+    box-shadow: 0 2px 6px rgba(234, 88, 12, 0.08);
+}
+
+.booking-tab.active i,
+.booking-tab.active .tab-name {
+    color: var(--clr-orange);
+}
+
+.booking-tab-badge {
+    background: linear-gradient(135deg, #ea580c, #d97706);
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    padding: 2px 6px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 4px rgba(234, 88, 12, 0.25);
+}
+
+/* Idea 2: Visual 2-Card "Our Properties" Showcase Section */
+.properties-showcase {
+    background: #fbfbfd;
+    padding: 4.5rem 0;
+    border-top: 1px solid var(--clr-gray-light);
+    border-bottom: 1px solid var(--clr-gray-light);
+}
+
+.properties-showcase .section-header {
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto 2.75rem auto;
+}
+
+.properties-showcase .section-tag {
+    display: inline-block;
+    background: rgba(234, 88, 12, 0.1);
+    color: var(--clr-orange);
+    padding: 0.35rem 0.95rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 0.75rem;
+}
+
+.properties-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+.property-showcase-card {
+    background: var(--clr-white);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.property-showcase-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.1);
+}
+
+.property-showcase-card.highlighted-card {
+    border: 2px solid rgba(234, 88, 12, 0.4);
+    box-shadow: 0 10px 28px rgba(234, 88, 12, 0.08);
+}
+
+.prop-card-media {
+    position: relative;
+    height: 240px;
+    overflow: hidden;
+}
+
+.prop-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.property-showcase-card:hover .prop-card-media img {
+    transform: scale(1.04);
+}
+
+.prop-card-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.prop-card-badge.badge-new {
+    background: linear-gradient(135deg, #ea580c, #f59e0b);
+    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.35);
+}
+
+.prop-card-body {
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.prop-card-location {
+    font-size: 0.85rem;
+    color: var(--clr-orange);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.prop-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.45rem;
+    color: var(--clr-darker);
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+}
+
+.prop-card-desc {
+    color: var(--clr-gray);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+}
+
+.prop-card-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+}
+
+.prop-card-features li {
+    font-size: 0.85rem;
+    color: var(--clr-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.prop-card-features li i {
+    color: var(--clr-orange);
+    font-size: 0.8rem;
+}
+
+.prop-card-footer {
+    margin-top: auto;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--clr-gray-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.prop-price-tag .label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    color: var(--clr-gray);
+    letter-spacing: 0.5px;
+    display: block;
+}
+
+.prop-price-tag .amount {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--clr-darker);
+}
+
+.prop-price-tag .period {
+    font-size: 0.78rem;
+    color: var(--clr-gray);
+    font-weight: normal;
+}
+
+/* Idea 3: Room Grid Spotlight Card */
+.room-card-spotlight {
+    border: 2px dashed rgba(234, 88, 12, 0.45) !important;
+    background: linear-gradient(180deg, #ffffff 0%, #fff7ed 100%) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.room-card-spotlight:hover {
+    border-color: var(--clr-orange) !important;
+    box-shadow: 0 15px 35px rgba(234, 88, 12, 0.15) !important;
+}
+
+.spotlight-loc-tag {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--clr-orange);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-spotlight-cta {
+    background: var(--clr-orange);
+    color: #ffffff !important;
+    padding: 0.55rem 0.95rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.btn-spotlight-cta:hover {
+    background: #c2410c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+}
+
+@media (max-width: 900px) {
+    .properties-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .booking-property-tabs {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .booking-tab {
+        flex: 1 1 calc(50% - 6px);
+        padding: 0.5rem 0.5rem;
+        font-size: 0.78rem;
+        justify-content: center;
+    }
+    .booking-tab .tab-location {
+        display: none;
+    }
+    .prop-card-features {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ==========================================================================
+   2-TIER TRUST & HIGHLIGHTS BAR (Hayyat Heights)
+   ========================================================================== */
+.trust-platforms-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.trust-platform-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 0.95rem 1.75rem;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1.5px solid rgba(234, 88, 12, 0.25);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    text-decoration: none;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    min-width: 250px;
+}
+
+.trust-platform-badge:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(234, 88, 12, 0.15);
+    border-color: var(--clr-orange);
+}
+
+.trust-platform-badge .trust-logo {
+    height: 28px;
+    width: auto;
+    max-width: 120px;
+    object-fit: contain;
+}
+
+.trust-platform-badge .rating-value {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--clr-darker);
+    display: block;
+    line-height: 1.2;
+}
+
+.trust-platform-badge .rating-label {
+    font-size: 0.78rem;
+    color: var(--clr-orange);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-top: 2px;
+}
+
+.trust-highlights-row {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 1rem;
+    flex-wrap: wrap;
+    max-width: 1180px;
+    margin: 0 auto;
+}
+
+.trust-highlight-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.8rem 1.15rem;
+    background: #ffffff;
+    border: 1px solid rgba(234, 88, 12, 0.16);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    flex: 1 1 200px;
+    max-width: 230px;
+}
+
+.trust-highlight-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(234, 88, 12, 0.09);
+    border-color: rgba(234, 88, 12, 0.35);
+}
+
+.trust-highlight-item .highlight-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgba(234, 88, 12, 0.1);
+    color: var(--clr-orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.trust-highlight-item .highlight-text strong {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--clr-darker);
+    line-height: 1.2;
+}
+
+.trust-highlight-item .highlight-text span {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--clr-gray);
+    line-height: 1.2;
+    margin-top: 2px;
+}
+
+@media (max-width: 768px) {
+    .trust-platforms-row {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .trust-platform-badge {
+        width: 100%;
+        justify-content: center;
+        min-width: unset;
+    }
+    .trust-highlights-row {
+        gap: 0.6rem;
+    }
+    .trust-highlight-item {
+        flex: 1 1 calc(50% - 0.6rem);
+        max-width: unset;
+        padding: 0.7rem 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .trust-highlight-item {
+        flex: 1 1 100%;
+    }
 }
