@@ -102,6 +102,75 @@ const roomDetails = {
     }
 };
 
+// --- Hayyat Heights Room Catalog & Default Fallbacks ---
+const heightsRoomDetails = {
+    'Deluxe Room': {
+        size: 'Cozy Luxury',
+        amenities: ['1 Queen Bed', 'En-Suite Luxury Bath', 'Smart TV with Netflix', 'High-Speed Wi-Fi', 'Air Conditioning', 'Electric Kettle & Mini Bar', 'Electronic Safe'],
+        defaultPrice: '14000',
+        defaultAdults: 2,
+        defaultChildren: 1,
+        defaultImg: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80'
+    },
+    'Studio Room': {
+        size: 'Modern Living',
+        amenities: ['1 King Bed', 'Compact Kitchenette', 'Work Desk & High-Speed Wi-Fi', 'Smart TV with Netflix', 'Luxury Toiletries', 'Electronic Safe'],
+        defaultPrice: '16000',
+        defaultAdults: 2,
+        defaultChildren: 1,
+        defaultImg: 'https://images.unsplash.com/photo-1591088398332-8a7791972843?auto=format&fit=crop&w=800&q=80'
+    },
+    'Premium One Bed Apartment': {
+        size: 'Executive Suite',
+        amenities: ['1 King Bed', 'Separate Living Room', 'Fully Equipped Kitchen', 'Smart TV with Netflix', 'Private Balcony', 'High-Speed Wi-Fi', 'Electronic Safe'],
+        defaultPrice: '20000',
+        defaultAdults: 2,
+        defaultChildren: 2,
+        defaultImg: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80'
+    },
+    'Luxury One Bed Suite': {
+        size: 'Designer Suite',
+        amenities: ['Master Bedroom (1 King Bed)', 'Spacious Lounge & Dining Area', 'Full Gourmet Kitchen', 'Smart TV with Soundbar', 'Panoramic Windows', 'Electronic Safe'],
+        defaultPrice: '24000',
+        defaultAdults: 3,
+        defaultChildren: 1,
+        defaultImg: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80'
+    },
+    'Premium Two Bed Apartment': {
+        size: 'Family Apartment',
+        amenities: ['2 Private Bedrooms (1 King, 2 Twin)', 'Spacious Living Lounge', 'Full Kitchen & Dining Table', 'Smart TV with Netflix', '2 Luxury Bathrooms', 'High-Speed Wi-Fi'],
+        defaultPrice: '32000',
+        defaultAdults: 4,
+        defaultChildren: 2,
+        defaultImg: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80'
+    },
+    'Luxury Two Bed Suite': {
+        size: 'Grand Family Suite',
+        amenities: ['2 Master Bedrooms (2 King Beds)', 'Expansive Living & Dining Suite', 'Gourmet Kitchen with Oven & Microwave', 'Private Balcony', '2 En-suite Bathrooms', 'City Skyline View'],
+        defaultPrice: '38000',
+        defaultAdults: 5,
+        defaultChildren: 2,
+        defaultImg: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=800&q=80'
+    },
+    'Top Floor City View Suite': {
+        size: 'Penthouse Experience',
+        amenities: ['Top Floor Panoramic Lahore Skyline Views', 'Ultra-Spacious Luxury Suite', 'Executive Master Bed (1 King)', 'Lounge & Private Terrace', 'Fully Equipped Modern Kitchen', 'VIP Hospitality'],
+        defaultPrice: '45000',
+        defaultAdults: 4,
+        defaultChildren: 2,
+        defaultImg: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=800&q=80'
+    }
+};
+
+// Merge all room details into the global catalog
+Object.assign(roomDetails, heightsRoomDetails);
+
+// Multi-Property Detection
+const isHeightsPage = (typeof window !== 'undefined' && window.PROPERTY_CONFIG && window.PROPERTY_CONFIG.id === 'heights') ||
+                      (typeof window !== 'undefined' && window.location.pathname.toLowerCase().includes('hayyat-heights'));
+
+const activeTab = isHeightsPage ? 'Heights' : 'Sheet1';
+
 let sheetData = {};
 let roomOverrides = []; // Stores date-specific price and availability overrides
 let allDeals = []; // Stores all promotional deals from Google Sheets
@@ -181,95 +250,128 @@ let currentHeroIndex = 0;
 
 async function fetchHotelData() {
     try {
-        // 1. Version Check
-        const versionUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!K1?key=${API_KEY}`;
-        const vResponse = await fetch(versionUrl);
-        const vData = await vResponse.json();
-        const serverVersion = vData.values ? vData.values[0][0] : null;
+        // 1. Version Check (Optional check on Sheet1)
+        try {
+            const versionUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!K1?key=${API_KEY}`;
+            const vResponse = await fetch(versionUrl);
+            const vData = await vResponse.json();
+            const serverVersion = vData.values ? vData.values[0][0] : null;
 
-        if (serverVersion && serverVersion !== APP_VERSION) {
-            console.error("Version Mismatch: Local:", APP_VERSION, "Server:", serverVersion);
-            showUpdateOverlay(serverVersion);
-            return; // Stop loading if version is wrong
+            if (serverVersion && serverVersion !== APP_VERSION) {
+                console.error("Version Mismatch: Local:", APP_VERSION, "Server:", serverVersion);
+                showUpdateOverlay(serverVersion);
+                return;
+            }
+        } catch (vErr) {
+            console.warn("Version check warning:", vErr);
         }
 
-        // 2. Fetch Main Data
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A2:I?key=${API_KEY}`;
-        const response = await fetch(url);
-        const data = await response.json();
+        // 2. Fetch Main Data for Active Property Tab
+        let fetchedDataCount = 0;
+        try {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${activeTab}!A2:I?key=${API_KEY}`;
+            const response = await fetch(url);
+            const data = await response.json();
 
-        if (data.values) {
-            data.values.forEach(row => {
-                const [type, price, mainImg, gallery, inventory, adultsCap, childrenCap, heroImages, withBfPrice] = row;
-                if (!type) return;
-                const roomType = type.trim();
-                sheetData[roomType] = {
-                    price: price ? String(price).trim() : '0',
-                    withBfPrice: withBfPrice ? String(withBfPrice).trim() : (price ? String(price).trim() : '0'),
-                    mainImg: transformToDirectLink(mainImg ? mainImg.trim() : ''),
-                    gallery: gallery ? gallery.split(',').map(s => transformToDirectLink(s.trim())).filter(s => s) : [],
-                    inventory: parseInt(inventory) || 0,
-                    adults: parseInt(adultsCap) || 2,
-                    children: parseInt(childrenCap) || 0
+            if (data && data.values && data.values.length > 0) {
+                data.values.forEach(row => {
+                    const [type, price, mainImg, gallery, inventory, adultsCap, childrenCap, heroImages, withBfPrice] = row;
+                    if (!type) return;
+                    const roomType = type.trim();
+                    sheetData[roomType] = {
+                        price: price ? String(price).trim() : '0',
+                        withBfPrice: withBfPrice ? String(withBfPrice).trim() : (price ? String(price).trim() : '0'),
+                        mainImg: transformToDirectLink(mainImg ? mainImg.trim() : ''),
+                        gallery: gallery ? gallery.split(',').map(s => transformToDirectLink(s.trim())).filter(s => s) : [],
+                        inventory: parseInt(inventory) || 0,
+                        adults: parseInt(adultsCap) || 2,
+                        children: parseInt(childrenCap) || 0
+                    };
+                    fetchedDataCount++;
+                });
+
+                // Extract Hero Images from Column H of the first valid row
+                const firstRowData = data.values.find(row => row[7]);
+                if (firstRowData && firstRowData[7]) {
+                    const rawUrls = firstRowData[7].split(',').map(u => u.trim()).filter(u => u !== '');
+                    const cleanUrls = rawUrls.map(u => transformToDirectLink(u));
+                    startHeroSlideshow(cleanUrls);
+                }
+            }
+        } catch (fetchErr) {
+            console.warn(`Could not load data from ${activeTab} tab:`, fetchErr);
+        }
+
+        // Fallback for Heights if Google Sheet tab is pending setup by owner
+        if (isHeightsPage && fetchedDataCount === 0) {
+            console.log("Loading default catalog for Hayyat Heights while Google Sheet syncs...");
+            Object.keys(heightsRoomDetails).forEach(type => {
+                const d = heightsRoomDetails[type];
+                sheetData[type] = {
+                    price: d.defaultPrice,
+                    withBfPrice: d.defaultPrice,
+                    mainImg: d.defaultImg,
+                    gallery: [d.defaultImg],
+                    inventory: 3,
+                    adults: d.defaultAdults,
+                    children: d.defaultChildren
                 };
             });
+            startHeroSlideshow([
+                'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1920&q=80',
+                'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1920&q=80',
+                'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1920&q=80'
+            ]);
+        }
 
-            // Extract Hero Images from Column H of the first valid row
-            const firstRowData = data.values.find(row => row[7]);
-            if (firstRowData && firstRowData[7]) {
-                const rawUrls = firstRowData[7].split(',').map(u => u.trim()).filter(u => u !== '');
-                // Auto-transform links
-                const cleanUrls = rawUrls.map(u => transformToDirectLink(u));
-                startHeroSlideshow(cleanUrls);
+        updateRoomCards();
+        updateDynamicSEO(); // Update Google Search Schema with real prices
+
+        // 3. Fetch Overrides (Date-specific pricing/closures)
+        try {
+            const overridesUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Overrides!A2:E?key=${API_KEY}`;
+            const oResponse = await fetch(overridesUrl);
+            const oData = await oResponse.json();
+
+            if (oData.values && oData.values.length > 0) {
+                roomOverrides = oData.values.map(row => ({
+                    roomType: (row[0] || '').trim(),
+                    startDate: (row[1] || '').trim(),
+                    endDate: (row[2] || '').trim(),
+                    status: (row[3] || 'Open').trim().toLowerCase(),
+                    customPrice: parseInt((row[4] || '0').replace(/[^\d]/g, '')) || 0
+                }));
+                console.log('Room Overrides Loaded:', roomOverrides);
             }
+        } catch (err) {
+            console.warn('Could not fetch overrides:', err);
+        }
 
-            updateRoomCards();
-            updateDynamicSEO(); // Update Google Search Schema with real prices
+        // 4. Fetch Deals/Promotions
+        try {
+            const dealsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Deals!A2:D?key=${API_KEY}`;
+            const dResponse = await fetch(dealsUrl);
+            const dData = await dResponse.json();
 
-            // 3. Fetch Overrides (Date-specific pricing/closures)
-            try {
-                const overridesUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Overrides!A2:E?key=${API_KEY}`;
-                const oResponse = await fetch(overridesUrl);
-                const oData = await oResponse.json();
-
-                if (oData.values && oData.values.length > 0) {
-                    roomOverrides = oData.values.map(row => ({
-                        roomType: (row[0] || '').trim(),
-                        startDate: (row[1] || '').trim(),
-                        endDate: (row[2] || '').trim(),
-                        status: (row[3] || 'Open').trim().toLowerCase(),
-                        customPrice: parseInt((row[4] || '0').replace(/[^\d]/g, '')) || 0
+            if (dData.values && dData.values.length > 0) {
+                allDeals = dData.values
+                    .filter(row => row[2] && row[2].trim().toLowerCase() === 'active')
+                    .map(row => ({
+                        name: row[0],
+                        percentage: parseInt(row[1]) || 0,
+                        minNights: parseInt(row[3]) || 0
                     }));
-                    console.log('Room Overrides Loaded:', roomOverrides);
-                }
-            } catch (err) {
-                console.warn('Could not fetch overrides:', err);
+                console.log('Active Deals Loaded:', allDeals);
             }
+        } catch (dealErr) {
+            console.warn('Could not fetch deals:', dealErr);
+        }
 
-            // 4. Fetch Deals/Promotions
-            try {
-                const dealsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Deals!A2:D?key=${API_KEY}`;
-                const dResponse = await fetch(dealsUrl);
-                const dData = await dResponse.json();
+        updateRoomCards();
+        updateDynamicSEO(); // Update Google Search Schema with real prices
 
-                if (dData.values && dData.values.length > 0) {
-                    allDeals = dData.values
-                        .filter(row => row[2] && row[2].trim().toLowerCase() === 'active')
-                        .map(row => ({
-                            name: row[0],
-                            percentage: parseInt(row[1]) || 0,
-                            minNights: parseInt(row[3]) || 0
-                        }));
-                    console.log('Active Deals Loaded:', allDeals);
-                }
-            } catch (dealErr) {
-                console.warn('Could not fetch deals:', dealErr);
-            }
-
-            updateRoomCards();
-            updateDynamicSEO(); // Update Google Search Schema with real prices
-
-            fetchGalleryData(); // Single call to get the gallery
+        if (typeof fetchGalleryData === 'function' && !isHeightsPage) {
+            fetchGalleryData(); // Single call to get the gallery reel for Lawrence Rd
         }
     } catch (error) {
         console.error('Error fetching hotel data:', error);
@@ -598,7 +700,7 @@ function getStayDetails(roomType, checkin, checkout) {
         }
 
         // Default to base price if no override
-        totalRoomOnlyPrice += parseInt(data.price.replace(/[^\d]/g, '')) || 0;
+        totalRoomOnlyPrice += parseInt(String(data.price).replace(/[^\d]/g, '')) || 0;
     }
 
     return {
@@ -1504,6 +1606,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Property Switcher Dropdown Interaction
+    const propWrapper = document.getElementById('property-switcher-wrapper');
+    const propTrigger = document.getElementById('property-switcher-trigger');
+    if (propWrapper && propTrigger) {
+        propTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            propWrapper.classList.toggle('active');
+            if (currencyWrapper) currencyWrapper.classList.remove('active');
+        });
+
+        document.addEventListener('click', () => {
+            propWrapper.classList.remove('active');
+        });
+    }
+
     const bookingForm = document.querySelector('.booking-form');
     if (bookingForm) {
         bookingForm.addEventListener('submit', (e) => {
@@ -1570,13 +1687,18 @@ document.addEventListener('DOMContentLoaded', () => {
             let netRate = Math.round(roomTotal / nights);
             let finalPrice = roomTotal;
 
+            const currentPropName = isHeightsPage ? "Hayyat Heights" : "Hayyat Luxury Hotel Apartments";
+            const currentPropAddress = isHeightsPage ? "S-77-R-34/1 Jail Road, 54000 Lahore, Pakistan" : "2 Lawrance Road, China Chowk, 54000 Lahore, Pakistan";
+            const currentPropPhone = isHeightsPage ? "+92 327 6766699" : "+92 313 6766699";
+            const currentPropLoc = isHeightsPage ? "Jail Road, Lahore" : "Lawrence Road, Lahore";
+
             // Create PDF Content Template
             const pdfTemplate = `
                 <div style="width: 800px; max-width: 800px; box-sizing: border-box; padding: 15px 40px; font-family: 'Outfit', sans-serif; color: #1e293b; line-height: 1.3; background: white;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #ea580c; padding-bottom: 10px; margin-bottom: 15px;">
                         <div>
-                            <h1 style="margin: 0; color: #ea580c; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800;">Hayyat Hotels</h1>
-                            <p style="margin: 2px 0 0; color: #64748b; font-size: 12px;">2 Lawrance Road, China Chowk, 54000 Lahore, Pakistan</p>
+                            <h1 style="margin: 0; color: #ea580c; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800;">${currentPropName}</h1>
+                            <p style="margin: 2px 0 0; color: #64748b; font-size: 12px;">${currentPropAddress}</p>
                         </div>
                         <div style="text-align: right;">
                             <p style="margin: 0; font-weight: 700; font-size: 14px; color: #1e293b;">Reservation Confirmation</p>
@@ -1661,9 +1783,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p style="margin: 0; font-weight: 700; color: #1e293b; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Booking Policy</p>
                         <p style="margin: 8px 0; font-size: 13px; color: #64748b;">This is a preliminary reservation request. Our team will contact you shortly to confirm availability and payment details.</p>
                         <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #f1f5f9; display: flex; justify-content: center; gap: 20px; font-size: 13px; font-weight: 600; color: #ea580c;">
-                            <span>📞 +923136766699</span>
+                            <span>📞 ${currentPropPhone}</span>
                             <span>📧 info@hayyathotels.com</span>
-                            <span>📍 Lahore, Pakistan</span>
+                            <span>📍 ${currentPropLoc}</span>
                         </div>
                     </div>
                 </div>
@@ -1676,7 +1798,7 @@ document.addEventListener('DOMContentLoaded', () => {
             element.innerHTML = pdfTemplate;
             const opt = {
                 margin: 0.2, // Tiny uniform margin
-                filename: `Reservation_for_${gName.replace(/\s+/g, '_')}_${uniqueCode}.pdf`,
+                filename: `Reservation_${currentPropName.replace(/\s+/g, '_')}_${gName.replace(/\s+/g, '_')}_${uniqueCode}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
@@ -1684,6 +1806,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Prepare Payload for Google Apps Script
             const reservationData = {
+                property: currentPropName,
+                propertyAddress: currentPropAddress,
+                propertyPhone: currentPropPhone,
                 name: gName,
                 country: gCountry,
                 phone: gPhone,
@@ -1693,7 +1818,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 nights: nights,
                 adults: adults,
                 children: children,
-                roomDetails: details,
+                roomDetails: `[${currentPropName}] ${details}`,
                 perNightRate: activeBaseRate.toLocaleString(),
                 netRate: netRate.toLocaleString(),
                 roomTotal: roomTotal.toLocaleString(),
@@ -1810,7 +1935,8 @@ function updateDynamicSEO() {
                     // This tells Google how to "hand over" the dates to your site
                     const today = new Date().toISOString().split('T')[0];
                     const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-                    room.offers.url = `https://hayyathotels.com/?checkin=${today}&checkout=${tomorrow}&adults=2&children=0`;
+                    const baseCanonical = isHeightsPage ? 'https://hayyathotels.com/hayyat-heights' : 'https://hayyathotels.com/';
+                    room.offers.url = `${baseCanonical}?checkin=${today}&checkout=${tomorrow}&adults=2&children=0`;
                 }
             });
         }
