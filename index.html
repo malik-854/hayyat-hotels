@@ -50,7 +50,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2026.05.17.02">
+    <link rel="stylesheet" href="style.css?v=2026.05.17.08">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- Schema.org / JSON-LD for Google Hotel Search & Rich Results -->
@@ -282,21 +282,49 @@
                     <li><a href="#faq">FAQ</a></li>
                     <li><a href="#contact">Contact</a></li>
                 </ul>
-                <div class="currency-container">
-                    <div class="custom-currency-dropdown" id="currency-dropdown-wrapper">
-                        <div class="selected-currency" id="selected-currency-trigger">
-                            <span id="current-currency-text">PKR (Rs)</span>
-                            <i class="fas fa-chevron-down"></i>
+                <div class="nav-actions">
+                    <div class="property-switcher-container">
+                        <div class="custom-property-dropdown" id="property-switcher-wrapper">
+                            <div class="selected-property" id="property-switcher-trigger" title="Switch Hotel Property">
+                                <span class="property-pulse-dot"></span>
+                                <i class="fas fa-hotel" style="color: var(--clr-orange);"></i>
+                                <span id="current-property-text">Hayyat Luxury</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="property-options" id="property-options-list">
+                                <a href="index.html" class="property-option-item active">
+                                    <div class="prop-opt-icon"><i class="fas fa-building"></i></div>
+                                    <div class="prop-opt-text">
+                                        <span class="prop-opt-name">Hayyat Luxury Apartments</span>
+                                        <span class="prop-opt-loc"><i class="fas fa-map-marker-alt"></i> Lawrence Rd, China Chowk</span>
+                                    </div>
+                                </a>
+                                <a href="hayyat-heights.html" class="property-option-item">
+                                    <div class="prop-opt-icon"><i class="fas fa-city"></i></div>
+                                    <div class="prop-opt-text">
+                                        <span class="prop-opt-name">Hayyat Heights <span class="prop-badge-new">NEW</span></span>
+                                        <span class="prop-opt-loc"><i class="fas fa-map-marker-alt"></i> Jail Road, Lahore</span>
+                                    </div>
+                                </a>
+                            </div>
                         </div>
-                        <ul class="currency-options" id="currency-options-list">
-                            <li data-value="PKR">PKR (Rs)</li>
-                            <li data-value="USD">USD ($)</li>
-                            <li data-value="EUR">EUR (€)</li>
-                            <li data-value="GBP">GBP (£)</li>
-                        </ul>
                     </div>
+                    <div class="currency-container">
+                        <div class="custom-currency-dropdown" id="currency-dropdown-wrapper">
+                            <div class="selected-currency" id="selected-currency-trigger">
+                                <span id="current-currency-text">PKR (Rs)</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <ul class="currency-options" id="currency-options-list">
+                                <li data-value="PKR">PKR (Rs)</li>
+                                <li data-value="USD">USD ($)</li>
+                                <li data-value="EUR">EUR (€)</li>
+                                <li data-value="GBP">GBP (£)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <a href="#booking-section" class="btn-primary">Book Now</a>
                 </div>
-                <a href="#booking-section" class="btn-primary">Book Now</a>
             </nav>
             <div class="hamburger">
                 <span class="bar"></span>
@@ -321,6 +349,19 @@
 
         <!-- Sticky Booking Bar -->
         <div id="booking-section" class="booking-bar animate-up delay-3">
+            <div class="booking-property-tabs">
+                <a href="index.html#booking-section" class="booking-tab active" title="Stay at Lawrence Road">
+                    <i class="fas fa-hotel"></i>
+                    <span class="tab-name">Hayyat Luxury</span>
+                    <span class="tab-location">Lawrence Rd</span>
+                </a>
+                <a href="hayyat-heights.html#booking-section" class="booking-tab" title="Stay at Jail Road">
+                    <i class="fas fa-building"></i>
+                    <span class="tab-name">Hayyat Heights</span>
+                    <span class="tab-location">Jail Rd</span>
+                    <span class="booking-tab-badge">NEW</span>
+                </a>
+            </div>
 
             <form action="#" class="booking-form">
                 <div class="input-group">
@@ -410,7 +451,20 @@
         </div>
     </div>
 
-
+    <!-- Hayyat Heights Launch Announcement Banner -->
+    <div class="property-announcement-banner">
+        <div class="container banner-content">
+            <div class="banner-left">
+                <span class="banner-tag">Now Open</span>
+                <p class="banner-title">
+                    Introducing <strong>Hayyat Heights</strong> on Jail Road, Lahore &mdash; Brand new luxury suites &amp; executive serviced apartments.
+                </p>
+            </div>
+            <a href="hayyat-heights.html" class="banner-cta">
+                Explore Hayyat Heights <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
 
     <!-- Introductory Section -->
     <section id="about" class="about section-padding">
@@ -444,6 +498,74 @@
         </div>
     </section>
 
+    <!-- Our Locations Showcase Section -->
+    <section id="properties" class="properties-showcase">
+        <div class="container">
+            <div class="section-header fade-in-scroll">
+                <span class="section-tag">Hospitality Portfolio</span>
+                <h2 class="section-title">Two Iconic Lahore Locations</h2>
+                <p>Choose between our flagship hotel apartments on Lawrence Road or our brand new executive suites on Jail Road. Both deliver authentic 4-star comfort, full kitchens, and warm hospitality.</p>
+            </div>
+
+            <div class="properties-grid">
+                <!-- Property 1: Hayyat Luxury Hotel Apartments -->
+                <div class="property-showcase-card fade-in-scroll">
+                    <div class="prop-card-media">
+                        <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=900&q=80" alt="Hayyat Luxury Hotel Apartments Lawrence Road">
+                        <span class="prop-card-badge">Flagship Property</span>
+                    </div>
+                    <div class="prop-card-body">
+                        <div class="prop-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Lawrence Road, Lahore
+                        </div>
+                        <h3 class="prop-card-title">Hayyat Luxury Hotel Apartments</h3>
+                        <p class="prop-card-desc">Opposite Bagh-e-Jinnah &amp; Governor House. Featuring 6 spacious apartment categories ideal for families, groups, and long-term stays.</p>
+                        <ul class="prop-card-features">
+                            <li><i class="fas fa-check-circle"></i> 6 Apartment Categories</li>
+                            <li><i class="fas fa-check-circle"></i> Full Equipped Kitchens</li>
+                            <li><i class="fas fa-check-circle"></i> 4.9★ Rated on TripAdvisor</li>
+                            <li><i class="fas fa-check-circle"></i> 24/7 Security &amp; Concierge</li>
+                        </ul>
+                        <div class="prop-card-footer">
+                            <div class="prop-price-tag">
+                                <span class="label">Starting From</span>
+                                <span class="amount">Rs 9,000 <span class="period">/ night</span></span>
+                            </div>
+                            <a href="#apartments" class="btn-secondary">View Apartments &darr;</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Property 2: Hayyat Heights -->
+                <div class="property-showcase-card highlighted-card fade-in-scroll delay-1">
+                    <div class="prop-card-media">
+                        <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=900&q=80" alt="Hayyat Heights Jail Road">
+                        <span class="prop-card-badge badge-new">Brand New &bull; Now Open</span>
+                    </div>
+                    <div class="prop-card-body">
+                        <div class="prop-card-location">
+                            <i class="fas fa-map-marker-alt"></i> S-77-R-34/1 Jail Road, Lahore
+                        </div>
+                        <h3 class="prop-card-title">Hayyat Heights</h3>
+                        <p class="prop-card-desc">Our newly opened property on Jail Road near Gulberg corridor. 7 brand new designer suites, high-speed elevator, and top-floor city skyline views.</p>
+                        <ul class="prop-card-features">
+                            <li><i class="fas fa-check-circle"></i> 7 Brand New Suite Types</li>
+                            <li><i class="fas fa-check-circle"></i> High-Speed Elevator Access</li>
+                            <li><i class="fas fa-check-circle"></i> Top Floor City View Suites</li>
+                            <li><i class="fas fa-check-circle"></i> Modern Serviced Living</li>
+                        </ul>
+                        <div class="prop-card-footer">
+                            <div class="prop-price-tag">
+                                <span class="label">Starting From</span>
+                                <span class="amount" style="color: var(--clr-orange);">Rs 9,500 <span class="period">/ night</span></span>
+                            </div>
+                            <a href="hayyat-heights.html" class="btn-primary" style="background: var(--clr-orange); border-color: var(--clr-orange);">Explore Hayyat Heights &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Apartments Showcase -->
     <section id="apartments" class="apartments section-padding">
@@ -574,6 +696,30 @@
                         <div class="room-footer">
                             <span class="price">View Rates</span>
                             <button class="btn-text open-details">View Details &rarr;</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. Hayyat Heights Spotlight Card (New Location) -->
+                <div class="room-card room-card-spotlight fade-in-scroll delay-1">
+                    <div class="room-img-container">
+                        <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80" alt="Hayyat Heights Jail Road" class="room-img">
+                        <div class="badge badge-featured" style="background: linear-gradient(135deg, #ea580c, #b45309);">NEW LOCATION</div>
+                    </div>
+                    <div class="room-info">
+                        <div class="spotlight-loc-tag">
+                            <i class="fas fa-map-marker-alt"></i> S-77-R-34/1 Jail Road, Lahore
+                        </div>
+                        <h3>Hayyat Heights &bull; 7 New Suites</h3>
+                        <p>Looking for serviced executive living on Jail Road near Gulberg? Explore 7 brand-new suites with elevator access and panoramic skyline views.</p>
+                        <ul class="room-features">
+                            <li>Deluxe &amp; Studio Rooms</li>
+                            <li>1 &amp; 2-Bed Luxury Suites</li>
+                            <li>Top Floor City View Suite</li>
+                        </ul>
+                        <div class="room-footer">
+                            <span class="price" style="color: var(--clr-orange); font-weight: 700;">From Rs 9,500</span>
+                            <a href="hayyat-heights.html" class="btn-spotlight-cta">Explore Suites &rarr;</a>
                         </div>
                     </div>
                 </div>
@@ -926,12 +1072,18 @@
                         Chowk,<br>54000 Lahore, Pakistan</a></p>
             </div>
             <div class="footer-links">
-                <h4>Quick Links</h4>
+                <h4>Our Properties</h4>
+                <ul>
+                    <li><a href="index.html">Hayyat Luxury (Lawrence Rd)</a></li>
+                    <li><a href="hayyat-heights.html" style="color: #fdba74;">Hayyat Heights (Jail Rd) <span class="prop-badge-new">NEW</span></a></li>
+                </ul>
+                <h4 style="margin-top: 1.2rem;">Quick Links</h4>
                 <ul>
                     <li><a href="#home">Home</a></li>
                     <li><a href="#apartments">Rooms</a></li>
                     <li><a href="#amenities">Facilities</a></li>
                     <li><a href="#neighborhood">Location</a></li>
+                    <li><a href="blog.html">Blog</a></li>
                     <li><a href="#faq">FAQ</a></li>
                 </ul>
             </div>
@@ -1318,7 +1470,7 @@
 
     <!-- Libraries for PDF Generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="script.js?v=2026.05.17.02"></script>
+    <script src="script.js?v=2026.05.17.05"></script>
 
     <!-- Floating Mobile Contact Bubble -->
     <div class="floating-contact-bubble" id="floating-contact-bubble">
